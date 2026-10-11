@@ -9,6 +9,12 @@ Thanks for helping. Bug reports, fixes and improvements are welcome.
 - Don't add deal, restaurant or location data here. The catalog is maintained separately through
   Radar's review and verification process; suggest a deal at radar.cheap instead.
 
+## How a change reaches this repository
+
+This repository is published from the copy of the code radar.cheap runs from, and every update
+replaces its contents. So an accepted pull request is applied there and arrives here with the next
+update; the pull request itself is then closed, with a note saying so, rather than merged.
+
 ## Licensing of contributions
 
 Radar is licensed under the GNU AGPL v3.0. Radar's operator also runs the service from a private

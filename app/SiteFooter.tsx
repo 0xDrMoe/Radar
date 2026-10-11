@@ -96,7 +96,7 @@ export default function SiteFooter({ onSuggest }: { onSuggest?: () => void }) {
                     <li><a href="mailto:support@cedartechsolutions.ca">{t("columns.legal.dataRequests")}</a></li>
                     {/* Published under the AGPL, which has anyone running a modified copy for others offer them
                         its source: a fork points this, and the link in the Terms, at its own. */}
-                    <li><a href="https://github.com/0xDrMoe/radar">{t("columns.legal.sourceCode")}</a></li>
+                    <li><a href="https://github.com/Cedar-Tech-Solutions/Radar">{t("columns.legal.sourceCode")}</a></li>
                   </>
                 )}
                 {column.key === "restaurants" && (

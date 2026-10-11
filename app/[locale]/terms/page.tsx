@@ -300,7 +300,7 @@ export default async function Terms({ params }: { params: Promise<{ locale: stri
         </p>
         <p>
           Radar&rsquo;s source code is also published under the GNU Affero General Public License,
-          version 3, at <a href="https://github.com/0xDrMoe/radar">github.com/0xDrMoe/radar</a>.
+          version 3, at <a href="https://github.com/Cedar-Tech-Solutions/Radar">github.com/Cedar-Tech-Solutions/Radar</a>.
           That license covers the code in that repository only. It grants no rights in Radar&rsquo;s
           name, logo, or branding, in its listings or their compilation, or in its written content,
           all of which remain covered by this section.

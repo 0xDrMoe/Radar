@@ -299,7 +299,7 @@ export default function TermsFr() {
       </p>
       <p>
         Le code source de Radar est également publié sous la licence publique générale GNU Affero,
-        version 3, à <a href="https://github.com/0xDrMoe/radar">github.com/0xDrMoe/radar</a>.
+        version 3, à <a href="https://github.com/Cedar-Tech-Solutions/Radar">github.com/Cedar-Tech-Solutions/Radar</a>.
         Cette licence vise uniquement le code de ce dépôt. Elle n’accorde aucun droit sur le nom, le
         logo ou l’image de marque de Radar, sur ses fiches ou leur compilation, ni sur son contenu
         rédactionnel, qui demeurent régis par la présente section.
