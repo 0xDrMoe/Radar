@@ -1,0 +1,557 @@
+/* The affiliate portal.
+ *
+ * Built on portal.css rather than beside it: the shell, the sidebar, the cards, the tables and
+ * the status pills are the same components the creator and restaurant workspaces use, so an
+ * affiliate who is also a creator moves between two surfaces that behave identically. What is
+ * here is only what the affiliate portal adds — money, which nothing else in the portal had to
+ * display, and the pages built around it.
+ *
+ * Every color is a token from globals.css, so the portal follows the reader's theme like the
+ * rest of Radar. There are no literal colors below except the two semantic states (a warning
+ * ground and the "ready" green), which are the same pairs portal.css already uses for .status.
+ */
+
+/* Four tiles, not portal.css's three: clicks, accounts, subscribers and the rate between the
+   first and the last. auto-fit so they reflow to 2+2 rather than needing a breakpoint each. */
+.portal-stats.affiliate-stats {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+/* ── Balances ─────────────────────────────────────────────────────────────────────────────── */
+
+/* One card per currency, never a total. Radar Pro is billed in more than one currency and
+   summing them would be inventing an exchange rate; the layout makes the separation obvious
+   instead of hiding it behind a single big number. */
+.affiliate-balances {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+.affiliate-balance {
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--cream) 94%, var(--ink) 6%);
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.affiliate-balance > b {
+  font:
+    700 34px/1 var(--font-display),
+    system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -1px;
+}
+.affiliate-balance dl {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  font-size: 13px;
+}
+.affiliate-balance dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.affiliate-balance dt {
+  color: var(--muted);
+}
+.affiliate-balance dd {
+  margin: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+/* The one reason this balance cannot be collected, in the card it applies to rather than in a
+   banner somewhere else on the page. */
+.affiliate-blocker {
+  margin: auto 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.affiliate-balance.empty > small {
+  color: var(--muted);
+  line-height: 1.5;
+}
+.affiliate-balance .primary {
+  margin-top: auto;
+}
+
+/* portal.css's .primary is a pill with no icon support; every affiliate action has one. */
+.affiliate-portal .primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: max-content;
+  text-decoration: none;
+}
+.affiliate-portal .primary svg {
+  width: 16px;
+  height: 16px;
+}
+.affiliate-portal .primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ── Banners ──────────────────────────────────────────────────────────────────────────────── */
+
+/* Carried on every page until the thing that stops money arriving is dealt with, because the
+   affiliate will be looking at their balance — not at their payout settings — when they wonder
+   why nothing has arrived. */
+.affiliate-banner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--coral-strong);
+  background: color-mix(in srgb, var(--cream) 92%, var(--ink) 8%);
+  border-radius: 12px;
+  padding: 13px 16px;
+  margin-top: 14px;
+  line-height: 1.45;
+}
+.affiliate-banner a {
+  color: var(--coral-strong);
+  font-weight: 800;
+  text-decoration: none;
+  margin-left: auto;
+  white-space: nowrap;
+}
+.affiliate-banner.warn {
+  border-left-color: var(--field-warn);
+}
+
+/* ── Referrals ────────────────────────────────────────────────────────────────────────────── */
+
+/* Three steps of one funnel, in order, each with the share of the step before it. The share is
+   the point of the pair: it is the number worth arguing about, so it is spelled out rather than
+   left to be worked out. */
+.affiliate-funnel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+}
+.affiliate-funnel > div {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 15px;
+  display: grid;
+  gap: 2px;
+}
+.affiliate-funnel b {
+  font:
+    700 30px/1.1 var(--font-display),
+    system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.affiliate-funnel span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.affiliate-funnel em {
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--coral-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Tables ───────────────────────────────────────────────────────────────────────────────── */
+
+/* Four cells against portal.css's four-column base, but weighted for money: the amount column is
+   wider than the date because it carries two figures, and the status column holds a pill plus a
+   line of explanation. Proportional tracks for the same reason as every other table in the
+   portal — each <article> is its own grid, so an `auto` track sizes to one row and the columns
+   stop lining up down the list. */
+.inventory-table.affiliate-ledger-table > article,
+.inventory-table.affiliate-ledger-table .table-head,
+.inventory-table.affiliate-payout-table > article,
+.inventory-table.affiliate-payout-table .table-head {
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.2fr) minmax(0, 0.7fr) minmax(0, 1.4fr);
+}
+.affiliate-ledger-table b,
+.affiliate-payout-table b {
+  font-variant-numeric: tabular-nums;
+}
+.affiliate-ledger-table small,
+.affiliate-payout-table small {
+  display: block;
+  color: var(--muted);
+}
+/* A Stripe transfer id and a failure reason are both longer than their column and both matter
+   when something has gone wrong, so these two cells wrap instead of truncating. */
+.affiliate-payout-table .status-stack small {
+  white-space: normal;
+  line-height: 1.4;
+}
+
+/* ── Settings, help and the empty program ───────────────────────────────────────────────── */
+
+.workspace-field {
+  display: grid;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 800;
+  max-width: 420px;
+  margin-bottom: 12px;
+}
+.workspace-field input,
+.workspace-field select {
+  border: 1px solid var(--line);
+  background: var(--field, #fff);
+  color: var(--ink);
+  border-radius: 10px;
+  padding: 12px;
+  font-weight: 500;
+}
+.affiliate-connect-state {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.affiliate-connect-state p {
+  margin: 0;
+  line-height: 1.45;
+}
+.affiliate-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 4px;
+}
+.affiliate-actions button:not(.primary) {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 13px 18px;
+  font-weight: 800;
+}
+.affiliate-actions button svg {
+  width: 16px;
+  height: 16px;
+}
+.affiliate-actions button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+/* Label and value on one row each, because every one of these is a fact with a short answer and
+   a stacked list reads faster than a table with two columns of one word. */
+.affiliate-facts {
+  display: grid;
+  gap: 9px;
+  margin: 0;
+}
+.affiliate-facts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 8px;
+}
+.affiliate-facts > div:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.affiliate-facts dt {
+  color: var(--muted);
+}
+.affiliate-facts dd {
+  margin: 0;
+  font-weight: 700;
+  text-align: right;
+}
+.affiliate-help h3 {
+  font:
+    600 18px var(--font-display),
+    system-ui, sans-serif;
+  margin: 20px 0 4px;
+}
+.affiliate-help h3:first-of-type {
+  margin-top: 6px;
+}
+.affiliate-help p {
+  margin: 0;
+  line-height: 1.6;
+  max-width: 68ch;
+  color: var(--ink);
+}
+.affiliate-help a {
+  color: var(--coral-strong);
+  font-weight: 700;
+}
+/* The portal as a Radar user who is not an affiliate sees it: an invitation, not a locked door. */
+.affiliate-invite {
+  max-width: 62ch;
+}
+.affiliate-invite h2 {
+  font:
+    600 26px var(--font-display),
+    system-ui, sans-serif;
+  margin: 0 0 10px;
+}
+.affiliate-invite p {
+  line-height: 1.6;
+  color: var(--ink);
+}
+.affiliate-invite code,
+.affiliate-facts code {
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-weight: 700;
+}
+.affiliate-first-steps ol {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 10px;
+  line-height: 1.6;
+  max-width: 68ch;
+}
+.affiliate-first-steps a {
+  color: var(--coral-strong);
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .inventory-table.affiliate-ledger-table > article,
+  .inventory-table.affiliate-ledger-table .table-head,
+  .inventory-table.affiliate-payout-table > article,
+  .inventory-table.affiliate-payout-table .table-head {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.2fr) minmax(0, 1.3fr);
+  }
+  /* The rate is derivable from the two amounts beside it, so it is the cell that goes when there
+     is no room for four. */
+  .affiliate-ledger-table > article > div:nth-child(3),
+  .affiliate-ledger-table .table-head > div:nth-child(3),
+  .affiliate-payout-table > article > div:nth-child(3),
+  .affiliate-payout-table .table-head > div:nth-child(3) {
+    display: none;
+  }
+}
+
+/* ── The management console ────────────────────────────────────────────────────────────────── */
+
+/* Staff's two affiliate tables, in admin rather than the portal: what is owed and what has left.
+   Four proportional cells like the rest of admin's tables, weighted so the Stripe column can hold
+   an identifier without pushing the money columns around. */
+.inventory-table.affiliate-console-table > article,
+.inventory-table.affiliate-console-table .table-head {
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.9fr) minmax(0, 1.1fr) minmax(0, 1.4fr);
+}
+.affiliate-console-table b {
+  font-variant-numeric: tabular-nums;
+}
+.affiliate-console-table small {
+  display: block;
+  color: var(--muted);
+}
+/* A failure reason is the one cell here somebody has to be able to read in full. */
+.affiliate-console-table .status-stack small {
+  white-space: normal;
+  line-height: 1.4;
+}
+
+
+/* The App Store caveat, wherever it appears. Deliberately not a .affiliate-banner: a banner is
+   something to act on and dismiss, and this is a standing fact about how the program works. */
+.affiliate-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 14px 0 0;
+  padding: 13px 15px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--cream) 94%, var(--ink) 6%);
+  line-height: 1.5;
+  font-size: 14px;
+}
+.affiliate-note svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  margin-top: 2px;
+  color: var(--coral-strong);
+}
+
+/* ── The program's terms, on the public /for-creators page ───────────────────────────────── */
+
+/* Sits between the three process steps and the application form, so the numbers are read before
+   the decision rather than after it. Same column width as the prose above it. */
+.creator-terms {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 24px 10px;
+}
+.creator-terms h2 {
+  font:
+    600 clamp(26px, 3vw, 34px) var(--font-display),
+    system-ui, sans-serif;
+  margin: 8px 0 14px;
+  letter-spacing: -0.5px;
+}
+.creator-terms p {
+  max-width: 68ch;
+  line-height: 1.65;
+  color: var(--muted);
+  margin: 0 0 12px;
+}
+/* The one paragraph that costs a creator money if they skim it, so it is the one with a rule
+   down its side and the page's ink color rather than the muted gray. */
+.creator-terms-note {
+  border-left: 3px solid var(--coral-strong);
+  padding-left: 14px;
+  color: var(--ink) !important;
+}
+
+/* ── The staff handbook ────────────────────────────────────────────────────────────────────── */
+
+/* Reading, not scanning: a measured column and a line height that suits sentences, where the
+   rest of admin is built for tables. */
+.handbook-intro p,
+.handbook-blurb {
+  max-width: 72ch;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0 0 14px;
+}
+.handbook-section {
+  padding-bottom: 8px;
+}
+
+/* Each article collapsed to its title and one line of summary, so a section is a list somebody
+   can run an eye down. Open means open on purpose — or because a search matched inside it. */
+.handbook-article {
+  border-top: 1px solid var(--line);
+  padding: 2px 0;
+}
+.handbook-article > summary {
+  display: grid;
+  /* A fixed chip column rather than max-content, so every title in the list starts at the same
+     x. Sized to the widest chip pair; the chips wrap inside it, and it gives way on a narrow
+     screen. With max-content the column was as wide as whichever chips that one article
+     happened to carry, and a scannable list of titles came out with a ragged left edge. */
+  grid-template-columns: minmax(0, 124px) 1fr;
+  gap: 4px 12px;
+  align-items: baseline;
+  padding: 13px 4px;
+  cursor: pointer;
+  list-style: none;
+}
+.handbook-article > summary::-webkit-details-marker {
+  display: none;
+}
+.handbook-article > summary:hover b {
+  color: var(--coral-strong);
+}
+.handbook-article > summary:focus-visible {
+  outline: 2px solid var(--coral);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+.handbook-article > summary b {
+  font-size: 16px;
+}
+.handbook-article > summary small {
+  grid-column: 2;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+/* Both chips live in the summary's first grid cell, so the title and the one-line summary keep
+   the second column to themselves. They wrap inside the fixed column above rather than widening
+   it: "If this happens" beside "Audience & money" would take a third of the row on its own. */
+.handbook-chips {
+  grid-row: span 2;
+  align-self: start;
+  margin-top: 2px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+/* The kind is the reader's first filter — "is this a procedure or an explanation" — so it is a
+   chip rather than a word in the sentence. Semantic color, separate from the coral accent. */
+.handbook-kind {
+  width: max-content;
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-size: 10.5px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  font-weight: 900;
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  color: var(--muted);
+}
+.handbook-kind-runbook {
+  background: #f0d9d4;
+  color: #6d2d21;
+}
+.handbook-kind-howto {
+  background: #c8e6d3;
+  color: #17402e;
+}
+html[data-theme="dark"] .handbook-kind-runbook {
+  background: #3d201a;
+  color: #f0b8ab;
+}
+html[data-theme="dark"] .handbook-kind-howto {
+  background: #17402e;
+  color: #b9dfc7;
+}
+/* Where to go and do it, named exactly as the sidebar names it. Outlined rather than filled, so
+   it reads as the second thing on the row and never competes with the kind beside it. */
+.handbook-area {
+  width: max-content;
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 10.5px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  font-weight: 900;
+  border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+  color: var(--muted);
+}
+
+.handbook-body {
+  padding: 2px 4px 18px;
+  max-width: 76ch;
+}
+.handbook-body p {
+  line-height: 1.65;
+  margin: 0 0 12px;
+}
+.handbook-body ol {
+  margin: 0 0 12px;
+  padding-left: 22px;
+  display: grid;
+  gap: 9px;
+  line-height: 1.6;
+}
+/* The things that bite, set apart from the prose they follow — same rule-down-the-side device
+   the public terms use, so "read this twice" looks the same wherever it appears. */
+.handbook-gotchas {
+  margin: 0;
+  padding: 2px 0 2px 16px;
+  list-style: none;
+  border-left: 3px solid var(--coral-strong);
+  display: grid;
+  gap: 9px;
+  line-height: 1.6;
+}
+.handbook-gotchas li::before {
+  content: "→ ";
+  color: var(--coral-strong);
+  font-weight: 900;
+}

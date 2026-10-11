@@ -1,0 +1,135 @@
+.nav-pro-link{display:inline-flex;align-items:center;gap:6px;color: var(--coral-strong)!important;font-weight:900}
+
+/* ---- Tier badges and locked controls -------------------------------------------------------
+   Deliberately NOT the grayed-out `disabled` look. A disabled control means "unavailable right
+   now, for a reason you control"; a locked one means "available on another plan". Conflating
+   them is what makes free users think something is broken. These read as a positive accent
+   affordance, stay full-contrast (a muted lock on an already-muted control fails WCAG for
+   low-vision users), and every one of them is a link to /pro. */
+.pro-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px 3px 7px;border-radius:999px;border:1px solid color-mix(in srgb,var(--coral) 38%,transparent);background:color-mix(in srgb,var(--coral) 12%,transparent);color: var(--coral-strong)!important;font:900 10px/1.3 var(--font-body),system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;text-decoration:none;white-space:nowrap;vertical-align:middle}
+.pro-badge svg{width:11px;height:11px;flex:none}
+.pro-badge:hover{background:color-mix(in srgb,var(--coral) 22%,transparent)}
+.pro-lock{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:7px;border:1px solid color-mix(in srgb,var(--coral) 38%,transparent);background:color-mix(in srgb,var(--coral) 12%,transparent);color: var(--coral-strong)!important;vertical-align:middle;flex:none}
+.pro-lock svg{width:11px;height:11px}
+.pro-lock:hover{background:color-mix(in srgb,var(--coral) 22%,transparent)}
+.pro-badge:focus-visible,.pro-lock:focus-visible{outline:2px solid var(--coral-strong);outline-offset:2px}
+
+/* The one-line "here is what the free plan does instead" note that keeps a locked control from
+   being a dead end even before the tooltip is opened. */
+.pro-hint{display:flex;align-items:center;gap:6px;margin:5px 0 0;font-size:12px;color:var(--muted)}
+.pro-hint svg{width:12px;height:12px;color: var(--coral-strong);flex:none}
+
+/* A distinct surface for plan upsells, so they can't be mistaken for the operational
+   `.launch-note` callouts (email pilot waitlist, address confirmation) sitting beside them. */
+.pro-upsell{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:16px;padding:16px;border-radius:14px;border:1px solid color-mix(in srgb,var(--coral) 32%,transparent);background:linear-gradient(135deg,color-mix(in srgb,var(--coral) 13%,var(--cream)),var(--cream))}
+.pro-upsell-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;background:color-mix(in srgb,var(--coral) 18%,transparent);flex:none}
+.pro-upsell-icon svg{width:19px;color: var(--coral-strong)}
+.pro-upsell-body{flex:1 1 240px}
+.pro-upsell-body b{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pro-upsell-body p{margin:4px 0 0;color:var(--muted);line-height:1.5}
+.pro-upsell .primary{text-decoration:none;white-space:nowrap}
+
+/* Locked equivalents of controls a Pro user gets for real: shown rather than hidden, so free
+   users can see the ceiling instead of guessing where it is. */
+.pro-locked-action{display:inline-flex;align-items:center;gap:7px;padding:9px 14px;border-radius:999px;border:1px dashed color-mix(in srgb,var(--coral) 45%,transparent);background:transparent;color: var(--coral-strong)!important;font-weight:800;font-size:13px;text-decoration:none}
+.pro-locked-action:hover{background:color-mix(in srgb,var(--coral) 10%,transparent)}
+.pro-locked-action svg{width:14px}
+.pro-locked-rows{display:flex;align-items:center;gap:10px;margin-top:10px;padding:13px 15px;border-radius:12px;border:1px dashed color-mix(in srgb,var(--coral) 38%,transparent);color:var(--muted);font-size:13px}
+.pro-locked-rows svg{width:15px;color: var(--coral-strong);flex:none}
+.pro-locked-rows a{color: var(--coral-strong);font-weight:800}
+.pro-field-label{display:flex;align-items:center;gap:8px}
+
+/* clip, not hidden: the hero's 560px ring (.pro-hero::before) ran 86px past a phone's edge and
+   scrolled the page sideways, and clip trims it without making the page a scroll container. */
+.pro-page{min-height:100vh;background:var(--cream);color:var(--ink);padding:0;overflow-x:clip}
+.pro-hero{position:relative;max-width:760px;margin:70px auto 0;padding:0 clamp(18px,6vw,90px);text-align:center}
+.pro-hero::before{content:"";position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:560px;height:560px;border-radius:50%;background:repeating-radial-gradient(circle,color-mix(in srgb,var(--coral) 22%,transparent) 0 2px,transparent 2px 58px);-webkit-mask-image:radial-gradient(circle,black 0%,transparent 78%);mask-image:radial-gradient(circle,black 0%,transparent 78%);pointer-events:none;z-index:-1}
+.pro-hero .kicker{color: var(--coral-strong)}
+.pro-hero h1{font:700 clamp(38px,6.4vw,64px)/1.05 var(--font-display),system-ui,sans-serif;letter-spacing:-2px;margin:16px 0 18px}
+.pro-hero>p{font-size:18px;line-height:1.6;color:var(--muted);max-width:620px;margin:0 auto}
+
+.pro-cta{display:flex;flex-direction:column;align-items:center;gap:10px;margin:32px 0 6px}
+.pro-cta-button{display:inline-flex;align-items:center;gap:9px;padding:16px 26px;font-size:16px}
+.pro-cta-button svg{width:18px}
+.pro-cta-footnote{font-size:13px;color:var(--muted);margin:0}
+/* coral-strong measured 4.06:1 on the badge's own tint at 10px in the light theme. */
+html:not([data-theme="dark"]) .pro-badge{color:color-mix(in srgb,var(--coral-strong) 80%,var(--ink))!important}
+.pro-cta-notice{color:#a72d2d;font-weight:700;margin:0}html[data-theme="dark"] .pro-cta-notice{color:var(--field-bad)}
+.pro-cta-active{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:999px;padding:10px 10px 10px 18px;background:color-mix(in srgb,var(--coral) 10%,var(--cream));font-weight:800}
+.pro-cta-active>svg{color: var(--coral-strong);width:18px}
+.pro-cta-active button{border-radius:999px}
+/* A segmented pill rather than the 10px-radius switch used inside the deal modal: every button on
+   this page is border-radius:999px, and a squarer control directly above the pill CTA reads as a
+   different component from a different design. */
+.plan-switch{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:999px;background:var(--field,#fff)}
+.plan-switch button{border:0;border-radius:999px;background:transparent;color:var(--muted);padding:9px 20px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;transition:background .15s ease,color .15s ease}
+.plan-switch button:hover{color:var(--ink)}
+.plan-switch button.on{background: var(--coral-strong);color: var(--on-coral)}
+.plan-switch button:focus-visible{outline:2px solid var(--coral-strong);outline-offset:2px}
+/* The saving rides inside the Yearly control rather than beside the switch, so the reason to pick
+   it is on the thing you pick. Inheriting currentColor keeps it legible on both the coral 'on'
+   state and the transparent off state without a second rule per theme. */
+.plan-switch .plan-save{margin-left:7px;padding:2px 7px;border-radius:999px;background:color-mix(in srgb,currentColor 16%,transparent);font-size:11px;font-weight:900;letter-spacing:.02em;vertical-align:middle}
+/* Off, the control is muted, and muted text on its own 16% tint falls under 4.5:1; the saving is the
+   one part of the off state that must still read, so it takes the full ink colour. */
+.plan-switch button:not(.on) .plan-save{color:var(--ink)}
+
+/* The price is the answer the visitor came for, so it is set at display size and sits between the
+   period switch and the button — the order the decision is actually made in. tabular-nums keeps
+   the digits from shifting when the amount changes as the period is toggled. */
+.pro-cta-price{margin:0;font-family:var(--font-display),system-ui,sans-serif;font-size:clamp(26px,4.4vw,34px);font-weight:900;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums}
+/* The App Store price, struck through. Set a size down and in muted ink so the price that
+   actually applies stays the one the eye lands on, with the rule itself in coral so the crossing
+   out reads as deliberate rather than as a rendering fault. */
+.pro-cta-was{display:block;margin-bottom:4px;font-size:.5em;font-weight:500;color:var(--muted)}
+
+/* The "i" is subordinate to a 34px number, so it keeps its own 16px size and is nudged up to sit
+   against the cap height rather than the baseline. The bubble is 230px wide and opens upward from
+   enhancements.css; nothing between here and .pro-hero clips it. */
+.pro-cta-price .info-tip{margin-left:9px;vertical-align:.34em}
+
+
+
+.pro-table-section{max-width:960px;margin:56px auto 0;padding:0 clamp(18px,6vw,90px)}
+.pro-table{border:1px solid var(--line);border-radius:20px;overflow:hidden;background:color-mix(in srgb,var(--cream) 97%,var(--ink) 3%)}
+.pro-table-head,.pro-table-row{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:12px;align-items:center;padding:16px 22px}
+.pro-table-head{font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line)}
+.pro-table-head-pro{color: var(--coral-strong)}
+.pro-table-row+.pro-table-row{border-top:1px solid var(--line)}
+.pro-table-feature{display:flex;align-items:center;gap:10px;font-weight:800}
+.pro-table-feature svg{width:18px;color: var(--coral-strong);flex:none}
+.pro-table-cell{display:flex;align-items:center;gap:8px;color:var(--muted)}
+.pro-table-cell svg{width:16px;flex:none}
+.pro-table-cell .pro-icon-yes{color:#2f9e5c}
+.pro-table-cell .pro-icon-partial{color:#b8860b}
+.pro-table-cell .pro-icon-no{color:#a3ada6}
+.pro-table-cell-pro{color:var(--ink);font-weight:700}
+.pro-table-legend{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:center;margin:16px 0 0;font-size:12px;color:var(--muted)}
+.pro-table-legend span{display:inline-flex;align-items:center;gap:6px}
+.pro-table-legend svg{width:13px}
+.pro-table-legend .pro-icon-yes{color:#2f9e5c}
+.pro-table-legend .pro-icon-partial{color:#b8860b}
+.pro-table-legend .pro-icon-no{color:#a3ada6}
+@media(max-width:640px){.pro-table-head,.pro-table-row{grid-template-columns:1fr 1fr;grid-template-areas:"feature feature" "free pro";gap:4px 10px;padding:14px 16px}.pro-table-feature{grid-area:feature;margin-bottom:6px}.pro-table-cell{grid-area:free;font-size:13px}.pro-table-cell-pro{grid-area:pro;font-size:13px}.pro-table-head{grid-template-areas:"free pro";display:grid}.pro-table-head>.pro-table-head-feature{position:absolute}}
+/* The feature column's header is text for screen readers only (see pro/page.tsx), so on a phone,
+   where the head row has no feature column, it is taken out of the grid rather than removed:
+   display:none would drop it from the accessibility tree too, and every row's Free cell would then
+   be announced under the Pro header. */
+
+.pro-highlights{max-width:1100px;margin:70px auto 0;padding:0 clamp(18px,6vw,90px)}
+.pro-highlights h2,.pro-faq h2{font:700 clamp(28px,3.6vw,40px)/1.1 var(--font-display),system-ui,sans-serif;letter-spacing:-1px;margin:0 0 26px;text-align:center}
+.pro-highlight-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.pro-highlight-grid article{border:1px solid var(--line);border-radius:16px;padding:24px}
+.pro-highlight-grid h3{font:600 20px var(--font-display),system-ui,sans-serif;margin:0 0 10px}
+.pro-highlight-grid p{color:var(--muted);line-height:1.6;margin:0}
+
+.pro-faq{max-width:760px;margin:70px auto 80px;padding:0 clamp(18px,6vw,90px)}
+.pro-faq-list{display:grid;gap:2px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.pro-faq-list details{background:var(--cream);padding:18px 20px}
+.pro-faq-list summary{cursor:pointer;font-weight:800;list-style:none}
+.pro-faq-list summary::-webkit-details-marker{display:none}
+.pro-faq-list summary::after{content:"+";float:right;color: var(--coral-strong);font-weight:900}
+.pro-faq-list details[open] summary::after{content:"−"}
+.pro-faq-list p{color:var(--muted);line-height:1.6;margin:12px 0 0}
+
+@media(max-width:820px){.pro-highlight-grid{grid-template-columns:1fr}}

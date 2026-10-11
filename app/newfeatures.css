@@ -1,0 +1,91 @@
+/* New features pass: toasts, command palette, PWA install banner, deal-page calendar/map/
+   helpful-feedback widgets, and the admin trend charts. Kept in its own file (rather than
+   folded into polish.css/refinements.css) so this whole batch of additions is easy to find,
+   review, or revert as one unit. */
+
+/* Toasts */
+.toast-stack { position: fixed; z-index: 60; right: 18px; bottom: 18px; display: flex; flex-direction: column; gap: 10px; max-width: min(360px, calc(100vw - 36px)); }
+.toast { display: flex; align-items: center; gap: 10px; background: var(--ink); color: var(--cream); border-radius: 14px; padding: 13px 14px; box-shadow: 0 14px 35px #07160e44; font-size: 14px; font-weight: 600; animation: toast-in .18s ease; }
+.toast svg { width: 18px; flex-shrink: 0; }
+.toast span { flex: 1; line-height: 1.35; }
+.toast button { background: transparent; border: 0; color: inherit; opacity: .7; display: grid; place-items: center; padding: 2px; }
+.toast button:hover { opacity: 1; }
+.toast-success svg { color: var(--field-ok); }
+.toast-error svg { color: var(--field-bad); }
+.toast-info svg { color: var(--coral-strong); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
+
+/* Command palette */
+.command-trigger { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 999px; padding: 8px 12px; font-weight: 700; font-size: 13px; }
+.command-trigger svg { width: 15px; }
+.command-trigger:hover { color: var(--ink); border-color: var(--muted); }
+.command-trigger-key { font-family: var(--font-geist-mono), monospace; font-size: 11px; opacity: .8; }
+.command-overlay { position: fixed; inset: 0; z-index: 70; background: #0b1b1399; backdrop-filter: blur(6px); display: flex; align-items: flex-start; justify-content: center; padding: 12vh 20px 20px; }
+.command-panel { width: min(560px, 100%); background: var(--cream); color: var(--ink); border-radius: 18px; box-shadow: 0 30px 90px #07160e66; overflow: hidden; border: 1px solid var(--line); }
+.command-search { display: flex; align-items: center; gap: 10px; padding: 16px 18px; border-bottom: 1px solid var(--line); }
+.command-search svg { width: 18px; color: var(--muted); flex-shrink: 0; }
+.command-search input { flex: 1; border: 0; background: transparent; outline: 0; font-size: 16px; color: inherit; }
+.command-list { list-style: none; margin: 0; padding: 8px; max-height: 50vh; overflow-y: auto; }
+.command-list button { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; border: 0; background: transparent; border-radius: 10px; padding: 11px 12px; font-weight: 600; color: inherit; }
+.command-list button svg { width: 17px; color: var(--muted); flex-shrink: 0; }
+.command-list button small { margin-left: auto; color: var(--muted); font-weight: 500; }
+.command-list button.active, .command-list button:hover { background: color-mix(in srgb, var(--coral) 12%, transparent); }
+.command-empty { padding: 20px; text-align: center; color: var(--muted); font-size: 14px; }
+
+/* PWA install banner */
+.install-banner { position: fixed; z-index: 55; left: 18px; right: 18px; bottom: 18px; margin: auto; max-width: 480px; display: flex; align-items: center; gap: 10px; background: var(--ink); color: var(--cream); border-radius: 16px; padding: 14px 16px; box-shadow: 0 14px 35px #07160e44; }
+.install-banner svg:first-child { width: 20px; flex-shrink: 0; color: var(--coral-strong); }
+.install-banner span { flex: 1; font-size: 14px; font-weight: 600; line-height: 1.35; }
+.install-banner .primary { padding: 9px 14px; font-size: 13px; white-space: nowrap; }
+.install-dismiss { background: transparent; border: 0; color: inherit; opacity: .7; display: grid; place-items: center; }
+.install-dismiss:hover { opacity: 1; }
+
+/* Deal detail: add-to-calendar */
+.calendar-button { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: transparent; color: var(--ink); border-radius: 999px; padding: 11px 18px; font-weight: 800; margin-top: 12px; }
+.calendar-button svg { width: 17px; color: var(--coral-strong); }
+.calendar-button:hover { border-color: var(--coral); }
+
+/* Deal detail: embedded map */
+.deal-map { margin-top: 14px; border-radius: 16px; overflow: hidden; border: 1px solid var(--line); }
+.deal-map iframe { width: 100%; height: 240px; border: 0; display: block; filter: grayscale(0.15); }
+html[data-theme="dark"] .deal-map iframe { filter: invert(0.92) hue-rotate(180deg) grayscale(0.2); }
+.deal-map-link { display: flex; align-items: center; gap: 8px; padding: 10px 14px; font-size: 13px; font-weight: 700; color: var(--muted); border-top: 1px solid var(--line); background: color-mix(in srgb, var(--ink) 3%, transparent); }
+.deal-map-link svg { width: 15px; color: var(--coral-strong); }
+.deal-map-link:hover { color: var(--ink); }
+.deal-map-note { margin: 0; padding: 8px 14px 10px; font-size: 12.5px; line-height: 1.45; color: var(--muted); border-top: 1px dashed var(--line); }
+
+/* Deal detail: helpful feedback */
+.helpful-feedback { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-weight: 700; font-size: 14px; color: var(--muted); }
+.helpful-feedback button { border: 1px solid var(--line); background: transparent; border-radius: 999px; width: 42px; height: 42px; display: grid; place-items: center; color: var(--ink); }
+.helpful-feedback button svg { width: 16px; }
+.helpful-feedback button:hover:not(:disabled) { border-color: var(--coral); color: var(--coral-strong); }
+.helpful-feedback button:disabled { opacity: .5; }
+.helpful-feedback.voted { color: var(--field-ok); }
+
+/* Admin trend charts */
+.trend-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 16px 0 24px; }
+.trend-card { border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; background: color-mix(in srgb, var(--ink) 3%, transparent); }
+.trend-card-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+.trend-card-head b { font-size: 22px; }
+.trend-card-head span { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
+.trend-card svg { width: 100%; height: 46px; display: block; overflow: visible; }
+.trend-card svg polyline { fill: none; stroke: var(--coral); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.trend-card svg polygon { fill: color-mix(in srgb, var(--coral) 16%, transparent); stroke: none; }
+.trend-card small { display: block; margin-top: 6px; color: var(--muted); font-size: 11px; }
+
+/* Admin growth tab: side-by-side city/restaurant leaderboards */
+.leaderboard-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+@media (max-width: 800px) {
+  .leaderboard-columns { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 570px) {
+  .toast-stack, .install-banner { left: 12px; right: 12px; bottom: 84px; }
+  .command-overlay { padding-top: 8vh; }
+  /* Ctrl/Cmd+K is a desktop-keyboard convention; on narrow screens the trigger button would
+     otherwise compete with the hamburger menu for header space, so only the (still-functional,
+     for anyone with a hardware keyboard) shortcut survives below this width. */
+  .site-nav > .command-trigger { display: none; }
+}

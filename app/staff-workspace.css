@@ -1,0 +1,619 @@
+/* The staff workspace (/admin) after its 2026-10 reorganization: the sidebar search, the Admin and
+   Developer areas, and each section's redesign. Kept apart from portal.css so the workspace's own
+   rules are found in one place; every rule here is scoped under .portal or a .sw- class, so none
+   of it can reach the public site. Each section's rules sit in their own block below. */
+
+/* == Shell: sidebar search, shared states == */
+.sw-state {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 18px;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  color: var(--muted);
+  background: var(--field, transparent);
+}
+.sw-state b { display: block; color: var(--ink); font-weight: 650; }
+.sw-state p { margin: 4px 0 0; }
+.sw-state > :last-child:not(div):not(svg) { margin-left: auto; }
+.sw-state-error { border-style: solid; border-color: var(--field-bad); }
+.sw-state-error svg { color: var(--field-bad); }
+.sw-state-success { border-style: solid; border-color: var(--field-ok); }
+.sw-state-success svg { color: var(--field-ok); }
+.sw-spin { animation: sw-spin 1s linear infinite; }
+@keyframes sw-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .sw-spin { animation: none; } }
+.sw-panel-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.sw-panel-head h2 { margin: 0; font-size: 1.05rem; }
+.sw-panel-head p { margin: 4px 0 0; color: var(--muted); font-size: 0.9rem; }
+.sw-panel-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.sw-geo { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: flex-end; border: 0; padding: 0; margin: 0 0 12px; }
+.sw-geo label { display: grid; gap: 4px; font-size: 0.8rem; color: var(--muted); min-width: 140px; }
+.sw-geo select, .sw-geo input { min-height: 36px; }
+.portal aside .sw-search { margin: 4px 0 14px; }
+.portal aside .sw-search > button { width: 100%; justify-content: flex-start; border-radius: 10px; padding: 9px 12px; font-weight: 600; }
+.portal aside .sw-search .command-search-label { flex: 1; text-align: left; }
+/* The sidebar becomes an icon rail at 1000px (portal.css); the search keeps its icon there. */
+@media (max-width: 1000px) {
+  .portal aside .sw-search > button { justify-content: center; padding: 9px; }
+  .portal aside .sw-search > button > span { display: none; }
+}
+.sw-link { background: none; border: 0; padding: 4px 0; color: var(--coral-strong); text-decoration: underline; cursor: pointer; font: inherit; }
+
+/* == Overview & coverage == */
+/* Overview: one line of catalog counts, the work queues, then the activity charts. */
+.sw-overview { display: grid; gap: 16px; min-width: 0; }
+.sw-ov-snapshot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.sw-ov-snapshot ul { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.sw-ov-snapshot button {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.sw-ov-snapshot button:hover { border-color: var(--muted); }
+.sw-ov-snapshot button b { font-weight: 800; margin-right: 2px; }
+.sw-ov-snapshot p { margin: 0; color: var(--muted); font-size: 13px; }
+.sw-ov-group { margin-top: 14px; }
+.sw-ov-group:first-of-type { margin-top: 4px; }
+.sw-ov-group h3 { margin: 0; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; }
+.sw-ov-group h3 span { font-size: 12px; color: var(--muted); font-weight: 700; }
+.sw-ov-group > p { margin: 2px 0 10px; color: var(--muted); font-size: 13px; }
+.portal .sw-ov-why { color: var(--ink); }
+.sw-ov-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.sw-ov-chart { margin: 0; display: grid; gap: 6px; align-content: start; border: 1px solid var(--line); border-radius: 12px; padding: 14px; min-width: 0; }
+.sw-ov-chart h3 { margin: 0; font-size: 0.95rem; }
+.sw-ov-chart figcaption p { margin: 2px 0 0; color: var(--muted); font-size: 12.5px; }
+.sw-ov-chart-figures { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.sw-ov-chart-figures b { font: 700 26px var(--font-display), system-ui, sans-serif; color: var(--ink); }
+.sw-ov-chart-figures span { color: var(--muted); font-size: 12.5px; }
+.sw-ov-chart-week { flex-basis: 100%; }
+.sw-ov-chart-none { margin: 8px 0 0; color: var(--muted); font-size: 13px; }
+.sw-ov-chart-plot { display: grid; grid-template-columns: auto 1fr; gap: 6px; height: 84px; }
+.sw-ov-chart-scale { display: flex; flex-direction: column; justify-content: space-between; color: var(--muted); font-size: 11px; text-align: right; font-variant-numeric: tabular-nums; }
+.sw-ov-chart-plot svg { width: 100%; height: 100%; display: block; }
+.sw-ov-chart-base { stroke: var(--line); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.sw-ov-chart-hit { fill: transparent; }
+.sw-ov-chart-bar { fill: color-mix(in srgb, var(--coral-strong) 70%, transparent); }
+.sw-ov-chart-bar.active { fill: var(--coral-strong); }
+.sw-ov-chart-axis { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 11px; padding-left: 22px; }
+.sw-ov-chart-readout { color: var(--ink); text-align: center; flex: 1; }
+.sw-ov-votes { display: flex; gap: 2px; height: 12px; border-radius: 6px; overflow: hidden; margin-top: 4px; }
+.sw-ov-votes span { min-width: 2px; }
+.sw-ov-votes .up { background: var(--field-ok); }
+.sw-ov-votes .down { background: var(--field-bad); }
+.sw-ov-votes-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0; font-size: 12.5px; color: var(--ink); }
+.sw-ov-votes-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.sw-ov-votes-legend svg { width: 14px; height: 14px; }
+.portal .drink-rule-alerts .sw-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; }
+.sw-reminder-help { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 0 0 12px; font-size: 13px; }
+.sw-reminder-help dt { font-weight: 800; }
+.sw-reminder-help dd { margin: 0; color: var(--muted); }
+@media (max-width: 640px) {
+  .sw-reminder-help { grid-template-columns: 1fr; }
+  .sw-reminder-help dd { margin-bottom: 6px; }
+}
+/* Market coverage: the place hierarchy and the launch markets, as scrollable tables. */
+.sw-coverage { display: grid; gap: 16px; min-width: 0; }
+.sw-cov-scroll { overflow-x: auto; max-width: 100%; }
+.sw-cov-table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+.sw-cov-table th, .sw-cov-table td { padding: 7px 8px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+.sw-cov-table thead th { color: var(--muted); font-size: 11.5px; font-weight: 700; }
+.sw-cov-table th[scope="row"], .sw-cov-table thead th:first-child { text-align: left; white-space: normal; min-width: 160px; }
+.sw-cov-table th[scope="row"] small, .sw-cov-table td small { display: block; color: var(--muted); font-weight: 400; font-size: 11.5px; }
+.sw-cov-table tfoot th, .sw-cov-table tfoot td { font-weight: 800; border-bottom: 0; }
+.sw-cov-country th[scope="row"] { font-weight: 800; }
+.sw-cov-region th[scope="row"] { font-weight: 700; }
+.sw-cov-city th[scope="row"], .sw-cov-postal th[scope="row"] { font-weight: 500; }
+.sw-cov-missing th[scope="row"] { color: var(--muted); font-style: italic; }
+.sw-cov-toggle { display: inline-flex; align-items: center; gap: 4px; border: 0; background: none; padding: 2px 0; color: inherit; font: inherit; cursor: pointer; text-align: left; }
+.sw-cov-toggle:disabled { cursor: default; }
+.sw-cov-leaf { padding-left: 19px; display: inline-block; }
+.sw-cov-open { display: inline-flex; align-items: center; gap: 3px; }
+.sw-cov-warn { color: var(--field-bad); font-weight: 700; }
+
+/* == Drafts, deals, suggestions == */
+/* Draft review and the suggestions queue share one shape: a list to pick from on the left and the
+   picked item's full detail on the right, stacked on a phone (DraftReview.tsx, SuggestionsTab.tsx). */
+.sw-drafts-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 12px; }
+.sw-drafts-tools .portal-search { flex: 1 1 220px; }
+.sw-drafts-tools select {
+  border: 1px solid var(--line); border-radius: 9px; background-color: var(--cream); color: var(--ink);
+  padding: 9px 32px 9px 10px; appearance: none; -webkit-appearance: none;
+  background-image: var(--select-arrow); background-repeat: no-repeat; background-position: right 12px center; background-size: 10px 6px;
+}
+.sw-count { color: var(--muted); font-size: 0.85rem; margin-left: auto; }
+.sw-review-msg { margin: 0 0 12px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); font-weight: 650; }
+.sw-review-msg.ok { border-color: var(--field-ok); }
+.sw-review-msg.error { border-color: var(--field-bad); color: var(--field-bad); }
+.sw-drafts-split { display: grid; grid-template-columns: minmax(240px, 340px) minmax(0, 1fr); gap: 16px; align-items: start; }
+.sw-drafts-list { display: grid; gap: 6px; max-height: 72vh; overflow-y: auto; padding-right: 4px; overscroll-behavior: contain; }
+.sw-drafts-list > div > button {
+  display: grid; gap: 3px; width: 100%; text-align: left; padding: 10px 12px; border: 1px solid var(--line);
+  border-radius: 10px; background: transparent; color: var(--ink); cursor: pointer; font: inherit;
+}
+.sw-drafts-list > div > button:hover { border-color: var(--muted); }
+.sw-drafts-list > div > button.chosen { border-color: var(--ink); box-shadow: inset 3px 0 0 var(--coral-strong); }
+.sw-drafts-list small { color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+.sw-drafts-row-head { display: flex; align-items: center; gap: 6px; }
+.sw-drafts-row-head b { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.sw-drafts-row-head .status { width: auto; flex: none; font-size: 11px; }
+.sw-source.none { color: var(--field-bad); }
+.sw-drafts-detail { border: 1px solid var(--line); border-radius: 12px; padding: 14px; min-width: 0; position: sticky; top: 12px; }
+.sw-drafts-detail h3 { margin: 0; }
+.sw-drafts-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; color: var(--muted); font-size: 0.85rem; }
+.sw-drafts-nav button { display: inline-flex; align-items: center; gap: 4px; }
+.sw-drafts-nav svg { width: 14px; height: 14px; }
+.sw-drafts-actions { margin-top: 12px; flex-wrap: wrap; }
+.sw-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+.sw-chips button { border: 1px solid var(--line); border-radius: 999px; padding: 5px 10px; background: transparent; color: var(--ink); font-size: 12px; cursor: pointer; }
+.sw-chips button.active { border-color: var(--ink); font-weight: 700; }
+/* Deal inventory and Ended & archived. */
+.sw-inventory .sw-state { margin: 0 0 12px; }
+.portal .inventory-table article.sw-linked { outline: 2px solid var(--coral-strong); outline-offset: -2px; border-radius: 10px; }
+.sw-placeless { font-style: italic; }
+/* Suggestions. */
+.sw-reason { color: var(--muted); }
+.sw-drafts-list .sw-reason { color: var(--ink); }
+.sw-fields { display: grid; gap: 6px; margin: 0 0 12px; }
+.sw-fields > div { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 10px; }
+.sw-fields dt { font-size: 12px; font-weight: 800; color: var(--muted); }
+.sw-fields dd { margin: 0; overflow-wrap: anywhere; }
+.sw-duplicates { margin: 14px 0 0; padding: 10px 12px; border: 1px dashed var(--line); border-radius: 10px; }
+.sw-duplicates h4 { margin: 0 0 4px; font-size: 0.9rem; }
+.sw-duplicates p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+.sw-duplicates ul { margin: 6px 0 0; padding-left: 18px; }
+.sw-reject fieldset { border: 0; padding: 0; margin: 10px 0; display: grid; gap: 6px; }
+.sw-reject legend { font-weight: 800; margin-bottom: 6px; }
+.sw-reject fieldset label { display: flex; gap: 8px; align-items: flex-start; cursor: pointer; }
+.sw-reject fieldset label span { display: grid; gap: 2px; }
+.sw-reject fieldset small { color: var(--muted); font-size: 12px; }
+.sw-reject .warning-text { color: var(--field-bad); font-weight: 700; }
+.sw-reason-preview { border-left: 3px solid var(--line); padding: 2px 0 2px 12px; margin: 0 0 12px; }
+.sw-reason-preview p { margin: 4px 0; }
+.sw-reason-preview small { color: var(--muted); }
+@media (max-width: 900px) {
+  .sw-drafts-split { grid-template-columns: minmax(0, 1fr); }
+  .sw-drafts-list { max-height: 45vh; }
+  .sw-drafts-detail { position: static; }
+}
+@media (max-width: 520px) {
+  .sw-fields > div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .sw-count { margin-left: 0; }
+}
+
+/* == Reports, feedback, mailing list == */
+/* Filters sit in the list toolbar beside the search box; they stack at phone width. */
+.portal .sw-filter { display: grid; gap: 4px; font-size: 0.8rem; color: var(--muted); min-width: 150px; }
+.portal .sw-filter select { min-height: 36px; }
+.sw-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.portal .status.sw-high { color: var(--field-bad); border-color: var(--field-bad); }
+/* The deal a report or feedback note is about, with the link to open it. */
+.sw-report-deal { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 4px 0 6px; font-size: 0.9rem; }
+.sw-report-deal span { color: var(--muted); }
+.sw-report-deal b { color: var(--ink); margin-right: 6px; }
+.portal .queue-list article.sw-report-closed { opacity: 0.92; }
+/* Who closed it, when, and what they found. */
+.sw-closed-note { margin-top: 10px; padding: 10px 12px; border-left: 3px solid var(--line); border-radius: 6px; background: var(--field, transparent); }
+.sw-closed-note b { display: block; font-size: 0.88rem; }
+.sw-closed-note p { margin: 4px 0 0; }
+.sw-closed-note small { display: block; margin-top: 6px; }
+.sw-hint { display: block; color: var(--muted); font-style: italic; }
+/* The resolution / reopen-reason form under a row. */
+.sw-decision { display: grid; gap: 6px; margin-top: 10px; max-width: 560px; }
+.sw-decision label { font-weight: 600; font-size: 0.9rem; }
+.sw-decision textarea { width: 100%; min-height: 72px; resize: vertical; font: inherit; }
+.sw-decision > div { display: flex; gap: 8px; flex-wrap: wrap; }
+.sw-decision small { color: var(--muted); }
+.sw-decision .sw-decision-error { color: var(--field-bad); }
+/* Tester feedback and product feedback, one under the other inside the Product feedback card. */
+.sw-feedback-group { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+.sw-feedback-group:first-of-type { border-top: 0; padding-top: 0; }
+.sw-reports .sw-state, .sw-feedback .sw-state, .portal .waitlist-card .sw-state, .portal .mailing-list .sw-state { margin-top: 8px; }
+@media (max-width: 640px) {
+  .portal .sw-filter { min-width: 0; width: 100%; }
+  .sw-decision { max-width: none; }
+}
+
+/* == Campaigns & affiliates == */
+/* Campaign and affiliate lists: one row per link, as a button when it opens something. Four
+   columns on a wide screen, stacked at phone width. */
+.portal .sw-camp-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.portal .sw-camp-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper, transparent);
+  color: var(--ink);
+  font: inherit;
+}
+.portal button.sw-camp-row { cursor: pointer; }
+.portal button.sw-camp-row:hover, .portal button.sw-camp-row:focus-visible { border-color: var(--coral-strong); }
+.portal .sw-camp-row-static { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) auto; }
+.portal .sw-camp-row small { display: block; color: var(--muted); font-size: 0.8rem; overflow-wrap: anywhere; }
+.portal .sw-camp-main b, .portal .sw-camp-num b { display: block; }
+.portal .sw-camp-meta { display: grid; gap: 4px; justify-items: start; }
+.portal .sw-camp-actions { display: flex; justify-content: flex-end; }
+.portal .sw-camp-actions button, .portal .sw-camp-track-row button { display: inline-flex; align-items: center; gap: 6px; }
+.portal .sw-camp-actions svg, .portal .sw-camp-track-row svg { width: 14px; height: 14px; }
+.portal .sw-camp-track-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin-top: 12px; color: var(--muted); }
+.portal .sw-camp-filter select { min-height: 36px; }
+.portal .sw-camp-alltime { margin-top: 14px; }
+.portal .sw-camp-alltime summary { cursor: pointer; color: var(--muted); font-weight: 650; padding: 6px 0; }
+.portal .sw-camp-back { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+.portal .sw-panel-actions button { display: inline-flex; align-items: center; gap: 6px; }
+.portal .sw-panel-actions button svg { width: 14px; height: 14px; }
+.portal .sw-camp-detail-link { margin: 4px 0 14px; }
+.portal .sw-camp-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px 18px; margin: 0 0 12px; }
+.portal .sw-camp-facts dt { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.portal .sw-camp-facts dd { margin: 2px 0 0; }
+.portal .sw-camp-notes { white-space: pre-wrap; margin: 0; }
+.portal .sw-camp-stats { margin-bottom: 14px; }
+.portal .sw-camp-subhead { font-size: 0.9rem; margin: 16px 0 8px; }
+/* The daily trend: one bar per day, scaled to the busiest day in view. */
+.portal .sw-camp-trend { display: flex; align-items: flex-end; gap: 2px; height: 96px; padding: 4px 0; border-bottom: 1px solid var(--line); }
+.portal .sw-camp-trend span { flex: 1 1 0; min-width: 0; height: 100%; display: flex; align-items: flex-end; }
+.portal .sw-camp-trend i { display: block; width: 100%; background: var(--coral-strong); border-radius: 2px 2px 0 0; }
+.portal .sw-camp-trend-axis { display: flex; justify-content: space-between; color: var(--muted); }
+.portal .sw-camp-markets { display: grid; gap: 6px; }
+.portal .sw-camp-markets > div { display: grid; grid-template-columns: minmax(90px, 1fr) 2fr auto; gap: 10px; align-items: center; }
+.portal .sw-camp-bar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.portal .sw-camp-bar i { display: block; height: 100%; background: var(--coral-strong); }
+/* The create/edit form: two columns, one at phone width. */
+.portal .sw-camp-dialog { max-width: 640px; width: calc(100% - 32px); max-height: calc(100vh - 32px); overflow-y: auto; }
+.portal .sw-camp-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; margin-top: 12px; }
+.portal .sw-camp-form label { display: grid; gap: 4px; font-size: 0.8rem; font-weight: 700; }
+.portal .sw-camp-form label small { font-weight: 400; color: var(--muted); }
+.portal .sw-camp-form input, .portal .sw-camp-form select, .portal .sw-camp-form textarea { min-height: 38px; font: inherit; font-weight: 400; }
+.portal .sw-camp-form .field-error { color: var(--field-bad); }
+.portal .sw-camp-wide { grid-column: 1 / -1; }
+.portal .sw-camp-preview { display: flex; gap: 6px; align-items: center; color: var(--muted); font-size: 0.8rem; overflow-wrap: anywhere; margin: 0; }
+/* One affiliate up close, opened from the roster. */
+.portal .sw-aff-detail { margin-top: 14px; padding: 14px; border: 1px solid var(--line); border-radius: 12px; }
+.portal .creator-roster-table article.sw-aff-selected { outline: 2px solid var(--coral-strong); outline-offset: -2px; }
+@media (max-width: 720px) {
+  .portal .sw-camp-row, .portal .sw-camp-row-static { grid-template-columns: 1fr 1fr; }
+  .portal .sw-camp-main { grid-column: 1 / -1; }
+  .portal .sw-camp-actions { justify-content: flex-start; }
+  .portal .sw-camp-form { grid-template-columns: 1fr; }
+  .portal .campaign-builder { grid-template-columns: 1fr; }
+}
+
+/* == Growth == */
+/* Growth (tabs/GrowthTab.tsx), the finance panels (FinancePanels.tsx) and Sponsorships
+   (tabs/SponsorshipsTab.tsx). */
+.sw-growth-range { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 14px; color: var(--muted); font-size: 0.9rem; }
+.sw-growth-range button { border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--ink); padding: 6px 12px; font: inherit; font-weight: 650; cursor: pointer; min-height: 36px; }
+.sw-growth-range button.active { background: var(--coral-strong); border-color: var(--coral-strong); color: var(--on-coral); }
+.sw-growth-trend { display: grid; gap: 6px; align-content: start; }
+.sw-growth-change { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); font-size: 0.8rem; }
+.sw-growth-change svg { width: 14px; height: 14px; }
+.sw-growth-change.up { color: var(--field-ok); }
+.sw-growth-change.down { color: var(--field-bad); }
+.portal .sw-growth-tag { margin-left: 6px; text-transform: lowercase; cursor: help; }
+.sw-growth-note { margin: 10px 0 0; color: var(--muted); font-size: 0.85rem; }
+.portal .audit-list .sw-growth-saves { display: block; }
+.sw-growth-filters { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: flex-end; margin: 0 0 12px; }
+.sw-growth-filters label { display: grid; gap: 4px; font-size: 0.8rem; color: var(--muted); min-width: 160px; }
+.sw-growth-filters select { min-height: 36px; }
+.sw-growth-filters .sw-growth-check { display: flex; align-items: center; gap: 6px; min-width: 0; color: var(--ink); font-size: 0.9rem; min-height: 36px; }
+.sw-growth-kinds { display: flex; flex-wrap: wrap; gap: 6px 16px; border: 0; padding: 0; margin: 0 0 12px; }
+.sw-growth-kinds legend { width: 100%; margin-bottom: 4px; font-size: 0.8rem; color: var(--muted); }
+.sw-growth-kinds label { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; }
+.sw-growth-kinds small { color: var(--muted); }
+.sw-growth-subhead { margin: 16px 0 8px; font-size: 0.95rem; }
+.portal .sw-growth-term .sw-growth-term-text { overflow-wrap: anywhere; }
+.sw-growth-badge { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; padding: 2px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; border: 1px solid var(--line); width: fit-content; }
+.sw-growth-badge svg { width: 13px; height: 13px; }
+.sw-growth-badge.suspected { color: var(--field-warn, var(--ink)); border-color: var(--field-warn, var(--line)); }
+.sw-growth-badge.confirmed { color: var(--field-bad); border-color: var(--field-bad); }
+.sw-growth-badge.cleared { color: var(--field-ok); border-color: var(--field-ok); }
+.portal .audit-list .sw-growth-signals { display: block; margin-top: 2px; }
+.sw-growth-verdict { display: grid; gap: 8px; margin-top: 10px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; }
+.sw-growth-verdict fieldset { display: flex; flex-wrap: wrap; gap: 6px 16px; border: 0; padding: 0; margin: 0; }
+.sw-growth-verdict legend { font-weight: 650; margin-bottom: 4px; }
+.sw-growth-verdict label { display: inline-flex; align-items: center; gap: 6px; }
+.sw-growth-verdict > label { display: grid; gap: 4px; font-size: 0.85rem; }
+.sw-switch-state { display: flex; align-items: center; gap: 10px; }
+.portal .campaign-builder .sw-sp-wide { grid-column: 1 / -1; }
+.sw-sp-deal { margin: 0; }
+.sw-sp-deal small { display: block; color: var(--muted); }
+.portal .sw-sp-hint { color: var(--muted); font-weight: 600; }
+.sw-sp-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.portal .audit-list .sw-sp-pending { display: block; color: var(--field-warn, var(--coral-strong)); font-weight: 650; }
+.portal .audit-list article.sw-sp-editing { outline: 2px solid var(--coral-strong); outline-offset: 2px; border-radius: 10px; }
+.sw-sp-notice { margin: 0 0 12px; padding: 12px 14px; border: 1px solid var(--field-warn, var(--line)); border-radius: 12px; }
+.sw-sp-notice ul { margin: 6px 0; padding-left: 18px; }
+.sw-sp-notice p { margin: 0; color: var(--muted); }
+@media (max-width: 640px) {
+  .portal .campaign-builder .sw-sp-wide { grid-column: auto; }
+  .sw-growth-filters label { min-width: 0; flex: 1 1 140px; }
+  .sw-sp-actions { width: 100%; }
+}
+
+/* == Users, directory, audit == */
+/* Shared by the three: a round initial, and a label/value list for a record's facts. */
+.portal .sw-avatar {
+  display: inline-grid; place-items: center; flex: none;
+  width: 34px; height: 34px; border-radius: 50%;
+  font-style: normal; font-weight: 700; font-size: 0.9rem;
+  color: var(--coral-strong);
+  background: color-mix(in srgb, var(--coral-strong) 14%, transparent);
+}
+.portal .sw-avatar-lg { width: 46px; height: 46px; font-size: 1.15rem; }
+.portal .sw-facts { display: grid; gap: 0; margin: 12px 0; border-top: 1px solid var(--line); }
+.portal .sw-facts > div { display: grid; grid-template-columns: minmax(110px, 34%) 1fr; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--line); }
+.portal .sw-facts dt { color: var(--muted); font-size: 0.85rem; }
+.portal .sw-facts dd { margin: 0; overflow-wrap: anywhere; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.portal .sw-facts code { font-size: 0.8rem; white-space: pre-wrap; word-break: break-all; }
+
+/* Users: the list and the open account side by side; stacked on a phone. */
+.portal .sw-users { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.portal .sw-user-detail { position: sticky; top: 16px; }
+@media (max-width: 900px) {
+  .portal .sw-users { grid-template-columns: minmax(0, 1fr); }
+  .portal .sw-user-detail { position: static; scroll-margin-top: 12px; }
+}
+.portal .sw-users-filters, .portal .sw-audit-filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; margin: 8px 0 4px; }
+.portal .sw-user-rows { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
+.portal .sw-user-row {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 4px 12px; align-items: center;
+  width: 100%; padding: 10px 12px; text-align: left; font: inherit; color: inherit;
+  background: none; border: 1px solid transparent; border-radius: 10px; cursor: pointer;
+}
+.portal .sw-user-row:hover { background: color-mix(in srgb, var(--ink) 4%, transparent); }
+.portal .sw-user-row:focus-visible { outline: 2px solid var(--coral-strong); outline-offset: 1px; }
+.portal .sw-user-rows li.is-selected .sw-user-row { border-color: color-mix(in srgb, var(--coral-strong) 45%, transparent); background: color-mix(in srgb, var(--coral-strong) 7%, transparent); }
+.portal .sw-user-rows li.user-row-hidden .sw-user-row { opacity: 0.75; }
+.portal .sw-user-who { display: grid; min-width: 0; }
+.portal .sw-user-who b, .portal .sw-user-who small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.portal .sw-user-who small, .portal .sw-user-meta { color: var(--muted); font-size: 0.82rem; }
+.portal .sw-user-badges { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
+.portal .sw-user-meta { grid-column: 2 / -1; }
+@media (max-width: 560px) {
+  .portal .sw-user-row { grid-template-columns: auto minmax(0, 1fr); }
+  .portal .sw-user-badges { grid-column: 2; justify-content: flex-start; }
+}
+.portal .sw-user-detail-head { display: flex; gap: 12px; align-items: center; }
+.portal .sw-user-detail-head > div { min-width: 0; flex: 1; }
+.portal .sw-user-detail-head h2 { margin: 0; font-size: 1.1rem; overflow-wrap: anywhere; }
+.portal .sw-user-detail-head small { color: var(--muted); overflow-wrap: anywhere; }
+.portal .sw-user-detail-head .close { position: static; }
+.portal .sw-user-role { margin-top: 14px; }
+.portal .sw-user-role p { margin: 6px 0 0; color: var(--muted); font-size: 0.9rem; }
+.portal .sw-user-block { margin: 14px 0; }
+.portal .sw-user-block h3 { display: flex; align-items: center; gap: 6px; margin: 0 0 6px; font-size: 0.95rem; }
+.portal .sw-user-block h3 svg { width: 16px; height: 16px; }
+.portal .sw-user-block p { margin: 0 0 4px; font-size: 0.9rem; }
+.portal .sw-grants { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.portal .sw-grants li { display: grid; }
+.portal .sw-grants small { color: var(--muted); }
+.portal .sw-user-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+/* Staff directory: a group per role, the role's purpose under its name. */
+.portal .sw-dir-group { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+.portal .sw-dir-group header h3 { margin: 0; font-size: 1rem; display: flex; gap: 8px; align-items: baseline; }
+.portal .sw-dir-group header h3 small { color: var(--muted); font-weight: 500; }
+.portal .sw-dir-group header p { margin: 4px 0 8px; color: var(--muted); font-size: 0.9rem; max-width: 70ch; }
+.portal .sw-dir-can { margin: 0 0 10px; font-size: 0.88rem; }
+.portal .sw-dir-can summary { cursor: pointer; color: var(--coral-strong); }
+.portal .sw-dir-can ul { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 4px; }
+.portal .sw-dir-can li b { margin-right: 4px; }
+.portal .sw-dir-people { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; }
+.portal .sw-dir-people li { display: flex; gap: 10px; align-items: center; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; min-width: 0; }
+.portal .sw-dir-people li > span { display: grid; min-width: 0; }
+.portal .sw-dir-people small { color: var(--muted); font-size: 0.82rem; overflow-wrap: anywhere; }
+.portal .sw-dir-people a { color: inherit; display: inline-flex; gap: 4px; align-items: center; }
+.portal .sw-dir-people a svg { width: 13px; height: 13px; }
+
+/* Audit log: a feed by day, each entry an avatar, a byline and a sentence. */
+.portal .sw-audit-integrity { display: flex; gap: 8px; align-items: center; margin: 0 0 10px; font-size: 0.85rem; color: var(--muted); }
+.portal .sw-audit-integrity svg { width: 15px; height: 15px; flex: none; }
+.portal .sw-audit-date { display: grid; gap: 2px; font-size: 0.78rem; color: var(--muted); }
+.portal .sw-audit-date input { min-height: 36px; }
+.portal .sw-audit-day ol { list-style: none; margin: 0; padding: 0; }
+.portal .sw-audit-day-head { display: flex; align-items: center; gap: 10px; margin: 18px 0 6px; font-size: 0.8rem; font-weight: 650; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.portal .sw-audit-day-head::before, .portal .sw-audit-day-head::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.portal .sw-audit-entry { display: flex; gap: 12px; padding: 10px 8px; border-radius: 10px; }
+.portal .sw-audit-entry:hover { background: color-mix(in srgb, var(--ink) 3%, transparent); }
+.portal .sw-audit-body { min-width: 0; flex: 1; }
+.portal .sw-audit-meta { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: baseline; }
+.portal .sw-audit-meta time { color: var(--muted); font-size: 0.8rem; }
+.portal .sw-audit-sentence { margin: 2px 0 0; overflow-wrap: anywhere; }
+.portal .sw-audit-reason { margin: 6px 0 0; padding: 4px 10px; border-left: 3px solid var(--line); color: var(--muted); font-size: 0.9rem; overflow-wrap: anywhere; }
+.portal .sw-audit-links { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 4px; font-size: 0.85rem; }
+.portal .sw-audit-links .sw-link { display: inline-flex; align-items: center; gap: 4px; }
+.portal .sw-audit-links svg { width: 14px; height: 14px; transition: transform 0.15s; }
+.portal .sw-audit-links svg.flipped { transform: rotate(180deg); }
+.portal .sw-audit-details { margin: 8px 0 0; font-size: 0.88rem; }
+.portal .sw-audit-more { display: flex; gap: 12px; align-items: center; justify-content: center; margin-top: 14px; }
+@media (max-width: 560px) {
+  .portal .sw-facts > div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .portal .sw-audit-entry { padding: 10px 0; gap: 10px; }
+}
+
+/* == Handbook == */
+/* The article list itself is styled in affiliate.css (.handbook-*); these are the parts the
+   server-served handbook added: the contents list, the note about withheld articles, and room for
+   a deep link to land below the sticky header rather than under it. */
+.sw-handbook-intro .sw-state { margin-top: 12px; }
+.sw-handbook-toc { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 12px; }
+.sw-handbook-toc ol {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 6px 12px;
+}
+.sw-handbook-toc a {
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--ink);
+  text-decoration: none;
+}
+.sw-handbook-toc a span { font-weight: 650; }
+.sw-handbook-toc a small { color: var(--muted); font-size: 0.8rem; }
+.sw-handbook-toc a:hover,
+.sw-handbook-toc a[aria-current="location"] { border-color: var(--coral-strong); }
+.sw-handbook-toc a:focus-visible { outline: 2px solid var(--coral-strong); outline-offset: 2px; }
+.sw-handbook-note { margin: 12px 0 0; color: var(--muted); font-size: 0.85rem; max-width: 72ch; }
+.sw-handbook-section,
+.sw-handbook-section .handbook-article { scroll-margin-top: 80px; }
+.sw-handbook-anchor { display: inline-block; margin-top: 8px; font-size: 0.8rem; color: var(--muted); }
+.sw-handbook-anchor:hover { color: var(--coral-strong); }
+@media (max-width: 700px) {
+  .sw-handbook-toc ol { grid-template-columns: 1fr; }
+  .sw-handbook-intro .portal-search { min-width: 0; flex: 1 1 100%; }
+}
+
+/* == Admin & developer == */
+.sw-audience { display: inline-flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.sw-audience svg { width: 14px; height: 14px; }
+.sw-audience-owner { border-color: var(--coral); color: var(--coral-strong); }
+.sw-approvals { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.sw-approvals li { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; }
+.sw-approvals li > div:first-child { display: grid; gap: 4px; min-width: 0; flex: 1 1 320px; }
+.sw-approvals small { color: var(--muted); }
+.sw-approvals p { margin: 2px 0 0; }
+.sw-approval-actions { display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap; }
+.sw-approval-history { margin-top: 14px; }
+.sw-approval-history summary { cursor: pointer; font-weight: 650; margin-bottom: 10px; }
+.sw-admin-finance { display: grid; gap: 14px; }
+.sw-field { display: grid; gap: 6px; margin: 12px 0; }
+.sw-field textarea { width: 100%; }
+.sw-dev-checks, .sw-dev-exports { list-style: none; margin: 0 0 18px; padding: 0; display: grid; gap: 8px; }
+.sw-dev-checks li { display: grid; grid-template-columns: 20px 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; }
+.sw-dev-checks li svg { width: 18px; height: 18px; }
+.sw-dev-checks small { display: block; color: var(--muted); font-family: var(--font-geist-mono), monospace; font-size: 0.75rem; }
+.sw-dev-checks li.ready b, .sw-dev-checks li.ready svg { color: var(--field-ok); }
+.sw-dev-checks li.missing b, .sw-dev-checks li.missing svg { color: var(--field-bad); }
+.sw-dev-note { display: flex; gap: 12px; }
+.sw-dev-note svg { flex: none; width: 20px; color: var(--muted); }
+.sw-dev-note p { margin: 0 0 8px; }
+.sw-dev-filters { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: flex-end; margin-bottom: 12px; }
+.sw-dev-filters > label { display: grid; gap: 4px; font-size: 0.8rem; color: var(--muted); margin-bottom: 12px; }
+.sw-dev-exports li { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; }
+.sw-dev-exports small { display: block; color: var(--muted); }
+
+/* == Sidebar: resizable, and collapsible to icons == */
+/* Wide screens only. Under 1000px the sidebar is already an icon rail, and under 700px a tab rail
+   (portal.css, refinements.css), so neither control is offered there. The width comes from
+   --sw-aside-width, which StaffSidebar.tsx sets from the reader's own choice. */
+.sw-aside-toggle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 6px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: left;
+}
+.sw-aside-toggle:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 6%, transparent); }
+.sw-aside-toggle svg { width: 16px; flex: none; }
+.sw-aside-resizer {
+  position: absolute;
+  top: 0;
+  right: -5px;
+  width: 10px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 3;
+  touch-action: none;
+}
+/* The line itself: invisible until it is pointed at or focused, so it never competes with the
+   border it sits on. */
+.sw-aside-resizer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 4px;
+  width: 2px;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+.sw-aside-resizer:hover::after,
+.sw-aside-resizer:focus-visible::after,
+body.sw-resizing .sw-aside-resizer::after { background: var(--coral-strong); }
+.sw-aside-resizer:focus-visible { outline: none; }
+/* While dragging: no text selection across the page, and the resize cursor wherever it goes. */
+body.sw-resizing { cursor: col-resize; user-select: none; }
+@media (min-width: 1001px) {
+  .portal.admin-portal { grid-template-columns: var(--sw-aside-width, 250px) minmax(0, 1fr); }
+  .portal.admin-portal.sw-collapsed { grid-template-columns: 78px minmax(0, 1fr); }
+  .admin-portal.sw-collapsed > aside { padding: 26px 12px; }
+  .admin-portal.sw-collapsed aside .brand { font-size: 0; gap: 0; justify-content: center; }
+  /* The labels stay in the markup, at zero size, so every link keeps its accessible name; the
+     title on each link is what a mouse reader gets. */
+  .admin-portal.sw-collapsed aside nav a { font-size: 0; justify-content: center; position: relative; }
+  .admin-portal.sw-collapsed aside nav i {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    margin: 0;
+    padding: 1px 5px;
+    font-size: 9px;
+    line-height: 1.4;
+  }
+  /* A group heading becomes a hairline, so the four groups still read as four. */
+  .admin-portal.sw-collapsed aside nav .nav-group {
+    font-size: 0;
+    height: 1px;
+    padding: 0;
+    margin: 8px 8px;
+    background: var(--line);
+  }
+  .admin-portal.sw-collapsed aside nav .nav-group:first-child { display: none; }
+  .admin-portal.sw-collapsed .workspace-label,
+  .admin-portal.sw-collapsed .backlink:not(.nav-handbook) { display: none; }
+  .admin-portal.sw-collapsed .backlink.nav-handbook { justify-content: center; gap: 0; font-size: 0; margin-top: auto; }
+  .admin-portal.sw-collapsed aside .sw-search > button { justify-content: center; padding: 9px; }
+  .admin-portal.sw-collapsed aside .sw-search > button > span { display: none; }
+  .admin-portal.sw-collapsed .sw-aside-toggle { justify-content: center; }
+  .admin-portal.sw-collapsed .sw-aside-toggle span { display: none; }
+}
+@media (max-width: 1000px) {
+  .sw-aside-toggle,
+  .sw-aside-resizer { display: none; }
+}
+
+/* == Paging == */
+.list-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-top: 14px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.list-pager-buttons { display: flex; align-items: center; gap: 10px; }
+.list-pager-buttons .tool-button { display: inline-flex; align-items: center; gap: 4px; }
+.list-pager-buttons .tool-button svg { width: 16px; }
+.list-pager-page { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.sw-list-column { display: grid; gap: 4px; min-width: 0; }
+.sw-list-column .list-pager { margin-top: 6px; }
+
+/* A time to the minute; its title carries it to the second. */
+.portal .sw-time { cursor: help; }

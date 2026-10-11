@@ -1,0 +1,102 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "radar",
+  "main": "worker/index.ts",
+  "workers_dev": false,
+  "preview_urls": false,
+  "compatibility_date": "2026-05-22",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "radar",
+      "database_id": "00000000-0000-4000-8000-000000000000",
+      "migrations_dir": "drizzle"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "PHOTOS",
+      "bucket_name": "radar-photos"
+    }
+  ],
+  "vars": {
+    "EMAIL_PILOT_ENABLED": "false",
+    "EMAIL_KILL_SWITCH": "true",
+    "PUBLIC_APP_URL": "",
+    "OWNER_EMAIL": "",
+    "STRIPE_CONNECT_ENABLED": "false",
+    "TURNSTILE_SITE_KEY": "",
+    "RESEND_FROM_EMAIL": "",
+    "STRIPE_PRICE_ID": "",
+    "STRIPE_PRICE_ID_YEARLY": "",
+    "APPLE_IAP_BUNDLE_ID": "cheap.radar.app",
+    "APPLE_IAP_PRODUCT_ID": "radar.pro.monthly"
+  },
+  "assets": {
+    "directory": "dist/client",
+    "binding": "ASSETS",
+    "not_found_handling": "none",
+    "run_worker_first": [
+      "/en/deals/*",
+      "/fr/deals/*",
+      "/es/deals/*",
+      "/og/deals/*",
+      "/en/cities",
+      "/en/cities/*",
+      "/en",
+      "/en/terms",
+      "/en/privacy",
+      "/en/support",
+      "/en/age-suitability",
+      "/en/for-restaurants",
+      "/en/for-creators",
+      "/en/sign-in",
+      "/en/sign-up",
+      "/fr",
+      "/fr/terms",
+      "/fr/privacy",
+      "/fr/support",
+      "/fr/age-suitability",
+      "/fr/for-restaurants",
+      "/fr/for-creators",
+      "/fr/sign-in",
+      "/fr/sign-up",
+      "/es",
+      "/es/terms",
+      "/es/privacy",
+      "/es/support",
+      "/es/age-suitability",
+      "/es/for-restaurants",
+      "/es/for-creators",
+      "/es/sign-in",
+      "/es/sign-up",
+      "/robots.txt",
+      "/sitemap.xml",
+      "/sw.js",
+      "/favicon.ico",
+      "/favicon.svg",
+      "/apple-touch-icon.png",
+      "/icon-192.png",
+      "/icon-512.png",
+      "/icon-maskable-512.png",
+      "/og.png",
+      "/BingSiteAuth.xml",
+      "/602d8d4ce8bbaf576a0b258628794d49.txt",
+      "/vinext-client-entry-manifest.json"
+    ]
+  },
+  "version_metadata": {
+    "binding": "CF_VERSION"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "triggers": {
+    "crons": [
+      "0 * * * *"
+    ]
+  }
+}

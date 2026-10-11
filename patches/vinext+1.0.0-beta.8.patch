@@ -1,0 +1,13 @@
+diff --git a/node_modules/vinext/dist/server/app-page-route-wiring.js b/node_modules/vinext/dist/server/app-page-route-wiring.js
+index de1d984..3dab30d 100644
+--- a/node_modules/vinext/dist/server/app-page-route-wiring.js
++++ b/node_modules/vinext/dist/server/app-page-route-wiring.js
+@@ -265,7 +265,7 @@ function createStreamedIconKey(pathname, metadataHtml) {
+ 	return `${pathname}:${(hash >>> 0).toString(36)}`;
+ }
+ const STREAMED_ICON_KEY_PLACEHOLDER = "vinext-pending-streamed-icon-key";
+-const REINSERT_STREAMED_ICONS_SCRIPT = `document.querySelectorAll('body link[rel="icon"], body link[rel="apple-touch-icon"]').forEach(el => document.head.appendChild(el));const a='data-vinext-streamed-icon',o=el=>{const m=el.getAttribute(a),i=m.lastIndexOf(':');return Number(m.slice(i+1))};[...document.querySelectorAll('link['+a+']')].sort((l,r)=>o(l)-o(r)).forEach(el=>document.head.appendChild(el))`;
++const REINSERT_STREAMED_ICONS_SCRIPT = `document.querySelectorAll('body link[rel="icon"], body link[rel="apple-touch-icon"]').forEach(el => document.head.appendChild(el));var a='data-vinext-streamed-icon';var o=el=>{const m=el.getAttribute(a),i=m.lastIndexOf(':');return Number(m.slice(i+1))};[...document.querySelectorAll('link['+a+']')].sort((l,r)=>o(l)-o(r)).forEach(el=>document.head.appendChild(el))`;
+ function createAppPageRouteBodyMetadata(metadata, pathname, metadataPlacement, trailingSlash, scriptNonce) {
+ 	if (!metadata || metadataPlacement !== "body") return null;
+ 	const streamedIconKey = hasStreamedIcons(metadata) ? STREAMED_ICON_KEY_PLACEHOLDER : void 0;

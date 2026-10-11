@@ -1,0 +1,127 @@
+.auth-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 117, 73, 0.08), transparent 34rem),
+    var(--cream);
+  color: var(--ink);
+}
+.auth-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2.25rem;
+  font-size: 1.45rem;
+  font-weight: 850;
+  color: var(--ink);
+  text-decoration: none;
+}
+.auth-panel {
+  width: min(100%, 440px);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
+}
+.auth-header { text-align: center; }
+.auth-kicker {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--coral-strong);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.auth-header h1 {
+  margin: 0;
+  font-size: clamp(1.75rem, 5vw, 2.25rem);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+}
+.auth-header p {
+  margin: 0.75rem auto 1.25rem;
+  max-width: 380px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.auth-panel > .cl-rootBox {
+  width: 100%;
+}
+.auth-panel .cl-card {
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--line);
+}
+/* Clerk draws its social buttons and the "or" rule from colorBorder at a fraction of its alpha,
+   which on the dark card left both invisible: two labels floating in the card, not two buttons.
+   The site's own field colours instead (globals.css --field / --line). */
+html[data-theme="dark"] .auth-panel .cl-socialButtonsBlockButton {
+  background: var(--field);
+  border: 1px solid #3d3d3d;
+  box-shadow: none;
+}
+html[data-theme="dark"] .auth-panel .cl-socialButtonsBlockButton:hover {
+  border-color: var(--muted);
+}
+html[data-theme="dark"] .auth-panel .cl-dividerLine {
+  background: #3d3d3d;
+}
+.auth-panel :where(.cl-rootBox, .cl-card, .cl-cardBox, .cl-main, .cl-form, [class*="cl-"]) {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
+  transition-duration: 0.01ms !important;
+}
+.auth-legal {
+  max-width: 430px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--muted);
+  text-align: center;
+}
+.auth-legal a {
+  color: var(--ink);
+}
+.signupbtn {
+  background: var(--coral-strong) !important;
+  color: var(--on-coral) !important;
+  border-color: transparent !important;
+  border-radius: 999px;
+  padding: 9px 16px !important;
+  text-decoration: none;
+}
+.dashboard-account-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.dashboard-account-actions button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+@media (max-width: 800px) {
+  .auth-shell {
+    align-items: flex-start;
+    padding: 2rem 0.75rem;
+  }
+  .auth-brand { margin-bottom: 1.5rem; }
+}
+/* The theme toggle floats fixed in the top-right corner (polish.css .theme-toggle); on a phone
+   the centred brand ran underneath it. */
+@media (max-width: 570px) {
+  .auth-shell { padding-top: 4.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-shell *, .auth-shell *::before, .auth-shell *::after {
+    animation: none !important;
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}

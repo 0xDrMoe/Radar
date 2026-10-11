@@ -1,0 +1,45 @@
+name: CI
+
+# Runs on pull requests from forks with no secrets and a read-only token: `pull_request`, never
+# `pull_request_target`, so code from a contributor cannot reach anything worth stealing.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check, build and test
+        run: npm test
+
+      - name: Apply migrations to a local D1
+        run: npm run test:migrations
+
+      # Production dependencies only: dev tooling advisories do not reach the deployed Worker.
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high

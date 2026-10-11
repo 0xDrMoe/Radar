@@ -1,0 +1,612 @@
+/* Shared site chrome: the footer, the legal documents, and cross-page control fixes.
+   ---------------------------------------------------------------------------------------------
+   Grouped link columns + a legal bottom bar — the layout every comparable consumer site settled
+   on, and the reason it won is navigational: a footer is where people look for the links that
+   are deliberately not in the header (legal, contact, account entry points), and grouping them
+   under headings is what makes that scannable.
+
+   Selectors are scoped under .site-footer so none of this touches the bare `footer` rules in
+   globals.css that the dashboard and portal chrome still rely on. Where a rule has to beat
+   globals.css's `html[data-theme="dark"] footer a`, it is written with enough specificity to do
+   so on its own rather than depending on stylesheet order. */
+
+.site-footer {
+  display: block;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 56px clamp(18px, 5vw, 40px) 34px;
+  border-top: 1px solid var(--line);
+  color: var(--ink);
+}
+.site-footer-top {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 2.2fr;
+  gap: clamp(28px, 5vw, 64px);
+  align-items: start;
+}
+.site-footer-brand .brand { display: inline-flex; }
+.site-footer-brand p {
+  max-width: 280px;
+  margin: 14px 0 0;
+  line-height: 1.6;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.site-footer-nav {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px 20px;
+}
+.site-footer-nav .site-footer-heading {
+  margin: 0 0 12px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.site-footer-nav ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; }
+/* Link rows are padded to a 34px row rather than sized by their text, so every one of them
+   clears the 24px pointer-target floor — the old footer links were 15px tall. */
+.site-footer .site-footer-nav a,
+.site-footer .site-footer-nav button {
+  display: inline-block;
+  padding: 7px 0;
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+}
+/* The suggest row renders as a <button> on the home page and a link everywhere else (see
+   SiteFooter) — strip the control chrome so the two are indistinguishable in the column. */
+.site-footer .site-footer-nav button {
+  background: none;
+  border: 0;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.site-footer .site-footer-nav a:hover,
+.site-footer .site-footer-nav button:hover { color: var(--coral-strong); text-decoration: underline; }
+
+.site-footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px 24px;
+  margin-top: 40px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+.site-footer-bottom p { margin: 0; font-size: 13px; color: var(--muted); }
+/* The home page's feedback button and back-to-top float over the bottom corners; at the end of the
+   page they sat on the disclaimer and the copyright line. Room to scroll them clear. Phones are
+   handled by the body padding in refinements.css. */
+@media (min-width: 701px) {
+  body:has(.feedback-fab) .site-footer { padding-bottom: 96px; }
+}
+.site-footer-disclaimer { max-width: 560px; text-align: right; }
+
+@media (max-width: 900px) {
+  .site-footer-top { grid-template-columns: 1fr; gap: 34px; }
+  .site-footer-nav { grid-template-columns: repeat(2, 1fr); }
+  .site-footer-disclaimer { text-align: left; }
+}
+@media (max-width: 460px) {
+  .site-footer { padding-top: 42px; }
+  .site-footer-nav { grid-template-columns: 1fr 1fr; gap: 20px 14px; }
+}
+
+/* ---- Legal documents ------------------------------------------------------------------------
+   Both policies grew from ~10 short paragraphs to numbered, deep-linkable sections, which needs
+   three things globals.css's `.legal` block never had: a contents list, list and table styling,
+   and a scroll offset so an anchored heading doesn't land underneath the sticky header. */
+.legal-toc {
+  margin: 34px 0 10px;
+  padding: 22px 24px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--ink) 3%, transparent);
+}
+.legal-toc h2 {
+  margin: 0 0 12px !important;
+  font-size: 11px !important;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.legal-toc ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  columns: 2;
+  column-gap: 28px;
+}
+.legal-toc li { break-inside: avoid; }
+.legal article .legal-toc a {
+  display: block;
+  padding: 5px 0;
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.legal article .legal-toc a:hover { color: var(--coral-strong); text-decoration: underline; }
+
+/* The machine-translation notice at the top of a French legal document. */
+.legal article .legal-notice {
+  margin: 24px 0 0;
+  padding: 14px 18px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--coral-strong);
+  border-radius: 12px;
+  font-size: 15px;
+}
+
+.legal h2[id] { scroll-margin-top: 90px; }
+.legal article ul {
+  margin: 14px 0;
+  padding-left: 22px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.legal article li { margin: 7px 0; }
+.legal article a { color: var(--coral-strong); font-weight: 600; }
+.legal article strong { color: var(--ink); }
+
+.legal-table-wrap { overflow-x: auto; margin: 16px 0 6px; }
+.legal-table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.legal-table th,
+.legal-table td {
+  border: 1px solid var(--line);
+  padding: 11px 13px;
+  text-align: left;
+  vertical-align: top;
+  color: var(--muted);
+}
+.legal-table thead th {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+}
+.legal-table tbody th { color: var(--ink); font-weight: 800; white-space: nowrap; }
+
+html[data-theme="dark"] .legal article ul,
+html[data-theme="dark"] .legal-table th,
+html[data-theme="dark"] .legal-table td { color: var(--muted); }
+html[data-theme="dark"] .legal-table tbody th,
+html[data-theme="dark"] .legal article strong { color: var(--ink); }
+
+@media (max-width: 640px) {
+  .legal-toc { padding: 18px; }
+  .legal-toc ul { columns: 1; }
+}
+
+/* ---- Pointer-target sizes -------------------------------------------------------------------
+   Three standalone controls sat below the 24x24 minimum. Inline links inside a sentence are
+   exempt from that rule and are deliberately left alone; these three are not inline links. */
+
+/* The radius picker in the hero. Its pill-shaped <label> looked like the target but a label does
+   not forward clicks to a <select>, so the real target was the 20px-tall select inside it. */
+.location-tools label { padding-block: 5px; }
+.location-tools select { min-height: 30px; }
+
+/* "Back to results" on the deal page: a standalone navigation link, not prose. */
+.deal-page-subnav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 4px 0;
+}
+
+/* ---- Price filter ---------------------------------------------------------------------------
+   $ / $$ / $$$ chips in the quick-filter row, the convention restaurant search settled on.
+   They inherit .filter-toggle-row's button styling; these rules only keep the group tight and
+   the glyphs from reflowing as tiers are toggled. */
+.price-tier-filter { display: flex; gap: 6px; }
+.price-tier-filter button {
+  min-width: 44px;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .5px;
+}
+
+/* ---- Dining filter --------------------------------------------------------------------------
+   Fast food / sit-down, beside the price chips and styled as their sibling. Words rather than an
+   icon pair: there is no glyph for "you order at a counter" that a reader would guess right, and
+   the two labels together are shorter than the legend an icon would need. */
+.service-style-filter { display: flex; gap: 6px; }
+
+/* ---- Quick filters on a phone ----------------------------------------------------------------
+   Wrapped, the row stacked into four and five lines of chips above the first deal, pushing the
+   results a full screen down. One line that scrolls sideways, the pattern every listings app uses
+   for this row, with the far edge faded so it reads as "more this way" rather than cut off. */
+@media (max-width: 700px) {
+  .filter-toggle-row {
+    /* Positioned, so it is the containing block of the price chips' visually-hidden labels
+       (.sr-only is position:absolute). Otherwise they are placed against an ancestor outside
+       this scroller, escape its clipping, and drag the whole page 90px sideways. */
+    position: relative;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    /* Room for the chips' focus rings, which the scroll container would otherwise clip. */
+    padding: 4px 2px;
+    mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+  }
+  .filter-toggle-row::-webkit-scrollbar { display: none; }
+  .filter-toggle-row > * { flex: none; }
+  .filter-toggle-row label,
+  .filter-toggle-row button,
+  .filter-toggle-row-label { white-space: nowrap; }
+  .filter-toggle-row > :last-child { margin-right: 28px; }
+}
+
+/* ---- Clear filters --------------------------------------------------------------------------
+   It sits at the end of the chips it clears now, rather than across the row at the far right of
+   the category buttons, which it had nothing to do with and lined up with nothing. Inside that
+   row it has to out-specify `.active-filter-chips button`, which would otherwise make it a fourth
+   pill among the filters instead of the one control that removes them. */
+.active-filter-chips .clear-filters {
+  border: 0;
+  background: transparent;
+  /* #f2c47b measured 3.33:1 on the light results band at 12px. */
+  color: #f9f5eb;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  padding: 7px 4px;
+  margin-left: 4px;
+}
+.active-filter-chips .clear-filters:hover { color: #fff; }
+
+/* ---- Release announcement --------------------------------------------------------------------
+   One page, one action. /launch exists to turn a link from somewhere else into an App Store tap,
+   so the button is the only thing on the page styled as a control — everything around it is prose.
+   `.legal article a` sets links coral and bold, which is right inside a sentence and wrong on a
+   filled button, so the color is overridden at the same specificity rather than left to fight. */
+.release-cta {
+  display: inline-block;
+  margin: 6px 0 4px;
+  padding: 15px 26px;
+  border-radius: 14px;
+  background: var(--coral-strong);
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.2;
+  text-decoration: none;
+}
+.legal article a.release-cta { color: var(--on-coral); }
+.legal article a.release-cta:hover { text-decoration: none; filter: brightness(1.07); }
+.legal article a.release-cta:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+/* ---- Site navigation ------------------------------------------------------------------------
+   A conventional bar: the brand and the things you can go to on the left, who you are and how the
+   site is set on the right.
+
+   It used to read as one cluster jammed against the right edge with a third of the bar empty
+   beside the wordmark, because `.vertical-switch` carried `margin-left: auto` and that pulled
+   everything after it — the switch, all nine nav controls and the search trigger — to the end of
+   the row. The switch is part of the left group now, since "Restaurants / Retail" says what you
+   are browsing, not who you are.
+
+   `.nav-links` is still the single element the burger toggles and `aria-controls` names; the two
+   groups live inside it. */
+.nav { justify-content: flex-start; gap: 18px; }
+.nav-links { flex: 1; min-width: 0; justify-content: space-between; }
+.nav-primary,
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 1.6vw, 28px);
+}
+/* The account cluster's own controls sit closer together than the nav links do: they are icons
+   and buttons rather than words, and the wider rhythm made them read as five separate regions. */
+.nav-actions { gap: clamp(8px, 1vw, 16px); }
+/* The search shortcut is a quiet outlined control (newfeatures.css .command-trigger), but globals.css
+   fills every `.nav button` coral, which made it the loudest thing in the header - a second
+   primary button beside the real one. */
+.site-nav > .command-trigger { flex: none; background: transparent; color: var(--muted); border: 1px solid var(--line); padding: 8px 12px; }
+.site-nav > .command-trigger:hover { background: transparent; color: var(--ink); border-color: var(--muted); }
+
+/* The drawer's width (polish.css .nav-links). */
+@media (max-width: 1100px) {
+  /* In the drawer the groups have to disappear as boxes, or the column lays out two rows of
+     horizontal links instead of a list. `display: contents` hands their children straight to the
+     column, so every rule below that targets `.nav-links a` keeps applying. */
+  .nav-primary,
+  .nav-actions { display: contents; }
+  .nav-links { flex: none; }
+  /* The row used to be spread by space-between, which put the burger in the middle of the bar
+     with the vertical switch to its right. Ordered last and pushed over, it lands where a burger
+     is looked for. */
+  .nav { gap: 10px; }
+  .nav-burger { order: 3; margin-left: auto; }
+}
+
+/* ---- The one-row bar, above the drawer -------------------------------------------------------
+   `.nav-links` may shrink (min-width: 0) while nothing inside it can, so a row that is too long
+   does not wrap or scroll: the account cluster slides under the search trigger. It did, in
+   French at 1280px (the theme toggle 70px over "Ctrl K"), in every language with a signed-in
+   session between 901px and 1100px, and on the home page in English whenever someone was signed
+   in. The nav also stops growing at 1180px while the gaps between its links grow with the window,
+   so a wider window made it worse, not better.
+
+   Measured with the real stylesheets and fonts, 901px to 1600px, English, French and Spanish,
+   signed out, signed in and staff, first names up to "Jean-Christophe" and past it, home and
+   other pages; Clerk's avatar taken as the coral pill `.nav button` makes of it:
+
+   - Below 1100px the drawer takes over (polish.css).
+   - A first name longer than the label's box ends in an ellipsis instead of pushing the row.
+   - French and Spanish keep the links and the account controls at the spacing the bar has at
+     its narrowest, since their longer labels leave no room for it to grow.
+   - On the home page the vertical switch takes a second row of the bar, under the wordmark,
+     wherever the one row cannot hold it: in French and Spanish (the switch alone is 275px in
+     French) and for anyone signed in, at every width, and for everyone just above the drawer.
+     The first row is then the bar every other page has, which fits. The empty ::after is a forced
+     line break: it fills the rest of the first row, so the switch never lands at the far right
+     after the search trigger. The top padding keeps the first row where the one-row bar centres
+     it: (82px less the 42px tallest control) / 2. "Signed in" is the server's word for it
+     (html[data-signed-in], RootShell) so the bar does not grow under the reader once the session
+     arrives, and the header's own for a session begun after the page loaded.
+
+   English signed out keeps its one row, with its spacing, wherever it fits. */
+@media (min-width: 1101px) {
+  .site-nav .accountbtn-label {
+    max-width: 135px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .site-nav:is(:lang(fr), :lang(es)) .nav-primary { gap: 12px; }
+  .site-nav:is(:lang(fr), :lang(es)) .nav-actions { gap: 8px; }
+}
+/* A staff session in French is still 22px too long at 1101px (Spanish 3px) and cramped until
+   1146px, so there the search trigger drops its "Ctrl K" and keeps the icon; its accessible name,
+   and the shortcut itself, are unchanged. */
+@media (min-width: 1101px) and (max-width: 1150px) {
+  .site-nav:is(:lang(fr), :lang(es)):has(.adminbtn) > .command-trigger .command-trigger-key { display: none; }
+}
+@media (min-width: 1101px) and (max-width: 1150px) {
+  .site-nav:has(> .vertical-switch) {
+    flex-wrap: wrap;
+    height: auto;
+    row-gap: 0;
+    padding-top: 20px;
+    padding-bottom: 16px;
+  }
+  .site-nav:has(> .vertical-switch)::after {
+    content: "";
+    flex-basis: 100%;
+    height: 6px;
+    order: 1;
+  }
+  .site-nav > .vertical-switch { order: 2; }
+}
+@media (min-width: 1151px) {
+  .site-nav:has(> .vertical-switch):is(:lang(fr), :lang(es), :has(.accountbtn-label)),
+  html[data-signed-in] .site-nav:has(> .vertical-switch) {
+    flex-wrap: wrap;
+    height: auto;
+    row-gap: 0;
+    padding-top: 20px;
+    padding-bottom: 16px;
+  }
+  .site-nav:has(> .vertical-switch):is(:lang(fr), :lang(es), :has(.accountbtn-label))::after,
+  html[data-signed-in] .site-nav:has(> .vertical-switch)::after {
+    content: "";
+    flex-basis: 100%;
+    height: 6px;
+    order: 1;
+  }
+  .site-nav:is(:lang(fr), :lang(es), :has(.accountbtn-label)) > .vertical-switch,
+  html[data-signed-in] .site-nav > .vertical-switch { order: 2; }
+}
+
+/* ---- Skip link target ------------------------------------------------------------------------
+   Every public page's <main> takes focus from the skip link (tabIndex -1, see app/PublicPage.tsx),
+   and so does the dashboard's content column (app/[locale]/dashboard/DashboardClient.tsx), so the
+   next Tab starts inside the content. It is a landing point, not a control, and the global
+   [tabindex] focus ring drew a coral box around the entire page. */
+main[tabindex="-1"]:focus { outline: none; }
+
+/* ---- Focus on the search fields --------------------------------------------------------------
+   The hero search, the list's filter search and the command palette each draw a field around a
+   bare input, and set `outline: 0` on the input so the browser's ring would not sit inside that
+   field. At (0,1,1) that also beat the site's own focus rule (0,1,0), so the most-used control on
+   the site showed nothing but a caret when focused. The ring goes on the field instead, which is
+   the shape the reader sees as the input. Plain :focus rather than :focus-visible: a text field
+   shows where typing will go however it got focus, and the fields that are focused by script -
+   the palette's on opening, the location field "Surprise me" points at - did not match
+   :focus-visible in Chrome unless the last thing the reader pressed was a key. */
+.search-box:has(input:focus),
+.filter-search:has(input:focus),
+.portal-search:has(input:focus) {
+  outline: 2px solid var(--coral-strong);
+  outline-offset: 2px;
+}
+/* On the coral results band, coral is no ring at all: the same cream the band's other controls use
+   (refinements.css `.results :where(...)`), which reads on the dark theme's band as well. */
+.results .filter-search:has(input:focus) { outline-color: #f6f1e6; }
+/* The palette's field is a full-width row at the top of the panel, ruled off from the list below
+   it, so the rule itself becomes the indicator rather than a box inside the panel's rounded edge. */
+.command-search:has(input:focus) {
+  border-bottom-color: var(--coral-strong);
+  box-shadow: inset 0 -1px 0 var(--coral-strong);
+}
+
+/* ---- Pausing the hero ------------------------------------------------------------------------
+   The typed heading word, the typed placeholders and the radar sweep behind them all run for as
+   long as the page is open. The button stops all three (WCAG 2.2.2); HomeClient stops the typing,
+   and the sweep and the cursor's blink stop here. Small and quiet in the hero's corner: it is for
+   the reader who needs it, not a feature. With reduced motion nothing moves, so it is not shown. */
+.motion-toggle {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 1;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--cream) 88%, transparent);
+  color: var(--muted);
+  cursor: pointer;
+}
+.motion-toggle:hover { color: var(--ink); border-color: var(--muted); }
+.motion-toggle svg { width: 14px; height: 14px; }
+.hero.motion-paused::after { animation-play-state: paused; }
+.hero.motion-paused .hero-typewriter::after { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .motion-toggle { display: none; }
+}
+
+/* The city guides (app/[locale]/cities): a plain list of deals, one row each, on the .legal page.
+   Its topic chips also lead a deal page back into its city guide (.deal-guide). */
+.city-page .city-topics,
+.deal-guide .city-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  list-style: none;
+  padding: 0;
+  margin: 14px 0 6px;
+}
+.city-page .city-topics li,
+.deal-guide .city-topics li { margin: 0; }
+.city-page .city-topics a,
+.city-page .city-topics strong,
+.deal-guide .city-topics a {
+  display: inline-block;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 13px;
+  font-size: 14px;
+  background: var(--field, #fff);
+}
+.city-page .city-topics strong { background: var(--coral-strong); border-color: var(--coral-strong); color: var(--on-coral); }
+.city-page .city-deals { list-style: none; padding: 0; margin: 18px 0 8px; }
+.city-page .city-deals li {
+  display: grid;
+  gap: 3px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  line-height: 1.45;
+}
+.city-page .city-deal-link { display: grid; gap: 1px; text-decoration: none; }
+.city-page .city-deal-restaurant { color: var(--ink); font-weight: 800; font-size: 17px; }
+.city-page .city-deal-title { color: var(--coral-strong); font-weight: 600; }
+.city-page .city-deal-link:hover .city-deal-title { text-decoration: underline; }
+.city-page .city-deal-meta { color: var(--muted); font-size: 14px; }
+.city-page .city-deal-checked { color: var(--muted); font-size: 12px; letter-spacing: .02em; }
+
+/* The home page's link to the city guides, beside the city chips. */
+.city-links .city-guides-link { color: var(--coral-strong); font-weight: 700; border-bottom: 1px solid currentColor; padding: 7px 4px; text-decoration: none; }
+/* A chip that links to its city's guide looks like the chips that are buttons (enhancements.css). */
+.city-links .city-chip { color: var(--ink); border-bottom: 1px solid var(--line); padding: 7px 4px; text-decoration: none; }
+@media (pointer: coarse) { .city-links a { min-height: 44px; display: inline-flex; align-items: center; } }
+@media (max-width: 570px) { .city-links .city-chip { padding: 6px 8px; } }
+
+/* The home page's server-rendered list of the deals checked most recently (app/HomeRecentChecks.tsx). */
+.recent-checks { max-width: 1100px; margin: auto; padding: 64px 24px 24px; }
+.recent-checks-intro { max-width: 640px; margin-bottom: 26px; }
+.recent-checks-intro h2 { font: 700 34px/1.1 var(--font-display), system-ui, sans-serif; letter-spacing: -1px; margin: 8px 0 10px; }
+.recent-checks-intro p { color: var(--muted); margin: 0; line-height: 1.55; }
+.recent-checks-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0 28px; }
+.recent-checks-list li { display: grid; gap: 2px; padding: 13px 0; border-bottom: 1px solid var(--line); line-height: 1.4; min-width: 0; }
+.recent-check-link { display: grid; gap: 1px; text-decoration: none; min-width: 0; }
+.recent-check-restaurant { color: var(--ink); font-weight: 800; overflow-wrap: anywhere; }
+.recent-check-title { color: var(--coral-strong); font-weight: 600; overflow-wrap: anywhere; }
+.recent-check-link:hover .recent-check-title { text-decoration: underline; }
+.recent-check-meta { color: var(--muted); font-size: 13px; }
+.recent-checks-guides { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; margin-top: 22px; font-size: 14px; }
+.recent-checks-guides > span { color: var(--muted); font-weight: 700; }
+.recent-checks-guides ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.recent-checks-guides a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
+.recent-checks-guides a:hover { text-decoration-color: currentColor; }
+@media (pointer: coarse) { .recent-checks-guides a { display: inline-flex; min-height: 44px; align-items: center; } }
+@media (max-width: 570px) { .recent-checks { padding: 48px 16px 16px; } .recent-checks-intro h2 { font-size: 28px; } }
+.city-page h1 { font-size: clamp(38px, 6vw, 64px); letter-spacing: -2px; line-height: 1; }
+
+/* ---- Accessibility pass: focus visibility, contrast, reflow ----------------------------------- */
+
+/* The results band's cream ring (refinements.css) was for controls sitting on the band itself.
+   Deal cards and the filter panel inside the band are cream or white, where that ring measured
+   about 1:1, so focus on a card's links, its heart or the filter search could not be seen. */
+.results :is(.deal, .discovery-panel) :where(a, button, input, select):focus-visible,
+.results .discovery-panel .filter-search:has(input:focus) {
+  outline-color: var(--coral-strong);
+}
+
+/* globals.css gives selects a 22% coral glow in place of the ring, and the later per-form rules
+   reset the border that was meant to go with it, so most dropdowns and a few text fields showed
+   almost nothing when focused (about 1.3:1). One solid ring, the same as every other control. */
+select:focus-visible,
+:is(.discovery-panel, .submit, .feedback-modal, .chain-picker, .location-tools, .offer-locations-select) select:focus-visible,
+.submit input:focus-visible,
+.lead-capture input[type="email"]:focus-visible {
+  outline: 2px solid var(--coral-strong);
+  outline-offset: 2px;
+}
+
+/* "Change" in the results heading was coral on the coral band in the light theme: 1:1. */
+.results .change-area { color: #f9f5eb; }
+
+/* Dark-theme text that kept a light-theme color. */
+.notice:empty { margin: 0; }
+.detail-notice:empty { padding: 0; margin: 0; }
+html[data-theme="dark"] .notice,
+html[data-theme="dark"] .form-error { color: var(--field-bad); }
+html[data-theme="dark"] .deal-offer-line { color: var(--muted); }
+
+/* Fixed and sticky bars covered whatever a keyboard user tabbed to near them. scroll-padding
+   makes the browser scroll focused controls clear of the bottom nav, the cookie notice and the
+   sticky filter panel. */
+@media (max-width: 700px) {
+  html:has(.mobile-bottom-nav) { scroll-padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
+}
+html:has(.cookie-notice) { scroll-padding-bottom: 240px; }
+@media (min-width: 900px) {
+  html:has(.discovery-panel) { scroll-padding-top: 96px; }
+}
+/* Modals sat under the bottom nav (110), the sticky panel (30) and the cookie notice (150), which
+   stayed tappable on top of an aria-modal dialog. */
+.overlay,
+.command-overlay { z-index: 160; }
+/* Toasts (saved, copied) are often raised from inside a dialog, so they stay above it. */
+.toast-stack { z-index: 170; }
+
+/* On the home page the header holds the brand, the Restaurants/Retail switch and the menu button
+   on one row: 358px at a 320px viewport in English, 439px in French at every phone width, so the
+   whole page scrolled sideways. Below 600px the switch takes a row of its own. */
+@media (max-width: 600px) {
+  .site-nav:has(> .vertical-switch) {
+    flex-wrap: wrap;
+    height: auto;
+    padding-block: 12px;
+    row-gap: 10px;
+  }
+  .site-nav > .vertical-switch {
+    order: 4;
+    flex-basis: 100%;
+    justify-content: center;
+    margin: 0;
+  }
+}

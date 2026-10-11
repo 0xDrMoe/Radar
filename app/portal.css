@@ -1,0 +1,2498 @@
+.portal {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  background: var(--cream);
+  color: var(--ink);
+}
+.portal > aside {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  border-right: 1px solid var(--line);
+  padding: 26px 20px;
+  display: flex;
+  flex-direction: column;
+  background: color-mix(in srgb, var(--cream) 92%, var(--ink) 8%);
+}
+.portal aside nav {
+  display: grid;
+  gap: 4px;
+  margin-top: 34px;
+  /* Thirteen links, four headings and three ways out do not fit a 13" laptop. Scrolling the list
+     rather than the whole column keeps the ways out — and the handbook with them — on screen at
+     any window height, which matters because the handbook is what somebody reaches for when they
+     are already stuck. min-height lets a grid shrink below its contents; without it this just
+     overflows the sidebar as before. */
+  min-height: 0;
+  overflow: hidden auto;
+  /* A gap the auto margin below cannot eat, so that when the list does scroll, the three ways out
+     still read as a footer rather than as two more destinations. */
+  margin-bottom: 10px;
+}
+.portal aside nav a,
+.portal aside nav button {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  text-decoration: none;
+  padding: 10px;
+  border-radius: 10px;
+  font-weight: 700;
+  text-align: left;
+}
+.portal aside nav a.active,
+.portal aside nav button.active {
+  background: var(--coral-strong);
+  color: var(--on-coral);
+}
+.portal aside nav svg {
+  width: 18px;
+}
+/* A label over a run of links, not something you can click. It has to be quiet enough that the
+   eye skips it while scanning for a destination, and present enough to break thirteen links into
+   four short lists. Same size and tracking as the workspace label above it, in ink rather than
+   coral, because coral in this sidebar means "you are here". */
+.portal aside nav .nav-group {
+  font-size: 10.5px;
+  letter-spacing: 1.4px;
+  font-weight: 900;
+  text-transform: uppercase;
+  /* 75%: at 55% the 10.5px label measured 3.39:1 on the sidebar tint. */
+  color: color-mix(in srgb, var(--ink) 75%, transparent);
+  padding: 0 10px;
+  margin-top: 13px;
+}
+.portal aside nav .nav-group:first-child {
+  margin-top: 0;
+}
+.portal aside nav i {
+  margin-left: auto;
+  background: var(--coral-strong);
+  color: var(--on-coral);
+  border-radius: 999px;
+  font-style: normal;
+  padding: 2px 7px;
+  font-size: 10px;
+}
+.backlink {
+  color: var(--ink);
+  text-decoration: none;
+  margin-top: auto;
+  padding: 8px;
+  font-size: 13px;
+}
+.backlink + .backlink {
+  margin-top: 4px;
+}
+/* Findable at a glance, without shouting. A tint and a hairline are enough here: the only other
+   filled thing in the sidebar is the section you are currently in, so anything stronger than this
+   would read as a second "you are here". */
+.backlink.nav-handbook {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-weight: 700;
+  padding: 9px 10px;
+  border: 1px solid color-mix(in srgb, var(--coral-strong) 38%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--coral-strong) 12%, transparent);
+}
+.backlink.nav-handbook svg {
+  width: 16px;
+  color: var(--coral-strong);
+}
+.backlink.nav-handbook:hover {
+  background: color-mix(in srgb, var(--coral-strong) 20%, transparent);
+}
+.backlink.nav-handbook.active {
+  background: var(--coral-strong);
+  border-color: var(--coral-strong);
+  color: var(--on-coral);
+}
+.backlink.nav-handbook.active svg {
+  color: inherit;
+}
+.workspace-label {
+  font-size: 10.5px;
+  letter-spacing: 1.5px;
+  font-weight: 900;
+  /* Darkened toward ink: plain coral-strong measured 4.19:1 on the sidebar tint at 10.5px. */
+  color: color-mix(in srgb, var(--coral-strong) 80%, var(--ink));
+  margin-top: 13px;
+}
+.portal-main {
+  padding: 36px clamp(20px, 4vw, 60px) 50px;
+  max-width: 1500px;
+  width: 100%;
+  /* Horizontal only. An auto top margin centred a short section in the viewport, so the heading
+     jumped up and down as you moved between dashboard tabs of different lengths. */
+  margin: 0 auto;
+}
+.portal-main > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+}
+.portal-main header h1 {
+  font:
+    700 clamp(32px, 3.4vw, 46px)/1.05 var(--font-display),
+    system-ui, sans-serif;
+  letter-spacing: -1.2px;
+  margin: 5px 0;
+}
+.portal-main header p {
+  color: var(--muted);
+  margin: 0;
+}
+.profile-chip,
+.admin-identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 14px 7px 7px;
+}
+.profile-chip > span {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--coral-strong);
+  display: grid;
+  place-items: center;
+  color: var(--on-coral);
+  font-weight: 900;
+}
+.profile-chip div,
+.admin-identity div {
+  display: grid;
+}
+.profile-chip small,
+.admin-identity small {
+  color: var(--muted);
+}
+.admin-identity svg {
+  background: #c8e6d3;
+  color: #17402e;
+  border-radius: 50%;
+  padding: 8px;
+  width: 40px;
+  height: 40px;
+}
+.portal-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.portal-stats article {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--cream) 94%, var(--ink) 6%);
+  padding: 15px;
+  border-radius: 14px;
+}
+.portal-stats svg {
+  width: 20px;
+  color: var(--coral-strong);
+}
+.portal-stats div {
+  display: grid;
+}
+.portal-stats b {
+  font-size: 18px;
+}
+.portal-stats span {
+  color: var(--muted);
+  font-size: 12px;
+}
+.portal-card {
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--cream) 97%, var(--ink) 3%);
+  border-radius: 16px;
+  padding: 19px;
+  margin-top: 14px;
+}
+.portal-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 13px;
+}
+.portal-card-head h2 {
+  font:
+    600 22px var(--font-display),
+    system-ui, sans-serif;
+  margin: 3px 0;
+}
+.portal-card-head a {
+  display: flex;
+  align-items: center;
+  color: var(--coral-strong);
+  text-decoration: none;
+  font-weight: 800;
+}
+.portal-card-head a.primary {
+  color: var(--on-coral);
+}
+/* On a dashboard section page the header above already names the section, and the first card
+   under it repeated the same words as its title. Still there for screen readers, which move by
+   headings. The kicker stays: on some sections it says something the title does not ("Invite
+   only" on alerts). */
+.portal-main[data-section]:not([data-section="overview"]) > .portal-card:first-of-type > .portal-card-head > div > h2 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.portal-card-head svg {
+  width: 17px;
+}
+.favorite-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.favorite-grid > a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  padding: 13px;
+  color: var(--ink);
+  text-decoration: none;
+}
+.favorite-grid > a > span {
+  font-size: 28px;
+}
+.favorite-grid > a > div {
+  display: grid;
+  flex: 1;
+}
+.favorite-grid p {
+  margin: 3px 0;
+  font-size: 12px;
+}
+.favorite-grid small {
+  color: var(--muted);
+}
+.favorite-grid svg {
+  width: 16px;
+}
+.portal-empty {
+  grid-column: 1/-1;
+  text-align: center;
+  padding: 28px;
+}
+.portal-empty svg {
+  color: var(--coral-strong);
+}
+.portal-empty h3 {
+  font:
+    600 20px var(--font-display),
+    system-ui, sans-serif;
+}
+.portal-empty p {
+  color: var(--muted);
+}
+.portal-empty a {
+  color: var(--coral-strong);
+  font-weight: 800;
+}
+.preferences {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 17px;
+}
+.preferences > label:not(.toggle) {
+  display: grid;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 800;
+  /* The caption row is as tall as a Pro lock (pro.css .pro-lock, 21px) whether or not it has one,
+     so a locked field's input lines up with its unlocked neighbour instead of sitting 5px lower. */
+  grid-template-rows: minmax(21px, auto);
+  align-items: center;
+  align-content: start;
+}
+.preferences input {
+  border: 1px solid var(--line);
+  background: var(--cream);
+  color: var(--ink);
+  border-radius: 9px;
+  padding: 12px;
+}
+.preferences select {
+  border: 1px solid var(--line);
+  background-color: var(--cream);
+  color: var(--ink);
+  border-radius: 9px;
+  padding: 12px 32px 12px 12px;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: var(--select-arrow);
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 10px 6px;
+  cursor: pointer;
+}
+.preferences .wide {
+  grid-column: 1/-1;
+}
+/* Delivery days are one question, so they are a fieldset with the heading as its legend. */
+.day-fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.day-fieldset > legend {
+  padding: 0;
+  font-weight: 800;
+}
+.portal-days {
+  display: flex;
+  gap: 7px;
+  margin-top: 8px;
+}
+/* The real checkbox stays in the page, visually hidden over its pill, rather than display:none:
+   a display:none input cannot take focus and is not in the accessibility tree, which left the
+   delivery days and the alerts switch unreachable from a keyboard or a screen reader. */
+.portal-days label {
+  position: relative;
+}
+.portal-days label input,
+.toggle > input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+}
+.portal-days label input:focus-visible + span,
+.toggle > input:focus-visible + span {
+  outline: 2px solid var(--coral-strong);
+  outline-offset: 2px;
+}
+.portal-days label span {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  font-size: 12px;
+}
+.portal-days label input:checked + span {
+  background: var(--coral-strong);
+  color: var(--on-coral);
+}
+.toggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+.toggle > span {
+  width: 42px;
+  height: 24px;
+  /* #9aa39e measured 2.2:1 against the card; the off track has to read as a control. */
+  background: #6f7a73;
+  border-radius: 999px;
+  padding: 3px;
+}
+.toggle > span:after {
+  content: "";
+  display: block;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: 50%;
+  transition: 0.2s;
+}
+.toggle > input:checked + span {
+  background: var(--coral);
+}
+.toggle > input:checked + span:after {
+  transform: translateX(18px);
+}
+.toggle > div {
+  display: grid;
+}
+.toggle small {
+  color: var(--muted);
+}
+.preferences .primary {
+  justify-self: start;
+}
+.saved-msg {
+  align-self: center;
+  color: #2d704f;
+}
+.account-settings-grid {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+.account-settings-grid > div:first-child {
+  display: grid;
+  gap: 4px;
+}
+.account-settings-grid span,
+.account-settings-grid small {
+  color: var(--muted);
+}
+.appearance-settings {
+  display: grid;
+  gap: 16px;
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+  margin-top: 6px;
+}
+.appearance-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.appearance-row > span {
+  font-weight: 800;
+  font-size: 13px;
+}
+.accent-picker {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.accent-picker button {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: transform .15s ease, border-color .15s ease;
+}
+.accent-picker button:hover {
+  transform: scale(1.08);
+}
+.accent-picker button.active {
+  border-color: var(--ink);
+}
+.accent-picker button:focus-visible {
+  outline: 2px solid var(--coral-strong);
+  outline-offset: 2px;
+}
+.accent-picker button[aria-disabled="true"] {
+  cursor: progress;
+}
+.accent-picker button.locked {
+  opacity: 0.45;
+  display: grid;
+  place-items: center;
+}
+.accent-picker button.locked svg {
+  width: 14px;
+  height: 14px;
+  color: #fff;
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.6));
+}
+.account-legal-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.account-legal-links a {
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 9px 12px;
+  text-decoration: none;
+  font-weight: 750;
+}
+.portal-main > footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+  color: var(--muted);
+}
+.portal-main > footer a {
+  color: var(--coral-strong);
+}
+.portal-loading {
+  height: 100vh;
+  display: grid;
+  place-items: center;
+  background: var(--cream);
+  color: var(--ink);
+}
+.inventory-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.inventory-tools > span {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 12px;
+}
+.portal-search,
+.city-select {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0 11px;
+  height: 44px;
+}
+.portal-search {
+  min-width: 260px;
+}
+.portal-search svg,
+.city-select svg {
+  width: 16px;
+  color: var(--muted);
+}
+.portal-search input,
+.city-select select {
+  flex: 1;
+  border: 0;
+  outline: 0;
+  background-color: transparent;
+  color: var(--ink);
+  padding: 0 8px;
+}
+.city-select select {
+  appearance: none;
+  -webkit-appearance: none;
+  min-width: 140px;
+  padding: 0 20px 0 8px;
+  background-image: var(--select-arrow);
+  background-repeat: no-repeat;
+  background-position: right 2px center;
+  background-size: 9px 5px;
+  cursor: pointer;
+}
+.inventory-table {
+  display: grid;
+}
+.table-head,
+.inventory-table > article {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.2fr;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+}
+.table-head {
+  font-size: 10.5px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+}
+.inventory-table > article {
+  border-bottom: 1px solid var(--line);
+}
+/* Scoped to the informational cells, not the whole row: opacity on the article itself would dim
+   the "More" popover too, since it's a DOM child that escapes the row's box (position:absolute)
+   but not an ancestor's opacity — the compositing layer still applies to it regardless. */
+.inventory-table > article.inactive > *:not(.row-actions) {
+  opacity: 0.5;
+}
+.restaurant-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.restaurant-cell > i {
+  font-style: normal;
+  font-size: 25px;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
+  display: grid;
+  place-items: center;
+}
+.restaurant-photo-thumb {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.restaurant-photo-preview {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 14px;
+  margin: 4px 0 14px;
+}
+.restaurant-cell span,
+.inventory-table article > div:not(.row-actions):not(.restaurant-cell) {
+  display: grid;
+}
+/* Grid/flex items default to a content-based min-width, which lets a long value (a scraped
+   website URL, an invited email) push its column wider than its track instead of truncating —
+   the deal inventory table's short "title · cuisine" text never hit this, so its rows stayed a
+   uniform height while the restaurants table's rows visibly jumped taller row to row wherever a
+   URL wrapped. min-width: 0 lets the ellipsis rule below actually take effect. */
+.inventory-table > article > div,
+.restaurant-cell span {
+  min-width: 0;
+}
+.inventory-table b,
+.inventory-table small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.inventory-table small {
+  color: var(--muted);
+}
+.status-stack {
+  align-items: start;
+}
+.status,
+.sponsor-status {
+  width: max-content;
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: #e5b6ad;
+  color: #672a20;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  font-weight: 900;
+}
+.status.on {
+  background: #b9dfc7;
+  color: #17412d;
+}
+.sponsor-status {
+  background: #efd67e;
+  color: #574307;
+  margin-top: 4px;
+}
+.row-actions {
+  display: flex;
+  gap: 5px;
+}
+.row-actions button,
+.queue-list article > div:last-child button {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  border-radius: 7px;
+  padding: 7px 9px;
+}
+.queue-list {
+  display: grid;
+}
+.queue-list article {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 4px;
+  border-bottom: 1px solid var(--line);
+}
+.queue-list h3 {
+  margin: 10px 0 4px;
+  font:
+    600 23px var(--font-display),
+    system-ui, sans-serif;
+}
+.queue-list p {
+  margin: 0 0 7px;
+}
+.queue-list small {
+  color: var(--muted);
+}
+.queue-list article > div:last-child {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.queue-list .primary {
+  color: #fff;
+}
+html[data-theme="dark"] .portal-main header p {
+  color: var(--muted);
+}
+html[data-theme="dark"] .status {
+  background: #2a1210;
+  color: var(--field-bad);
+}
+html[data-theme="dark"] .status.on {
+  background: #12251a;
+  color: var(--field-ok);
+}
+html[data-theme="dark"] .sponsor-status {
+  background: #2a1f08;
+  color: #f0cf7a;
+}
+html[data-theme="dark"] .admin-identity svg {
+  background: #12251a;
+  color: var(--field-ok);
+}
+html[data-theme="dark"] .saved-msg {
+  color: var(--field-ok);
+}
+@media (max-width: 1000px) {
+  .portal {
+    grid-template-columns: 82px 1fr;
+  }
+  .portal > aside {
+    padding: 28px 14px;
+  }
+  .portal aside .brand {
+    font-size: 0;
+    gap: 0;
+  }
+  .portal aside nav a,
+  .portal aside nav button {
+    font-size: 0;
+    justify-content: center;
+  }
+  .portal aside nav i,
+  .portal aside nav .nav-group,
+  .workspace-label,
+  .backlink {
+    display: none;
+  }
+  /* The text backlinks go, but the handbook keeps its icon: it is the one thing down here that
+     somebody actively comes looking for, and it inherits the bottom of the column from them. */
+  .backlink.nav-handbook {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    font-size: 0;
+    margin-top: auto;
+  }
+  .favorite-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 700px) {
+  .portal {
+    display: block;
+  }
+  .portal > aside {
+    position: static;
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    padding: 14px 18px;
+  }
+  .portal aside .brand {
+    font-size: 23px;
+    gap: 8px;
+  }
+  /* The brand row keeps its right end clear for the theme toggle, which floats fixed in that
+     corner (polish.css .theme-toggle); the tab rail itself is in refinements.css. */
+  .portal aside .brand {
+    min-height: 52px;
+    margin-right: auto;
+  }
+  .backlink.nav-handbook {
+    margin: 0 158px 0 0;
+  }
+  .portal-main {
+    padding: 22px 16px;
+  }
+  .portal-main > header {
+    align-items: start;
+  }
+  .profile-chip,
+  .admin-identity {
+    display: none;
+  }
+  .portal-stats {
+    grid-template-columns: 1fr;
+  }
+  .favorite-grid,
+  .preferences {
+    grid-template-columns: 1fr;
+  }
+  .inventory-tools {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .portal-search {
+    min-width: 0;
+  }
+  .inventory-tools > span {
+    margin-left: 0;
+  }
+  .table-head {
+    display: none;
+  }
+  .inventory-table > article {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+  .row-actions {
+    justify-content: flex-start;
+  }
+  .portal-days {
+    flex-wrap: wrap;
+  }
+  .account-settings-grid {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .queue-list article {
+    flex-direction: column;
+  }
+}
+
+.quality-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+.quality-grid article {
+  display: grid;
+  gap: 5px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+  background: color-mix(in srgb, var(--cream) 96%, var(--ink) 4%);
+}
+.quality-grid b {
+  font:
+    700 30px var(--font-display),
+    system-ui, sans-serif;
+}
+.quality-grid span {
+  font-size: 11px;
+  color: var(--muted);
+}
+.deal-status-strip {
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 16px;
+}
+.quality-tile {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  padding: 14px;
+  background: color-mix(in srgb, var(--cream) 96%, var(--ink) 4%);
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+.quality-tile:hover {
+  border-color: var(--muted);
+}
+.quality-tile.active {
+  border-color: var(--coral);
+  background: color-mix(in srgb, var(--coral) 10%, var(--cream));
+}
+.quality-tile b {
+  font:
+    700 24px var(--font-display),
+    system-ui, sans-serif;
+}
+.quality-tile span {
+  font-size: 11px;
+  color: var(--muted);
+}
+.quality-actions .primary,
+.add-deal {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.quality-actions .primary svg,
+.add-deal svg {
+  width: 17px;
+}
+.quality-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 9px;
+}
+.quality-list > button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 12px;
+  background: transparent;
+  color: var(--ink);
+}
+.quality-list > button > span {
+  font-size: 27px;
+}
+.quality-list > button > div {
+  display: grid;
+  flex: 1;
+}
+.quality-list small {
+  color: var(--muted);
+}
+.quality-list svg {
+  width: 17px;
+}
+/* The review queue (app/review-queue.ts): ranked rows with their reason, attention and source. */
+.review-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.review-filters button {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 11px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 12.5px;
+}
+.review-filters button b {
+  margin-left: 4px;
+}
+.review-filters button[aria-pressed="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--cream);
+}
+.review-list > article {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 12px;
+  min-width: 0;
+}
+.review-list > article > span {
+  font-size: 27px;
+  line-height: 1.1;
+}
+.review-list > article > div {
+  display: grid;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+.review-list > article small {
+  overflow-wrap: anywhere;
+}
+.review-list .status.draft {
+  background: color-mix(in srgb, var(--muted) 18%, transparent);
+  color: var(--ink);
+}
+.review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+.review-actions button,
+.review-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 6px 9px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 12.5px;
+  text-decoration: none;
+}
+.review-actions button:disabled,
+.review-actions button[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.review-actions svg {
+  width: 14px;
+}
+.review-source.own {
+  border-color: var(--field-ok);
+  color: var(--field-ok);
+}
+.review-source.none {
+  color: var(--field-bad);
+  border-style: dashed;
+}
+.review-more {
+  margin-top: 10px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-weight: 800;
+  text-decoration: underline;
+  padding: 4px 0;
+}
+.review-note {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+}
+.inventory-tools {
+  flex-wrap: wrap;
+}
+.add-deal {
+  border: 0;
+  border-radius: 9px !important;
+  padding: 11px 14px !important;
+}
+.row-actions {
+  flex-wrap: wrap;
+}
+.row-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.row-actions button svg {
+  width: 13px;
+}
+@media (min-width: 701px) {
+  .deal-inventory-table .table-head,
+  .deal-inventory-table > article {
+    grid-template-columns: 2fr 1fr 1fr 1.6fr;
+  }
+  /* Restaurants tab has 3 columns (restaurant / manager / actions), not the 4-column
+     restaurant/market/status/actions shape the shared .inventory-table grid assumes — without
+     this, the actions column shrinks to a 1fr track meant for a single status pill, and its two
+     buttons wrap onto separate lines while a 4th track sits empty. */
+  .restaurant-manager-table .table-head,
+  .restaurant-manager-table > article {
+    grid-template-columns: 2fr 1.3fr 1.7fr;
+  }
+}
+.row-more {
+  position: relative;
+}
+.row-more > .row-more-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  border-radius: 7px;
+  padding: 7px 9px;
+  cursor: pointer;
+  font-size: inherit;
+  font-weight: inherit;
+}
+.row-more > .row-more-trigger svg {
+  width: 13px;
+}
+.row-more-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 5;
+  display: grid;
+  gap: 4px;
+  min-width: 140px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--field);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--ink) 18%, transparent);
+}
+.row-more-menu.up {
+  top: auto;
+  bottom: calc(100% + 4px);
+}
+.row-more-menu button {
+  width: 100%;
+  text-align: left;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink);
+  border-radius: 6px;
+  padding: 7px 9px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.row-more-menu button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+.row-more-menu button svg {
+  width: 13px;
+}
+.admin-editor-overlay {
+  z-index: 30;
+}
+.preview-overlay {
+  z-index: 40;
+}
+.discard-overlay {
+  z-index: 50;
+}
+.deal-editor {
+  width: min(960px, 100%);
+}
+.deal-editor h2 {
+  margin-bottom: 8px;
+}
+.editor-steps {
+  display: flex;
+  gap: 6px;
+  margin: 4px 0 14px;
+  overflow-x: auto;
+}
+.editor-steps button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 7px 13px 7px 8px;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.editor-steps button span {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--line);
+  color: var(--ink);
+  font-size: 10px;
+}
+.editor-steps button.active {
+  border-color: var(--coral);
+  color: var(--ink);
+}
+.editor-steps button.active span {
+  background: var(--coral-strong);
+  color: var(--on-coral);
+}
+.editor-steps button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.readiness-rail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.readiness-rail button.status {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+.readiness-rail button.status:hover {
+  filter: brightness(0.95);
+}
+.verify-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: -4px;
+}
+.verify-inline button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  border-radius: 9px;
+  padding: 10px 13px;
+  font-weight: 800;
+}
+.verify-inline button svg {
+  width: 15px;
+}
+.verify-inline small {
+  color: var(--muted);
+}
+.location-verify-list {
+  display: grid;
+  gap: 8px;
+}
+.location-verify-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px dashed var(--line);
+  border-radius: 11px;
+  font-size: 12px;
+}
+.location-verify-row > span:first-child {
+  flex: 1;
+  font-weight: 700;
+}
+.location-verify-row button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  border-radius: 9px;
+  padding: 8px 11px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.location-verify-row button svg {
+  width: 14px;
+}
+.editor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 13px;
+}
+.editor-grid label,
+.editor-grid .editor-field {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 800;
+}
+.editor-grid .wide {
+  grid-column: 1/-1;
+}
+.editor-grid input,
+.editor-grid select,
+.editor-grid textarea {
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 11px;
+  background-color: var(--cream);
+  color: var(--ink);
+}
+.editor-grid select {
+  padding: 11px 32px 11px 11px;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: var(--select-arrow);
+  background-repeat: no-repeat;
+  background-position: right 11px center;
+  background-size: 10px 6px;
+  cursor: pointer;
+}
+.editor-grid textarea {
+  min-height: 70px;
+  resize: vertical;
+}
+.editor-check {
+  display: flex !important;
+  align-items: center;
+}
+.editor-check input {
+  width: 18px;
+}
+.inline-check {
+  margin-top: 6px;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: var(--muted);
+}
+.editor-grid input:required:invalid,
+.editor-grid select:required:invalid,
+.editor-grid textarea:required:invalid {
+  border-color: var(--field-bad);
+  background-color: color-mix(in srgb, var(--field-bad) 10%, var(--cream));
+}
+.editor-grid input:required:valid,
+.editor-grid select:required:valid,
+.editor-grid textarea:required:valid {
+  border-color: var(--field-ok);
+  background-color: color-mix(in srgb, var(--field-ok) 10%, var(--cream));
+}
+.emoji-picker {
+  position: relative;
+}
+.emoji-picker-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 11px;
+  background-color: var(--cream);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 13px;
+  text-align: left;
+}
+.emoji-picker-trigger span {
+  font-size: 20px;
+}
+.emoji-picker-panel {
+  position: fixed;
+  z-index: 60;
+  width: min(340px, 90vw);
+  max-height: min(70vh, 420px);
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background-color: var(--field, var(--cream));
+  box-shadow: 0 18px 40px #00000040;
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+.emoji-picker-search {
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 9px 11px;
+  background-color: var(--cream);
+  color: var(--ink);
+  font-size: 13px;
+}
+.emoji-picker-grid {
+  max-height: 220px;
+  overflow-y: auto;
+  display: grid;
+  gap: 10px;
+}
+.emoji-picker-group-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.emoji-picker-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.emoji-picker-item {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 19px;
+  padding: 4px 6px;
+  line-height: 1;
+}
+.emoji-picker-item:hover {
+  border-color: var(--line);
+  background-color: var(--cream);
+}
+.emoji-picker-empty {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0;
+}
+.emoji-picker-custom {
+  display: flex;
+  gap: 6px;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+.emoji-picker-custom input {
+  flex: 1;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 9px 11px;
+  background-color: var(--cream);
+  color: var(--ink);
+  font-size: 13px;
+}
+.emoji-picker-custom button {
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 9px 13px;
+  background-color: var(--coral-strong);
+  color: var(--on-coral);
+  font-weight: 800;
+  font-size: 12px;
+}
+.emoji-picker-custom button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.schedule-picker {
+  display: grid;
+  gap: 10px;
+}
+.schedule-picker-label {
+  font-size: 12px;
+  font-weight: 800;
+}
+.schedule-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background-color: var(--cream);
+}
+.schedule-days.filled {
+  border-color: var(--field-ok);
+  background-color: color-mix(in srgb, var(--field-ok) 10%, var(--cream));
+}
+.schedule-days.empty {
+  border-color: var(--field-bad);
+  background-color: color-mix(in srgb, var(--field-bad) 10%, var(--cream));
+}
+.day-check {
+  display: flex !important;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.day-check input {
+  width: 16px;
+}
+.schedule-times {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 13px;
+}
+.schedule-times label {
+  display: grid;
+  gap: 6px;
+  flex: 1;
+  min-width: 140px;
+  font-size: 12px;
+  font-weight: 800;
+}
+.schedule-times input {
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 11px;
+  background-color: var(--cream);
+  color: var(--ink);
+}
+.schedule-unstructured-note {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+}
+/* Offers the days and times read out of the deal's own free-text schedule. It fills the form and
+   nothing else, so it reads as a suggestion to check rather than an action that has happened. */
+.schedule-parse-fill {
+  display: inline;
+  padding: 1px 6px;
+  border: 1px solid color-mix(in srgb, var(--coral) 45%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--coral) 12%, transparent);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.schedule-parse-fill:hover {
+  background: color-mix(in srgb, var(--coral) 22%, transparent);
+}
+.schedule-parse-fill:focus-visible {
+  outline: 2px solid var(--coral);
+  outline-offset: 2px;
+}
+.schedule-window {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px dashed var(--line);
+  border-radius: 11px;
+}
+.schedule-window-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.schedule-window-remove {
+  border: 1px solid var(--field-bad);
+  color: var(--field-bad);
+  background: transparent;
+  border-radius: 9px;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.schedule-window-remove:hover {
+  background-color: color-mix(in srgb, var(--field-bad) 10%, transparent);
+}
+.schedule-window-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: fit-content;
+  border: 1px dashed var(--line);
+  background: transparent;
+  color: var(--ink);
+  border-radius: 9px;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.schedule-window-add:hover {
+  border-color: var(--muted);
+}
+.schedule-window-add svg {
+  width: 14px;
+  height: 14px;
+}
+.location-picker,
+.items-picker {
+  display: grid;
+  gap: 10px;
+}
+.editor-location {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 12px;
+  border: 1px dashed var(--line);
+  border-radius: 11px;
+}
+.editor-location .wide {
+  grid-column: 1/-1;
+}
+.keyword-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: -6px;
+}
+.chip {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 800;
+}
+.chip.active {
+  border-color: var(--field-ok);
+  background: color-mix(in srgb, var(--field-ok) 20%, transparent);
+  color: var(--ink);
+}
+.permissions-grid-scroll {
+  overflow-x: auto;
+}
+.permissions-grid {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 640px;
+  font-size: 13px;
+}
+.permissions-grid th,
+.permissions-grid td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  text-align: center;
+}
+.permissions-grid thead th {
+  background: color-mix(in srgb, var(--cream) 92%, var(--ink) 8%);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: help;
+}
+.permissions-grid tbody th {
+  text-align: left;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: help;
+}
+.permissions-grid td:first-child,
+.permissions-grid th:first-child {
+  position: sticky;
+  left: 0;
+  background: var(--cream);
+}
+.permissions-grid input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--coral);
+  cursor: pointer;
+}
+.permissions-grid input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+.editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+.editor-actions button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  border-radius: 9px;
+  padding: 11px 15px;
+  font-weight: 800;
+}
+.editor-actions svg {
+  width: 16px;
+}
+.editor-actions .primary,
+.publish-action {
+  background: var(--coral-strong);
+  color: var(--on-coral);
+}
+.publish-action {
+  background: var(--coral-strong) !important;
+  border-color: var(--coral-strong) !important;
+}
+.deal-preview {
+  width: min(400px, 100%);
+  padding: 20px;
+}
+.preview-card-shell {
+  margin: 0;
+  min-height: 0;
+  cursor: default;
+}
+.preview-card-shell:hover {
+  transform: none;
+  box-shadow: none;
+}
+.preview-admin-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+.preview-admin-strip small {
+  color: var(--muted);
+}
+.tool-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ink);
+  padding: 10px 12px;
+  font-weight: 800;
+}
+.tool-button svg {
+  width: 15px;
+}
+.audit-list {
+  display: grid;
+}
+.audit-list article {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 4px;
+  border-bottom: 1px solid var(--line);
+}
+.audit-list article > svg {
+  width: 19px;
+  color: var(--coral-strong);
+}
+.audit-list article > div {
+  display: grid;
+  flex: 1;
+}
+.audit-list small,
+.audit-list time {
+  color: var(--muted);
+  font-size: 11px;
+}
+.audit-list b {
+  text-transform: capitalize;
+}
+.audit-event {
+  align-items: flex-start !important;
+}
+.audit-event > svg {
+  margin-top: 2px;
+}
+.audit-event > div {
+  gap: 2px;
+}
+.audit-reason {
+  font-style: italic;
+}
+.audit-details {
+  word-break: break-word;
+}
+.audit-tools {
+  margin-top: 16px;
+}
+.audit-event-side {
+  display: grid;
+  justify-items: end;
+  gap: 6px;
+}
+.audit-more-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.audit-more-toggle svg {
+  width: 13px;
+  transition: transform 0.15s ease;
+}
+.audit-more-toggle svg.flipped {
+  transform: rotate(180deg);
+}
+.audit-more-details {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--coral) 5%, var(--cream));
+  font-size: 11px;
+}
+.audit-more-details > div {
+  display: flex;
+  gap: 8px;
+}
+.audit-more-details b {
+  color: var(--muted);
+  min-width: 90px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 10px;
+  flex: none;
+}
+.audit-more-details code {
+  word-break: break-all;
+  font-family: var(--font-geist-mono), monospace;
+}
+.audit-more-details-json {
+  display: grid;
+  gap: 4px;
+}
+.audit-more-details-json span {
+  display: flex;
+  gap: 6px;
+}
+.audit-more-details-json i {
+  font-style: normal;
+  color: var(--muted);
+  text-transform: capitalize;
+}
+.campaign-builder {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 18px;
+}
+.campaign-builder label {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 800;
+}
+.campaign-builder input {
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background-color: var(--field, var(--cream));
+  color: var(--ink);
+  padding: 11px;
+}
+.campaign-link-out {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  padding: 10px 10px 10px 16px;
+  margin-top: 4px;
+}
+.campaign-link-out > svg {
+  width: 16px;
+  color: var(--coral-strong);
+  flex: none;
+}
+.campaign-link-out span {
+  flex: 1;
+  font-size: 12px;
+  color: var(--muted);
+  word-break: break-all;
+}
+.campaign-link-out button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  padding: 10px 14px;
+}
+.campaign-link-out button svg {
+  width: 14px;
+}
+@media (max-width: 700px) {
+  .campaign-builder {
+    grid-template-columns: 1fr;
+  }
+  .campaign-link-out {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 1100px) {
+  .quality-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .quality-list {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 700px) {
+  .quality-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .editor-grid {
+    grid-template-columns: 1fr;
+  }
+  .editor-grid .wide {
+    grid-column: auto;
+  }
+  .editor-location {
+    grid-template-columns: 1fr;
+  }
+  .editor-location .wide {
+    grid-column: auto;
+  }
+  .editor-actions {
+    flex-wrap: wrap;
+    justify-content: stretch;
+  }
+  .editor-actions button {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+.portal button:disabled,
+.portal button[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none !important;
+}
+.saved-msg.error {
+  color: #b84431;
+}
+.admin-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: -8px 0 18px;
+  padding: 11px 14px;
+  border: 1px solid color-mix(in srgb, var(--coral) 35%, var(--line));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--coral) 8%, var(--cream));
+  font-size: 13px;
+  font-weight: 700;
+}
+.admin-notice button {
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 20px;
+}
+.mailing-head p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.export-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.export-button svg {
+  width: 17px;
+}
+.mailing-list {
+  display: grid;
+}
+.mailing-list article {
+  display: grid;
+  grid-template-columns:
+    44px minmax(190px, 1.4fr) minmax(110px, 0.7fr) minmax(120px, 0.7fr)
+    auto auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--line);
+}
+.mailing-list article.inactive {
+  opacity: 0.62;
+}
+.subscriber-avatar {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--coral-strong);
+  color: var(--on-coral);
+  font-weight: 900;
+}
+.subscriber-name,
+.mailing-list article > div:not(.subscriber-avatar) {
+  display: grid;
+  gap: 3px;
+}
+.subscriber-name a {
+  color: var(--muted);
+  font-size: 12px;
+  text-decoration: none;
+}
+.mailing-list small {
+  color: var(--muted);
+}
+.mail-action {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink);
+  padding: 8px 11px;
+  font-weight: 700;
+}
+.launch-note {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--coral) 8%, var(--cream));
+}
+.launch-note svg {
+  width: 22px;
+  color: var(--coral-strong);
+  flex: 0 0 auto;
+}
+.launch-note p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+/* The note's action ("Send a test email", "Join the waitlist"), set under the text. Unstyled, the
+   secondary one rendered as the browser's grey system button. */
+.launch-note button {
+  margin-top: 10px;
+}
+.launch-note button:not(.primary) {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--cream);
+  color: var(--ink);
+  padding: 8px 14px;
+  font-weight: 800;
+}
+.launch-note button:not(.primary):hover:not(:disabled) {
+  border-color: var(--muted);
+}
+.saved-dashboard-card { border: 1px solid var(--line); border-radius: 13px; overflow: hidden; }
+.saved-dashboard-card > a { display:flex;align-items:center;gap:10px;padding:13px;color:var(--ink);text-decoration:none; }
+.saved-dashboard-card > a > span { font-size:28px; }
+.saved-dashboard-card > a > div { display:grid;flex:1; }
+.saved-dashboard-card > button { width:100%;border:0;border-top:1px solid var(--line);padding:9px;background:transparent;color: var(--coral-strong);font-weight:800; }
+/* Only the ring fades: fading the whole row took its text and its Resume button below 3:1. */
+.tracked-locations article.inactive .area-ring { opacity:.5; }
+/* A row holds a ring, the label and up to four actions, about 300px; at phone widths the actions
+   wrap under the label instead of pushing the page sideways. */
+@media (max-width: 570px) {
+  .tracked-locations article { flex-wrap: wrap; }
+  .tracked-locations article > div { flex: 1 1 calc(100% - 72px); min-width: 0; }
+}
+.tracked-locations article button { font-size:12px;min-height:36px;padding:6px;color:var(--ink);font-weight:750; }
+.tracked-locations article button:last-child svg { width:16px; }
+.tracked-locations article > span { font-size:20px; }
+.preferences-subhead { font:600 20px var(--font-display),system-ui,sans-serif;margin:22px 0 12px; }
+.confirm-dialog { max-width:540px; }
+.destructive { border:0!important;background:#a72d2d!important;color:#fff!important; }
+.typed-confirmation { display:grid;gap:7px;font-weight:800;margin:18px 0; }
+.typed-confirmation input { border:1px solid var(--line);border-radius:9px;background:var(--cream);color:var(--ink);padding:12px; }
+.typed-confirmation select,.typed-confirmation textarea { border:1px solid var(--line);border-radius:9px;background-color:var(--cream);color:var(--ink);padding:12px; }
+.typed-confirmation select { padding:12px 32px 12px 12px;appearance:none;-webkit-appearance:none;background-image:var(--select-arrow);background-repeat:no-repeat;background-position:right 12px center;background-size:10px 6px;cursor:pointer; }
+.custom-permissions { display:grid;gap:10px;margin:-8px 0 18px; }
+.custom-permissions small { color:var(--muted);font-weight:400;line-height:1.4; }
+.custom-permissions-hint { display:block;color:var(--muted);font-weight:400;line-height:1.4;margin:-8px 0 18px; }
+.field-error-summary { border:1px solid #c14a4a;background:color-mix(in srgb,#c14a4a 9%,var(--cream));border-radius:10px;padding:13px;margin:12px 0; }
+.field-error-summary ul { margin:7px 0 0;padding-left:20px; }
+.field-error-summary a { color:var(--ink); }
+.market-health-grid { margin-top:0; }
+.market-health-grid article { display:grid;gap:4px; }
+.market-health-grid article b { font-size:16px; }
+.market-health-grid small { color:var(--muted); }
+.integration-health { display:flex;flex-wrap:wrap;gap:8px;margin-top:16px; }
+@media (max-width: 1100px) {
+  .mailing-list article {
+    grid-template-columns: 44px 1fr auto auto;
+  }
+  .mailing-list article > div:nth-child(3),
+  .mailing-list article > div:nth-child(4) {
+    display: none;
+  }
+}
+@media (max-width: 700px) {
+  .mailing-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .mailing-list article {
+    grid-template-columns: 40px 1fr auto;
+    gap: 10px;
+  }
+  .mailing-list article > .status {
+    display: none;
+  }
+}
+
+/* Billing state and the cancellation survey.
+   The alert is deliberately not red. A declined card is not an error the customer made, and Pro is
+   still on — an alarming color here reads as "you have lost it", which is the opposite of true and
+   turns a card update into a cancellation. Amber, and the copy carries the message. */
+.billing-alert {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--field-warn) 35%, var(--line));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--field-warn) 8%, transparent);
+}
+.billing-alert b { font-size: 14px; }
+.billing-alert span { font-size: 13px; color: var(--ink); line-height: 1.5; }
+.billing-alert button { justify-self: start; margin-top: 4px; }
+/* Where a subscription bought through Apple is managed. Quieter than an alert: nothing is wrong. */
+.billing-note { margin: 10px 0 0; font-size: 13px; color: var(--muted); line-height: 1.5; }
+.billing-note a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.billing-note a:hover { color: var(--ink); }
+
+.appearance-row .linklike {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--muted);
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.appearance-row .linklike:hover { color: var(--ink); }
+
+.cancel-survey {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+}
+.cancel-survey h3 { margin: 0; font: 600 20px var(--font-display), system-ui, sans-serif; }
+.cancel-survey p { margin: 0; font-size: 13px; color: var(--muted); }
+.cancel-reasons { display: flex; flex-wrap: wrap; gap: 8px; }
+/* Deleting the account (DashboardClient): the same panel, with the one irreversible button marked. */
+.delete-account { border-color: color-mix(in srgb, var(--field-bad) 45%, var(--line)); }
+.delete-account input { border: 1px solid var(--line); background: var(--field, #fff); color: var(--ink); border-radius: 9px; padding: 11px 12px; font: inherit; letter-spacing: .08em; }
+.delete-account .field-error:empty { display: none; }
+.delete-account button.danger { background: var(--field-bad); border-color: var(--field-bad); color: #fff; }
+.delete-account button.danger:disabled { opacity: .5; cursor: not-allowed; }
+.cancel-reasons button {
+  border: 1px solid var(--line);
+  background: var(--field, #fff);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 9px 14px;
+  font-size: 13px;
+}
+.cancel-reasons button.active {
+  border-color: var(--coral);
+  background: color-mix(in srgb, var(--coral) 12%, transparent);
+  font-weight: 700;
+}
+.cancel-survey textarea {
+  border: 1px solid var(--line);
+  background: var(--field, #fff);
+  color: var(--ink);
+  border-radius: 10px;
+  padding: 10px;
+  font: inherit;
+  resize: vertical;
+}
+.cancel-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+/* The keep button is the primary one. Making "continue to cancel" the loud choice would be a dark
+   pattern in reverse — the survey exists to learn why, not to trap anyone. */
+.cancel-actions button:not(.primary) {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 12px 18px;
+}
+.cancel-actions button:not(.primary):disabled { opacity: .5; }
+
+/* The comp form in the Growth tab. Narrow on purpose: it is a support tool used a few times a
+   month, not a primary workflow, and it should not out-shout the panels around it. */
+.comp-form { max-width: 640px; }
+.comp-form .editor-actions { grid-column: 1 / -1; }
+
+/* A pause reads as a neutral, chosen state — not a problem. Green rather than the amber a declined
+   card gets: nothing is wrong, and nothing needs fixing. */
+.billing-alert.paused {
+  border-color: color-mix(in srgb, var(--field-ok) 35%, var(--line));
+  background: color-mix(in srgb, var(--field-ok) 8%, transparent);
+}
+/* The save offer replaces the survey in place, so it inherits the survey's box and only needs the
+   accent that says something is being offered rather than asked. */
+.cancel-survey.save-offer { border-color: color-mix(in srgb, var(--coral) 30%, var(--line)); }
+/* The offer's terms: the numbers somebody is agreeing to, so they read at full contrast, not muted. */
+.cancel-survey p.offer-terms { color: var(--ink); font-weight: 600; }
+
+/* The note beside a switch: how long a trial is, so nobody has to go and look it up before deciding
+   whether to turn one on. Muted, because it is a fact about the switch rather than part of it. */
+.setting-note { color: var(--muted); font-weight: 400; }
+
+/* Restaurant edits awaiting review (app/(operator)/admin/RestaurantEditsQueue.tsx): the change on
+   the left, the decision on the right. The diff wraps, unlike the one-line cells elsewhere in an
+   inventory table, because the whole point is reading the text being changed. */
+.restaurant-edits .inventory-table > article {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+}
+.restaurant-edits .inventory-table small.warning-text {
+  color: var(--ink);
+  font-weight: 700;
+  white-space: normal;
+}
+.edit-diff {
+  display: grid;
+  gap: 8px;
+  margin: 10px 0 0;
+}
+.edit-diff > div {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+.edit-diff dt {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+}
+.edit-diff dd {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.edit-diff del {
+  color: var(--muted);
+}
+.edit-diff ins {
+  text-decoration: none;
+  font-weight: 700;
+}
+.restaurant-edits .typed-confirmation textarea {
+  min-height: 80px;
+}
+@media (max-width: 700px) {
+  .restaurant-edits .inventory-table > article,
+  .edit-diff > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* The restaurant portal's note under a deal: a change waiting for Radar, or the last decision. */
+.portal-review-note {
+  white-space: normal !important;
+}
+
+/* The portal's owner confirmation under a deal's status, and the reader reports on a restaurant's
+   deals (app/owner-confirmation.ts). */
+.portal-confirmed {
+  margin-top: 4px;
+  white-space: normal !important;
+}
+.portal-report-note a {
+  color: inherit;
+  text-decoration: underline;
+}
+.portal-reports {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.portal-reports h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+.portal-reports h3 svg {
+  width: 16px;
+  height: 16px;
+}
+.portal-reports > p {
+  margin: 0 0 10px;
+  color: var(--muted);
+}
+.portal-reports ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.portal-reports li {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.portal-reports li small {
+  color: var(--muted);
+}
+.portal-reports li p {
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+}
+
+/* Draft review (app/(operator)/admin/DraftReview.tsx): each draft's fields on the left and what its
+   source says on the right, so the check is reading across one row rather than between two pages.
+   The quoted words in the note are marked because they are the evidence. */
+.draft-review-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin: 4px 0 10px;
+}
+.draft-review-toolbar select {
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background-color: var(--cream);
+  color: var(--ink);
+  padding: 9px 32px 9px 10px;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: var(--select-arrow);
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 10px 6px;
+}
+.draft-review-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.draft-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-left: auto;
+}
+.draft-review-hint,
+.draft-review-message {
+  display: block;
+  margin: 0 0 10px;
+  color: var(--muted);
+}
+.draft-review-message {
+  color: var(--ink);
+  font-weight: 700;
+}
+.draft-review-confirm {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 4px 14px 14px;
+  margin-bottom: 12px;
+}
+.draft-review-confirm .typed-confirmation {
+  margin: 10px 0;
+}
+.draft-review-list {
+  display: grid;
+  gap: 12px;
+}
+.draft-review-list > article {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+}
+.draft-review-list > article.chosen {
+  border-color: var(--ink);
+}
+.draft-review-pick input {
+  width: 18px;
+  height: 18px;
+  margin-top: 4px;
+}
+.draft-review-body > header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.draft-review-body > header > div {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+.draft-review-body > header small {
+  color: var(--muted);
+}
+.draft-review-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  margin: 12px 0;
+}
+.draft-review-columns dl {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  margin: 0;
+}
+.draft-review-columns dl > div {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 10px;
+}
+.draft-review-columns dt {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+}
+.draft-review-columns dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.draft-review-columns dd small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 2px;
+}
+.draft-review-columns dd small.warning-text {
+  color: var(--field-bad);
+  font-weight: 700;
+}
+.draft-review-columns blockquote {
+  margin: 0;
+  border-left: 3px solid var(--line);
+  padding: 2px 0 2px 12px;
+}
+.draft-review-columns blockquote p {
+  margin: 6px 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+}
+.draft-review-columns mark {
+  background: color-mix(in srgb, var(--field-ok) 18%, transparent);
+  color: inherit;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+.draft-review-research {
+  color: var(--muted);
+  font-size: 13px;
+}
+@media (max-width: 700px) {
+  .draft-review-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .draft-review-actions {
+    margin-left: 0;
+  }
+}
+.draft-review-body > header .status {
+  width: auto;
+  max-width: 50%;
+  text-align: right;
+}
+/* Drink-advertising rules a deal breaks (app/drink-rules.ts): in draft review and the overview. */
+.drink-rule-issues {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.drink-rule-issues li {
+  border-left: 3px solid var(--line);
+  padding: 2px 0 2px 10px;
+  overflow-wrap: anywhere;
+}
+.drink-rule-issues li.block {
+  border-color: var(--field-bad);
+}
+.drink-rule-issues li.block b {
+  color: var(--field-bad);
+}
+.drink-rule-issues li.check b {
+  color: var(--muted);
+}

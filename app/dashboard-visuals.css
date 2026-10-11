@@ -1,0 +1,764 @@
+/* Dashboard visual density.
+   ---------------------------------------------------------------------------------------------
+   The dashboard read as a thin column of near-empty boxes: three small stat strips, one panel
+   that is empty until the user saves something, then nothing. These rules add weight where the
+   page actually had it available — real numbers, the schedule the user already set, and the deal
+   feed the page was already fetching — rather than adding ornament.
+
+   Every selector here is a new class name used only by app/[locale]/dashboard. Nothing overrides
+   an existing rule in portal.css: this project has eight same-scope stylesheets and has already
+   been bitten once by a silent same-specificity override. */
+
+/* ---- Hero stat tiles ------------------------------------------------------------------------
+   Four tiles rather than three, each with an icon plate, a large numeral, and a footnote that
+   answers the question the number raises ("3 areas" → "of 1 on Free"). The radar sweep in the
+   corner is the product's own motif, scaled down. */
+.hero-stats { grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.hero-stats article {
+  position: relative;
+  align-items: flex-start;
+  gap: 13px;
+  padding: 17px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(150deg, color-mix(in srgb, var(--coral) 9%, var(--cream)), color-mix(in srgb, var(--cream) 94%, var(--ink) 6%) 62%);
+}
+.hero-stats article::after {
+  content: "";
+  position: absolute;
+  right: -46px;
+  bottom: -58px;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  background: repeating-radial-gradient(circle, color-mix(in srgb, var(--coral) 26%, transparent) 0 1px, transparent 1px 15px);
+  opacity: .55;
+  pointer-events: none;
+}
+.hero-stat-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--coral) 16%, transparent);
+}
+.hero-stats .hero-stat-icon svg { width: 19px; color: var(--coral-strong); }
+.hero-stats article > div { position: relative; z-index: 1; min-width: 0; }
+.hero-stats b { font: 700 30px/1.05 var(--font-display), system-ui, sans-serif; letter-spacing: -1px; }
+.hero-stats span { font-size: 12px; font-weight: 800; color: var(--ink); }
+.hero-stats small { margin-top: 3px; font-size: 11px; line-height: 1.4; color: var(--muted); }
+
+/* ---- Week strip ----------------------------------------------------------------------------
+   The alert schedule as seven chips. The dashboard held this setting three clicks away with no
+   representation on the overview at all, so a user could not tell at a glance whether anything
+   was scheduled. */
+.week-strip { display: flex; flex-wrap: wrap; gap: 9px; }
+.week-day {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  border: 1px solid var(--line);
+  background: var(--cream);
+  color: var(--muted);
+}
+.week-day b { font: 800 15px var(--font-display), system-ui, sans-serif; }
+.week-day i { font-style: normal; font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; }
+.week-day.on {
+  border-color: transparent;
+  background: var(--coral-strong);
+  color: var(--on-coral);
+}
+.week-note { display: flex; align-items: center; gap: 7px; margin: 13px 0 0; font-size: 13px; color: var(--muted); }
+.week-note svg { width: 15px; color: var(--coral-strong); flex: none; }
+
+/* ---- Deal tiles ----------------------------------------------------------------------------
+   The emoji was loose 28px text against the card background. A tinted plate gives every deal row
+   a consistent anchor and is the cheapest color the page can carry. */
+.deal-emoji {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  flex: none;
+  border-radius: 13px;
+  font-size: 24px;
+  line-height: 1;
+  background: color-mix(in srgb, var(--coral) 12%, transparent);
+}
+.favorite-grid > a > span.deal-emoji { font-size: 24px; }
+.favorite-grid > a:hover { border-color: color-mix(in srgb, var(--coral) 45%, transparent); }
+
+/* ---- Area rings ----------------------------------------------------------------------------
+   A tracked area is a point and a radius; the row showed a bare pin. Concentric rings say
+   "coverage" without needing a map tile or any new data. */
+.area-ring {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: none;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--coral) 14%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--coral) 26%, transparent),
+    0 0 0 6px color-mix(in srgb, var(--coral) 11%, transparent),
+    0 0 0 7px color-mix(in srgb, var(--coral) 18%, transparent);
+  margin: 5px;
+}
+.tracked-locations .area-ring svg { width: 18px; color: var(--coral-strong); }
+.tracked-locations article.inactive .area-ring { filter: grayscale(1); opacity: .6; }
+
+/* ---- Empty states --------------------------------------------------------------------------
+   These panels are the first thing a new account sees, and a 16px static icon made them read as
+   broken rather than new. */
+.portal-empty-art {
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--coral) 13%, transparent), transparent 70%);
+}
+.portal-empty-art svg { width: 54px; height: 54px; color: var(--coral-strong); }
+
+@media (max-width: 1100px) {
+  .hero-stats { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .hero-stats { grid-template-columns: 1fr; }
+  .week-day { width: 40px; height: 40px; }
+}
+
+/* ---------- Notification history rows ---------- */
+/* The shared .audit-list is also the admin audit log, where every value is a machine token and
+   capitalising them reads correctly. These rows are sentences now, so the capitalisation has to
+   come back off — scoped through .delivery-list so the admin log keeps it. */
+.delivery-list b {
+  text-transform: none;
+}
+/* Color carries the outcome so the list is scannable without reading every label. It is a second
+   channel, never the only one: the label beside it always says the same thing in words. */
+.delivery-row.good > svg {
+  color: var(--field-ok);
+}
+.delivery-row.bad > svg {
+  color: var(--field-bad);
+}
+.delivery-row.warn > svg {
+  color: var(--field-warn);
+}
+.delivery-row.pending > svg {
+  color: var(--muted);
+}
+.delivery-row time {
+  white-space: nowrap;
+  align-self: center;
+}
+/* The detail line can run long once a failure reason is on it. Let it wrap rather than squeezing
+   the timestamp off the row on a phone. */
+.delivery-row > div {
+  min-width: 0;
+}
+.delivery-list small {
+  text-wrap: pretty;
+}
+.delivery-note {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* ---------- Admin: user access ---------- */
+/* Every scoped list reuses .inventory-tools from the deal inventory, which is a flex row sized for
+   six filters. With one or two controls the search should take the slack instead of sitting at its
+   260px minimum with dead space beside it. */
+.list-tools {
+  flex-wrap: wrap;
+}
+.list-tools .portal-search {
+  flex: 1 1 260px;
+}
+/* Says what is on screen versus what exists, so a deliberately short default list never reads as
+   the complete set. Shared by every scoped list in the workspace. */
+.list-count-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+.list-count-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.list-count-note svg,
+.hidden-badge svg {
+  width: 12px;
+  height: 12px;
+}
+/* Hidden accounts stay legible rather than grayed to the point of looking disabled — they are
+   ordinary accounts, just not shown to every role. */
+.role-badge.hidden-badge {
+  gap: 4px;
+  background: var(--line);
+  color: var(--ink);
+}
+.user-row-hidden {
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+}
+.list-empty {
+  margin: 0;
+  padding: 24px 4px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+/* Account tags on one line.
+   The tag cell was never actually laying out as a row. polish.css sets
+   `.inventory-table article > div.role-cell { display: flex }` at (0,3,1), but portal.css sets
+   `.inventory-table article > div:not(.row-actions):not(.restaurant-cell) { display: grid }` —
+   and because :not() contributes its argument's specificity, that selector is (0,3,2). It wins,
+   the cell is a grid, and every account with more than one tag has always stacked them. The
+   flex-wrap beside that display:flex has been inert the whole time.
+   So this restores the row explicitly, at (0,4,1) — four classes beats three, so it outranks the
+   grid rule on class count alone rather than on source order, which is how the silent collisions
+   across these eleven same-scope stylesheets started in the first place.
+   The tag column is widened but stays proportional. Content-sized (`auto`) tracks were wrong
+   here: each row is its own grid, so an auto track sizes to that row's own tags and the columns
+   stop lining up between rows. Every track has to be an fr for the table to read as a table. */
+.inventory-table.user-table > article {
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1.3fr);
+}
+.inventory-table.user-table article > div.role-cell {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 6px;
+}
+/* Below the width where three tags fit their column, wrapping beats spilling into the buttons.
+   Only an owner who is also Pro and hidden carries three, so this is rare and narrow. */
+@media (max-width: 1000px) {
+  .inventory-table.user-table article > div.role-cell {
+    flex-wrap: wrap;
+  }
+}
+.inventory-table.user-table .role-badge {
+  white-space: nowrap;
+}
+/* Under 700px the shared rules already stack each row into one full-width column, so the tags
+   stay on a single line there without any of this. */
+@media (max-width: 700px) {
+  .inventory-table.user-table > article {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Creator accounts ─────────────────────────────────────────────────────────
+   The handle badge in the admin user list, and the creator workspace itself. */
+
+.creator-badge svg {
+  width: 12px;
+  height: 12px;
+}
+.role-badge.creator-badge {
+  gap: 4px;
+  background: color-mix(in srgb, var(--coral) 16%, var(--cream));
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+/* A paused creator keeps their badge — the handle is still theirs and still owns everything
+   attributed to it. Only the emphasis drops, so the row reads as "set up but switched off". */
+.role-badge.creator-badge.paused {
+  background: var(--line);
+  opacity: 0.75;
+}
+
+/* The tracked link. The URL is the thing being taken away from this card, so it gets the width
+   and the copy button sits tight beside it rather than being centered under it. */
+.creator-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 4px 0 18px;
+}
+.creator-link code {
+  flex: 1 1 260px;
+  min-width: 0;
+  overflow-x: auto;
+  white-space: nowrap;
+  background: var(--field, #fff);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.creator-link button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex: none;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-weight: 800;
+}
+.creator-link button svg {
+  width: 15px;
+  height: 15px;
+}
+
+.creator-stats {
+  display: grid;
+  /* auto-fit rather than a fixed count: five tiles reflow to 3+2 and then 2+2+1 on their own,
+     with no breakpoint per arrangement. */
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+.creator-stats > div {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+}
+.creator-stats b {
+  display: block;
+  font: 700 26px var(--font-display), system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.creator-stats small {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+@media (max-width: 700px) {
+  .creator-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+.inventory-table.creator-paths > article {
+  grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+}
+.creator-paths svg {
+  width: 13px;
+  height: 13px;
+  vertical-align: -2px;
+  margin-right: 5px;
+}
+.creator-paths b {
+  font-variant-numeric: tabular-nums;
+}
+/* Five cells against the shared four-column base, so both of these have to say so explicitly.
+   Proportional tracks throughout, never `auto`: each <article> is its own grid, so a content-sized
+   track sizes to that row alone and the columns stop lining up down the table. */
+.inventory-table.creator-submission-table > article {
+  grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1.3fr) minmax(0, 1.2fr);
+}
+.inventory-table.restaurant-deal-table > article {
+  grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 0.8fr) minmax(0, 1fr);
+}
+/* The activity pair reads as one figure with its qualifier, not two competing numbers. */
+.submission-activity b,
+.deal-activity b {
+  font-variant-numeric: tabular-nums;
+}
+.submission-activity small,
+.deal-activity small {
+  display: block;
+  color: var(--muted);
+}
+.creator-stats em {
+  display: block;
+  margin-top: 6px;
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--coral-strong);
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 1100px) {
+  .inventory-table.creator-submission-table > article,
+  .inventory-table.restaurant-deal-table > article {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1.2fr);
+  }
+  .inventory-table.creator-submission-table > article > *:nth-child(n + 4),
+  .inventory-table.restaurant-deal-table > article > *:nth-child(n + 4) {
+    grid-column: span 3;
+  }
+}
+@media (max-width: 860px) {
+  .inventory-table.creator-submission-table > article,
+  .inventory-table.restaurant-deal-table > article,
+  .inventory-table.creator-paths > article {
+    grid-template-columns: 1fr;
+  }
+  .inventory-table.creator-submission-table > article > *:nth-child(n + 4),
+  .inventory-table.restaurant-deal-table > article > *:nth-child(n + 4) {
+    grid-column: auto;
+  }
+}
+
+/* Three cells against the shared four-column base. Same reasoning as the tables above: every
+   track is proportional, because each <article> is its own grid and an `auto` track would size
+   to one row and break the alignment down the column. */
+.inventory-table.creator-earnings-table > article {
+  grid-template-columns: minmax(0, 2.4fr) minmax(0, 0.8fr) minmax(0, 1fr);
+}
+.creator-earnings-table b {
+  font-variant-numeric: tabular-nums;
+}
+.creator-earnings-table small {
+  display: block;
+  color: var(--muted);
+}
+/* Sits opposite the card heading, where the other cards put their action button. */
+.creator-rate {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--coral-strong);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Four and three cells against the shared four-column base. Proportional tracks for the same
+   reason as every other table here: each <article> is its own grid, so an `auto` track sizes to
+   one row and the columns stop lining up down the list. */
+.inventory-table.creator-roster-table > article {
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.2fr) minmax(0, 0.8fr) minmax(0, 1.6fr);
+}
+.inventory-table.creator-campaign-table > article {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1.2fr);
+}
+.inventory-table.creator-picks-table > article {
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 2.2fr) minmax(0, 0.9fr) minmax(0, 0.7fr);
+}
+/* The one cell in any admin table that holds a sentence somebody wrote rather than a fact the
+   system recorded, so it is the one cell that wraps instead of truncating. Staff moderating copy
+   have to be able to read all of it without hovering. */
+.pick-note-cell {
+  white-space: normal;
+}
+.pick-note-cell q {
+  font-style: italic;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.4;
+}
+.pick-note-cell small {
+  color: var(--muted);
+}
+@media (max-width: 1100px) {
+  .inventory-table.creator-picks-table > article {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr) minmax(0, 0.8fr);
+  }
+}
+
+.creator-roster-table b,
+.creator-campaign-table b {
+  font-variant-numeric: tabular-nums;
+}
+.creator-roster-table small,
+.creator-campaign-table small {
+  display: block;
+  color: var(--muted);
+}
+/* A creator paid in more than one currency gets one stacked pair per currency rather than a
+   total that would silently add CAD to USD. */
+.roster-money {
+  display: block;
+}
+.roster-money + .roster-money {
+  margin-top: 6px;
+}
+
+/* The label box sits directly above the link it builds, so they read as one control. */
+.campaign-builder {
+  margin-bottom: 12px;
+}
+
+/* ── A creator's picks, in their own workspace ─────────────────────────────────────────────── */
+
+/* Two cells, not the shared four: everything about a pick is in the left column and the right one
+   is only its controls. */
+.inventory-table.creator-picks-admin > article {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+}
+/* The base table truncates every b/small to one line, which is right for a row of facts and wrong
+   for a sentence somebody wrote. The note is the reason the pick exists, so it wraps. */
+.creator-picks-admin .pick-note,
+.creator-picks-admin .pick-note-editor,
+.creator-picks-admin .pick-offline {
+  white-space: normal;
+  overflow: visible;
+}
+.creator-picks-admin .pick-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin-top: 6px;
+  font-size: 13px;
+}
+.creator-picks-admin .pick-note q {
+  color: var(--ink);
+  font-style: italic;
+}
+.creator-picks-admin .pick-note em {
+  color: var(--muted);
+  font-size: 12px;
+}
+.creator-picks-admin .pick-note .linklike {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+.creator-picks-admin .pick-note .linklike svg {
+  width: 12px;
+  height: 12px;
+}
+.creator-picks-admin .pick-note-editor {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+  grid-template-columns: 1fr auto auto;
+}
+.creator-picks-admin .pick-note-editor textarea {
+  grid-column: 1 / -1;
+  width: 100%;
+  resize: vertical;
+  font: inherit;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 11px;
+  background: var(--field, #fff);
+  color: var(--ink);
+}
+/* The remaining-characters count, placed on the row with the buttons so the editor stays three
+   lines tall whether or not somebody is near the cap. */
+.creator-picks-admin .pick-note-editor em {
+  grid-column: 1;
+  align-self: center;
+  color: var(--muted);
+  font-size: 11px;
+  font-style: normal;
+}
+/* Said out loud rather than shown by dimming the row: a creator whose pick was pulled from the
+   site needs the sentence, not a visual hint. */
+.creator-picks-admin .pick-offline {
+  display: block;
+  margin-top: 6px;
+  color: var(--coral-strong);
+  font-size: 12px;
+}
+.pick-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.pick-actions button {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  border-radius: 8px;
+  padding: 6px 9px;
+  line-height: 1;
+}
+.pick-actions svg {
+  width: 13px;
+  height: 13px;
+  display: block;
+}
+.pick-search {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 12px 0 4px;
+}
+.pick-search .filter-search {
+  flex: 1;
+  min-width: 0;
+}
+.pick-search .filter-search input {
+  width: 100%;
+  font: inherit;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: var(--field, #fff);
+  color: var(--ink);
+}
+@media (max-width: 700px) {
+  .pick-search {
+    flex-wrap: wrap;
+  }
+}
+
+/* What the audience opened, plus the button that turns one into a pick. Four cells: the deal, two
+   figures, and the action. It shared `creator-paths` before — a two-column grid — which silently
+   wrapped the third cell onto its own line. */
+.inventory-table.creator-audience-table > article {
+  grid-template-columns: minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr);
+}
+.creator-audience-table button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.creator-audience-table button svg {
+  width: 13px;
+  height: 13px;
+}
+@media (max-width: 900px) {
+  .inventory-table.creator-audience-table > article {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+/* ---- Dashboard overhaul (2026-10) -----------------------------------------------------------
+   The rail's groups, the overview's attention list and at-a-glance links, the filter bars, the
+   plan table and the privacy rows. New class names only (dash-*), scoped to the personal
+   dashboard, so nothing here changes the staff workspace, the portals or the public pages. */
+
+/* Group headings in the rail stay on a wide screen and go on a phone, where the rail is one
+   sideways-scrolling row and a heading between tabs reads as a tab that does nothing. */
+@media (max-width: 700px) {
+  .dash-rail nav .nav-group { display: none; }
+}
+
+.dash-card-note { margin: 4px 0 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+.dash-card-note a { color: var(--coral-strong); font-weight: 800; }
+.dash-field-note { display: flex; align-items: center; gap: 5px; margin-top: 4px; color: var(--muted); font-size: 12px; font-weight: 600; }
+.dash-field-note svg { width: 13px; height: 13px; flex: none; }
+.dash-section-loading { padding: 28px 0; }
+.dash-section-loading svg { width: 46px; height: 46px; }
+
+/* What needs the reader, most urgent first. A left rule carries the tone; the words always say it. */
+.dash-attention ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.dash-attention li {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 13px; border: 1px solid var(--line); border-left-width: 4px; border-radius: 12px;
+}
+.dash-attention li > svg { width: 18px; height: 18px; flex: none; }
+.dash-attention li > span { flex: 1; min-width: 0; line-height: 1.4; }
+.dash-attention li > a { display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; color: var(--coral-strong); font-weight: 800; text-decoration: none; }
+.dash-attention li > a svg { width: 15px; }
+.dash-attention-bad { border-left-color: var(--field-bad) !important; }
+.dash-attention-bad > svg { color: var(--field-bad); }
+.dash-attention-warn { border-left-color: var(--field-warn) !important; }
+.dash-attention-warn > svg { color: var(--field-warn); }
+.dash-attention-info { border-left-color: var(--coral-strong) !important; }
+.dash-attention-info > svg { color: var(--coral-strong); }
+@media (max-width: 570px) {
+  .dash-attention li { flex-wrap: wrap; }
+  .dash-attention li > a { margin-left: 30px; }
+}
+
+/* Three counts, each a link to the section it counts. Compact: a number and a line, not a hero. */
+.dash-glance { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
+.dash-glance a {
+  display: grid; grid-template-columns: auto 1fr; column-gap: 12px; row-gap: 2px; align-items: center;
+  padding: 14px 16px; border: 1px solid var(--line); border-radius: 14px; color: var(--ink); text-decoration: none;
+  background: color-mix(in srgb, var(--cream) 97%, var(--ink) 3%);
+}
+.dash-glance a:hover { border-color: color-mix(in srgb, var(--coral) 45%, transparent); }
+.dash-glance a > svg { grid-row: span 2; width: 20px; height: 20px; color: var(--coral-strong); }
+.dash-glance a > span { display: flex; align-items: baseline; gap: 8px; font-size: 13px; font-weight: 800; }
+.dash-glance a > span b { font: 700 24px/1 var(--font-display), system-ui, sans-serif; letter-spacing: -0.5px; }
+.dash-glance a > small { color: var(--muted); font-size: 12px; line-height: 1.35; overflow-wrap: anywhere; }
+@media (max-width: 820px) { .dash-glance { grid-template-columns: 1fr; } }
+
+.dash-setup { margin-top: 0; }
+
+/* A filter bar: labeled controls in a row that wraps, the count beside them. */
+.dash-filters { display: flex; flex-wrap: wrap; align-items: end; gap: 10px 12px; margin: 0 0 12px; }
+.dash-filters label { display: grid; gap: 5px; font-size: 12px; font-weight: 800; min-width: 150px; }
+.dash-filters label:has(input[type="search"]) { flex: 1 1 220px; }
+.dash-filters input[type="search"] { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--field, #fff); color: var(--ink); }
+.dash-filters .dash-count { margin: 0 0 10px; }
+.dash-count { margin: 0 0 10px; color: var(--muted); font-size: 13px; font-weight: 700; }
+
+/* A saved deal: the link (or, for a deal whose page is gone, the same content without one), its
+   status and when it was saved, then Remove. An ended deal stays legible; the pill says ended. */
+.saved-dashboard-static { display: flex; align-items: center; gap: 10px; padding: 13px; }
+.saved-dashboard-static > span { font-size: 28px; }
+.saved-dashboard-static > div { display: grid; flex: 1; }
+.saved-dashboard-static p { margin: 2px 0; }
+.saved-dashboard-static small { color: var(--muted); }
+.saved-dashboard-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 13px 10px; }
+.saved-dashboard-meta small { color: var(--muted); font-size: 12px; }
+.saved-dashboard-card.ended .deal-emoji { filter: grayscale(1); opacity: .7; }
+
+.dash-inline-select select { padding-top: 6px; padding-bottom: 6px; font-size: 12px; font-weight: 750; }
+
+/* Alerts as numbered steps. */
+.dash-step-number {
+  display: inline-grid; place-items: center; width: 20px; height: 20px; margin-right: 7px;
+  border-radius: 50%; background: var(--coral-strong); color: var(--on-coral); font-size: 11px; font-weight: 900;
+}
+.dash-covers { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; font-weight: 700; }
+.dash-covers svg { width: 17px; color: var(--coral-strong); }
+.dash-covers a { color: var(--coral-strong); font-weight: 800; }
+
+/* Contributions: what was sent, where it stands, and a rejection's reason in full. */
+.dash-contributions article { display: flex; align-items: flex-start; gap: 12px; }
+.dash-contributions article > svg { width: 18px; flex: none; margin-top: 2px; color: var(--coral-strong); }
+.dash-contributions article > div { flex: 1; min-width: 0; }
+.dash-contributions article p { margin: 2px 0; }
+.dash-contributions article small { color: var(--muted); }
+.dash-contributions article b a { color: inherit; }
+.dash-reason { margin-top: 6px !important; padding: 8px 10px; border-radius: 10px; background: color-mix(in srgb, var(--cream) 90%, var(--ink) 10%); font-size: 13px; line-height: 1.45; }
+
+/* The plan table. The current plan's column is tinted; the header says which it is in words. */
+.dash-table-wrap { overflow-x: auto; }
+.dash-plan-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.dash-plan-table th, .dash-plan-table td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.dash-plan-table thead th { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+.dash-plan-table tbody th { font-weight: 700; }
+.dash-plan-table .current { background: color-mix(in srgb, var(--coral) 9%, transparent); }
+.dash-plan-table td svg { width: 15px; height: 15px; margin-right: 4px; vertical-align: -2px; color: var(--field-ok); }
+.dash-plan-summary { margin-top: 14px; }
+.dash-plan-summary a { display: inline-flex; align-items: center; color: var(--coral-strong); font-weight: 800; text-decoration: none; }
+.dash-plan-summary a svg { width: 15px; }
+
+/* Privacy rows: what Radar keeps, and the control over it, side by side. */
+.dash-privacy-row { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.dash-privacy-row:first-of-type { padding-top: 0; }
+.dash-privacy-row > svg { width: 20px; flex: none; color: var(--coral-strong); }
+.dash-privacy-row > div { flex: 1; min-width: 0; }
+.dash-privacy-row > div p { margin: 3px 0 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+.dash-privacy-row > div b { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.dash-privacy-row > a:not(.primary) { color: var(--coral-strong); font-weight: 800; white-space: nowrap; }
+.dash-privacy-row > a.primary { white-space: nowrap; text-decoration: none; }
+.dash-privacy-row > button { white-space: nowrap; }
+@media (max-width: 570px) {
+  .dash-privacy-row { flex-wrap: wrap; }
+  .dash-privacy-row > a, .dash-privacy-row > button { margin-left: 34px; }
+}
+.portal-card-head button.danger { border: 1px solid var(--field-bad); background: transparent; color: var(--field-bad); border-radius: 999px; padding: 9px 16px; font-weight: 800; }

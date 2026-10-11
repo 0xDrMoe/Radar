@@ -1,0 +1,26 @@
+# Dependencies and build output
+/node_modules
+/dist/
+/.vinext/
+/.next/
+/out/
+/coverage
+*.tsbuildinfo
+
+# Local Cloudflare state (the local D1 database lives here)
+/.wrangler/
+
+# Secrets. Credentials go in .dev.vars locally and in `wrangler secret put` for a deploy.
+.env*
+.dev.vars
+*.pem
+
+# Database dumps. `wrangler d1 export` writes a whole database, users and all, to a .sql file,
+# and the repository root is where it lands. drizzle/ and scripts/ keep their tracked .sql files.
+/*.sql
+
+# Editors and operating systems
+.DS_Store
+Thumbs.db
+desktop.ini
+npm-debug.log*
