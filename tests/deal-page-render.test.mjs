@@ -468,7 +468,7 @@ test("the city guides render as real pages, and the old Ottawa addresses lead to
 
   // Windsor has one restaurant: no guide. Nor is a topic with too little in it a page.
   assert.equal((await render("/en/cities/windsor-on")).status, 404);
-  assert.equal((await render("/en/cities/ottawa-on/tacos")).status, 404);
+  assert.equal((await render("/en/cities/ottawa-on/sushi")).status, 404);
 
   for (const [from, to] of [["/en/ottawa", "/en/cities/ottawa-on"], ["/en/ottawa/happy-hour", "/en/cities/ottawa-on/happy-hour"], ["/fr/cities/ottawa-on", "/en/cities/ottawa-on"]]) {
     const response = await worker.fetch(new Request(`https://radar.cheap${from}`, { headers: { host: "radar.cheap", accept: "text/html" } }), globalThis.__DEAL_PAGE_TEST_ENV__, { waitUntil() {}, passThroughOnException() {} });
