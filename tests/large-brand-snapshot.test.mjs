@@ -138,11 +138,14 @@ const first = await isolate("one");
 const card = (body, restaurant = "Burger Brand") => body.results.find((deal) => deal.restaurant === restaurant);
 // drizzle/ seeds about fifty Canadian chain deals of its own, enough to fill the first page of a
 // Canadian request, so that one names the fixture's deal. Naming deals by id also turns chain
-// grouping off (it is the Saved tab's request), which is why the US requests do not.
+// grouping off (it is the Saved tab's request), which is why the US requests do not. drizzle/ now
+// seeds enough live US deals to fill a US page too, so the US requests that look for the brand's
+// card search for it by name (q), which keeps chain grouping on.
 const OURS = "id=small-deal";
+const BRAND_Q = "q=Burger%20Brand";
 
 test("an unlocated card names the deal's own branch and the brand's true totals", async () => {
-  const body = await first(`/api/deals?country=US`);
+  const body = await first(`/api/deals?country=US&${BRAND_Q}`);
   const brand = card(body);
   assert.ok(brand, "the brand has a card");
   assert.equal(brand.chain_location_count, 401, "every branch, not the ones this request drew");
@@ -243,7 +246,7 @@ test("a saved national deal still comes back by id, wherever the reader is", asy
 
 test("two brand-wide deals on one brand group into one card without a quadratic merge", async () => {
   const started = performance.now();
-  const body = await first(`/api/deals?country=US`);
+  const body = await first(`/api/deals?country=US&${BRAND_Q}`);
   const brandCards = body.results.filter((deal) => deal.restaurant === "Burger Brand" && deal.id !== "brand-knox");
   assert.equal(brandCards.length, 1, "one card for the brand's national offers");
   assert.ok(performance.now() - started < 2000, "a branches x branches merge would not finish in this");
@@ -280,7 +283,7 @@ test("when D1 refuses every read, a cold colo still serves the last snapshot fro
   globalThis.__BRAND_TEST_ENV__.DB = { prepare: refused, batch: async () => refused() };
   try {
     const fourth = await isolate("four");
-    const body = await fourth(`/api/deals?country=US`);
+    const body = await fourth(`/api/deals?country=US&${BRAND_Q}`);
     assert.ok(card(body), "deals, from the copy in R2, instead of an error");
   } finally {
     globalThis.__BRAND_TEST_ENV__.DB = working;
