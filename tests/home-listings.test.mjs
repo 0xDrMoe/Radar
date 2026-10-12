@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { freshDatabase, harness } from "./route-harness.mjs";
 
-const { recentChecks, homeListings, RECENT_CHECKS } = await import("../app/home-listings.ts");
+const { recentChecks, homeListings, catalogStats, roundedDown, RECENT_CHECKS } = await import("../app/home-listings.ts");
 
 const db = freshDatabase();
 for (const table of ["deals", "restaurants", "restaurant_locations", "deal_locations", "deal_schedules"]) db.exec(`DELETE FROM ${table}`);
@@ -56,6 +56,31 @@ test("names the city for a local deal and none for a chain-wide one", async () =
   assert.equal(list.find((entry) => entry.restaurant === "Chain Burgers").place, "");
 });
 
+test("the catalogue's size counts every public deal, the places they run at, and their cities", async () => {
+  // 23 public deals: the 21 pub offers, the chain's, and the unchecked one (public, just not
+  // verified). Not the archived, expired or scheduled ones. Each offer is at its own address, all
+  // in Ottawa.
+  assert.deepEqual(await catalogStats(harness.env.DB), { deals: 23, restaurants: 23, cities: 1 });
+  const other = offer({ name: "Gatineau Bistro", city: "Gatineau", at: "2026-08-01 12:00:00" });
+  const outside = offer({ name: "Nationwide", scope: "national", city: "Toronto", at: "2026-08-01 12:00:00" });
+  try {
+    // A national offer is a deal but names no place, so it adds neither a restaurant nor a city.
+    assert.deepEqual(await catalogStats(harness.env.DB), { deals: 25, restaurants: 24, cities: 2 });
+  } finally {
+    for (const id of [other, outside]) db.prepare("DELETE FROM deals WHERE id=?").run(id);
+  }
+});
+
+test("the hero's figures round down, so they stay true as deals come and go", () => {
+  assert.deepEqual(roundedDown(1060), { value: 1000, plus: true });
+  assert.deepEqual(roundedDown(1999), { value: 1900, plus: true });
+  assert.deepEqual(roundedDown(557), { value: 500, plus: true });
+  assert.deepEqual(roundedDown(64), { value: 60, plus: true });
+  assert.deepEqual(roundedDown(10), { value: 10, plus: true });
+  assert.deepEqual(roundedDown(7), { value: 7, plus: false });
+  assert.deepEqual(roundedDown(0), { value: 0, plus: false });
+});
+
 test("the city guides come with it, and the pair is read once per ten minutes", async () => {
   const first = await homeListings(harness.env.DB, 1_000);
   assert.ok(first.guides.some((city) => city.slug === "ottawa-on"), "Ottawa has enough restaurants for a guide");
@@ -68,6 +93,7 @@ test("the home page renders the list as links and degrades to nothing without a 
   assert.match(page, /await import\("cloudflare:workers"\)/, "imported lazily, so the page still renders in plain Node");
   assert.match(page, /if \(!db\) return null;/);
   assert.match(page, /console\.error\("home page listings failed"/, "a failed read is logged, not swallowed");
+  assert.match(page, /catalogSummary=\{summary\}/, "the hero is handed the catalogue's size");
   const list = readFileSync(new URL("../app/HomeRecentChecks.tsx", import.meta.url), "utf8");
   assert.match(list, /<ChromeLink href=\{`\/deals\/\$\{encodeURIComponent\(deal\.slug \|\| deal\.id\)\}`\}/);
   assert.match(list, /href=\{`\/en\$\{cityPath\(city\)\}`\}/, "guides are English only, linked directly");

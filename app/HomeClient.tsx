@@ -357,8 +357,10 @@ function formatDistance(km: number, unit: "km" | "mi") {
 function formatRadius(km: number, unit: "km" | "mi") {
   return unit === "mi" ? `${Math.round(km / KM_PER_MILE)} mi` : `${km} km`;
 }
-export default function HomeClient({ turnstileSiteKey, cityGuides = {}, recentChecks = null }: {
+export default function HomeClient({ turnstileSiteKey, cityGuides = {}, catalogSummary, recentChecks = null }: {
   turnstileSiteKey?: string;
+  /** "1,000+ deals · 500+ restaurants · 60+ cities", counted on the server over the whole catalogue (app/home-listings.ts). */
+  catalogSummary?: string;
   /** "Ottawa|ON" to "ottawa-on", for each city with a guide (app/home-listings.ts). */
   cityGuides?: Record<string, string>;
   /** The server-rendered list of recently checked deals and the city guides (app/HomeRecentChecks.tsx). */
@@ -1232,7 +1234,10 @@ export default function HomeClient({ turnstileSiteKey, cityGuides = {}, recentCh
           {motionPaused ? <Play /> : <Pause />}
         </button>
         <div className="eyebrow">
-          <Sparkles /> {catalogRestaurants ? t("hero.catalogCount", { restaurants: catalogRestaurants, cities: catalogCities }) : t("hero.catalogPending")}
+          {/* The whole catalogue's size where the server could count it. The list's own count is of
+              cards, one per place, and read as a count of deals it understated the catalogue by
+              half; it stays only as the fallback for a page rendered without the database. */}
+          <Sparkles /> {catalogSummary || (catalogRestaurants ? t("hero.catalogCount", { restaurants: catalogRestaurants, cities: catalogCities }) : t("hero.catalogPending"))}
         </div>
         {/* The heading is read as its whole phrase, once. The typed word changes letter by letter,
             so as the accessible name it was a partial word most of the time ("Disc on your

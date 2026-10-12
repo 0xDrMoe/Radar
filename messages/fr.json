@@ -871,6 +871,7 @@
   "home": {
     "hero": {
       "catalogCount": "{restaurants, plural, one {# restaurant} other {# restaurants}} · {cities, plural, one {# ville} other {# villes}}",
+      "catalogStats": "{deals, plural, one {{dealsLabel} offre} other {{dealsLabel} offres}} · {restaurants, plural, one {{restaurantsLabel} restaurant} other {{restaurantsLabel} restaurants}} · {cities, plural, one {{citiesLabel} ville} other {{citiesLabel} villes}}",
       "comingSoon": "Bientôt disponible.",
       "comingSoonBody": "Les offres {vertical} ne sont pas encore sur le radar — revenez bientôt.",
       "headingSuffix": "sur votre Radar.",
