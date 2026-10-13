@@ -309,12 +309,14 @@ test("a brand whose every offer has ended is listed last, still saying so", asyn
 test("a radius past 50 km reaches that far only for Pro", async () => {
   // About 70 km due north of the Bank St grill: outside 50, inside 100.
   const far = `lat=46.02&lng=-75.6771&radius=100&tz=${ZONE}`;
-  assert.ok(!ids((await deals(far)).body).includes("hometown-hh"), "a signed-out search reached 100 km");
+  // By restaurant, not card id: on a Tuesday the wing night leads the grill's card.
+  const reached = async () => (await deals(far)).body.results.some((deal) => deal.restaurant === "Hometown Sports Grill");
+  assert.ok(!(await reached()), "a signed-out search reached 100 km");
   harness.user = { userId: "u1", email: "u1@example.test", role: "user" };
   try {
-    assert.ok(!ids((await deals(far)).body).includes("hometown-hh"), "a free account reached 100 km");
+    assert.ok(!(await reached()), "a free account reached 100 km");
     harness.user = { userId: "u2", email: "u2@example.test", role: "user", pro: true };
-    assert.ok(ids((await deals(far)).body).includes("hometown-hh"), "Pro did not get the radius it pays for");
+    assert.ok(await reached(), "Pro did not get the radius it pays for");
   } finally {
     harness.user = null;
   }
