@@ -62,7 +62,7 @@ function database() {
   const branch = db.prepare("INSERT INTO restaurant_locations (id,restaurant_id,address,city,region,country,postal_prefix,latitude,longitude,timezone) VALUES (?,?,?,?,?,'CA',?,?,?,?)");
   branch.run("k-bank", "kelseys", "2206 Bank St", "Ottawa", "ON", "K1V", 45.36, -75.65, "America/Toronto");
   branch.run("k-merivale", "kelseys", "1500 Merivale Rd", "Ottawa", "ON", "K2E", 45.35, -75.73, "America/Toronto");
-  branch.run("k-windsor", "kelseys", "4115 Walker Road", "Windsor", "ON", "N8W", 42.26, -82.96, "America/Toronto");
+  branch.run("k-windsor", "kelseys", "4115 Walker Road", "Kapuskasing", "ON", "P5N", 49.42, -82.43, "America/Toronto");
   branch.run("k-calgary", "kelseys", "1 Stephen Ave", "Calgary", "AB", "T2P", 51.04, -114.07, "America/Edmonton");
   branch.run("corner", "corner-pub", "12 Elgin St", "Ottawa", "ON", "K1P", 45.42, -75.69, "America/Toronto");
 
@@ -76,7 +76,7 @@ function database() {
   // The same happy hour at three Kelseys, two of them in Ottawa, checked by staff five days ago.
   live("kelseys-bank-happy", "kelseys", "Kelseys", "k-bank", "Happy Hour", "Daily 3-6 PM", "Ottawa", "2206 Bank St", "$5 pints", "https://kelseys.example/happy-hour", "verified", sqlStamp(CHECKED));
   live("kelseys-merivale-happy", "kelseys", "Kelseys", "k-merivale", "Happy Hour", "Daily 3-6 PM", "Ottawa", "1500 Merivale Rd", "$5 pints", "https://kelseys.example/happy-hour", "verified", sqlStamp(CHECKED));
-  live("kelseys-windsor-happy", "kelseys", "Kelseys", "k-windsor", "Happy Hour", "Daily 3-6 PM", "Windsor", "4115 Walker Road", "$5 off burgers", "https://kelseys.example/happy-hour", "verified", sqlStamp(CHECKED));
+  live("kelseys-windsor-happy", "kelseys", "Kelseys", "k-windsor", "Happy Hour", "Daily 3-6 PM", "Kapuskasing", "4115 Walker Road", "$5 off burgers", "https://kelseys.example/happy-hour", "verified", sqlStamp(CHECKED));
   // Imported from a directory and never reviewed: verified_at is the import time.
   live("corner-wings", "corner-pub", "The Corner Pub", "corner", "Wing night", "Wed", "Ottawa", "12 Elgin St", "Half price wings · about $9", "https://deal-directory.example/on/ottawa/", "needs_review", IMPORTED);
   live("corner-tacos", "corner-pub", "The Corner Pub", "corner", "Taco Tuesday", "Tue", "Ottawa", "12 Elgin St", "$3 tacos", "https://deal-directory.example/on/ottawa/", "needs_review", IMPORTED);
@@ -349,7 +349,7 @@ test("the breadcrumb is the city's guide, or the guide index, and never a search
   const crumbs = (html) => JSON.parse(jsonLd(html, "BreadcrumbList")).itemListElement;
   const ottawa = crumbs((await render("/en/deals/kelseys-bank-happy?return=%2Fen%3Fq%3Dpints")).html);
   assert.equal(ottawa[1].item, "https://radar.cheap/en/cities/ottawa-on");
-  // Windsor has too few restaurants for a guide. Its search, /en?city=Windsor, canonicalizes home.
+  // The k-windsor branch is in Kapuskasing, which has too few restaurants for a guide. Its search canonicalizes home.
   const windsor = crumbs((await render("/en/deals/kelseys-windsor-happy?return=%2Fen%3Fq%3Dpints")).html);
   assert.deepEqual(windsor.map((step) => step.position), [1, 2, 3]);
   assert.equal(windsor[1].item, "https://radar.cheap/en/cities");
@@ -466,8 +466,8 @@ test("the city guides render as real pages, and the old Ottawa addresses lead to
   assert.equal(topic.status, 200);
   assert.match(topic.html.replace(/<!-- -->/g, ""), /<h1>Ottawa happy hours<\/h1>/);
 
-  // Windsor has one restaurant: no guide. Nor is a topic with too little in it a page.
-  assert.equal((await render("/en/cities/windsor-on")).status, 404);
+  // Kapuskasing has one restaurant: no guide (real Windsor data now has one). Nor is a topic with too little in it a page.
+  assert.equal((await render("/en/cities/kapuskasing-on")).status, 404);
   assert.equal((await render("/en/cities/ottawa-on/sushi")).status, 404);
 
   for (const [from, to] of [["/en/ottawa", "/en/cities/ottawa-on"], ["/en/ottawa/happy-hour", "/en/cities/ottawa-on/happy-hour"], ["/fr/cities/ottawa-on", "/en/cities/ottawa-on"]]) {
