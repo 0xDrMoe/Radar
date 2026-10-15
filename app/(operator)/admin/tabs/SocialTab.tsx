@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ArrowDown, ArrowUp, ImagePlus, Images, X } from "lucide-react";
 import { PanelHeader, StatePanel } from "../ui";
 import { useTabState } from "../workspace";
@@ -48,6 +48,9 @@ type Slide =
   | ({ key: string; kind: "deal"; dealId: string } & SlideText)
   | { key: string; kind: "end"; headline: string; sub: string; credit: string };
 
+interface CityOption { value: string; total: number }
+
+const sameCity = (a: string | null | undefined, b: string) => Boolean(a) && (a as string).trim().toLowerCase() === b.trim().toLowerCase();
 const sameOrigin = (url: string | null) => (url && url.startsWith("/") && !url.startsWith("//") ? url : null);
 const radarPhoto = (deal: SocialDeal | undefined) => (deal ? sameOrigin(deal.photo_url) || sameOrigin(deal.restaurant_photo_url) : null);
 
@@ -221,6 +224,17 @@ function loadImage(src: string) {
   });
 }
 
+/** A label above its control, with an optional line of help under it. */
+function Field({ id, label, hint, children }: { id: string; label: string; hint?: string; children: ReactNode }) {
+  return (
+    <div className="sw-social-field">
+      <label htmlFor={id}>{label}</label>
+      {children}
+      {hint && <small id={`${id}-hint`}>{hint}</small>}
+    </div>
+  );
+}
+
 // ── Tab ──────────────────────────────────────────────────────────────────────────────────────
 
 export default function SocialTab() {
@@ -230,6 +244,11 @@ export default function SocialTab() {
   const [loadedCity, setLoadedCity] = useTabState("social.loadedCity", "");
   const [state, setState] = useState<{ loading: boolean; error: string }>({ loading: false, error: "" });
   const [filter, setFilter] = useState("");
+  // Every city Radar has a live deal in, from the same facets the phone's place picker reads
+  // (mobile/lib/places.ts). Empty until it answers, and the city box stays typeable without it.
+  const [cities, setCities] = useTabState<CityOption[]>("social.cities", []);
+  // A city search reaches nearby towns too; this narrows the list to one of them.
+  const [onlyCity, setOnlyCity] = useTabState("social.onlyCity", "");
   const [slides, setSlides] = useTabState<Slide[]>("social.slides", []);
   const [current, setCurrent] = useState(0);
   const [photos, setPhotos] = useState<Map<string, HTMLImageElement>>(() => new Map());
@@ -256,17 +275,28 @@ export default function SocialTab() {
       setDeals(found);
       setLoadedCity(name);
       setCity(name);
+      setOnlyCity(found.some((deal) => sameCity(deal.city, name)) ? name : "");
+      setFilter("");
       setState({ loading: false, error: "" });
     } catch (error) {
       setState({ loading: false, error: error instanceof Error ? error.message : "Deals could not be loaded for that city." });
     }
-  }, [setCity, setDeals, setLoadedCity]);
+  }, [setCity, setDeals, setLoadedCity, setOnlyCity]);
 
   useEffect(() => {
     // Only the first visit loads on its own; after that the button does. The fetch is the
     // external system this effect syncs with, and its state updates land after it answers.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!loadedCity) void load(city);
+    if (!cities.length) {
+      fetch("/api/deals?limit=1&view=compact", { headers: { accept: "application/json" } })
+        .then((response) => (response.ok ? (response.json() as Promise<{ facets?: { cities?: CityOption[] } }>) : null))
+        .then((body) => {
+          const list = (body?.facets?.cities || []).filter((option) => option.value && option.value !== "Unknown");
+          setCities(list.sort((a, b) => a.value.localeCompare(b.value)));
+        })
+        .catch(() => { /* the box still takes any city typed into it */ });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -274,10 +304,18 @@ export default function SocialTab() {
   const chosen = slides.filter((slide): slide is Extract<Slide, { kind: "deal" }> => slide.kind === "deal");
   const chosenIds = new Set(chosen.map((slide) => slide.dealId));
   const checked = checkedLabel(chosen.map((slide) => byId.get(slide.dealId)).filter((deal): deal is SocialDeal => Boolean(deal)));
+  // The towns this search reached, with how many deals each, for the "Only show" picker.
+  const nearby = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const deal of deals) if (deal.city) counts.set(deal.city, (counts.get(deal.city) || 0) + 1);
+    return [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  }, [deals]);
   const shown = useMemo(() => {
     const needle = filter.trim().toLowerCase();
-    return needle ? deals.filter((deal) => [deal.restaurant, deal.title, deal.price, deal.schedule, deal.neighborhood].join(" ").toLowerCase().includes(needle)) : deals;
-  }, [deals, filter]);
+    return deals.filter((deal) =>
+      (!onlyCity || sameCity(deal.city, onlyCity))
+      && (!needle || [deal.restaurant, deal.title, deal.price, deal.schedule, deal.neighborhood, deal.city].join(" ").toLowerCase().includes(needle)));
+  }, [deals, filter, onlyCity]);
 
   // The hook and the closing slide are built around whatever deals are chosen, in order.
   const rebuild = (dealSlides: Extract<Slide, { kind: "deal" }>[]) => {
@@ -358,24 +396,47 @@ export default function SocialTab() {
 
   return (
     <>
-      <section className="portal-card">
+      <section className="portal-card sw-social">
         <PanelHeader title="1. Pick the deals">
           Live deals for a city, exactly as visitors see them. Choose up to {MAX_SLIDES}; the order you pick them in is the slide order.
         </PanelHeader>
-        <form className="sw-social-city" onSubmit={(event) => { event.preventDefault(); void load(cityInput); }}>
-          <label htmlFor="social-city">City</label>
-          <input id="social-city" value={cityInput} onChange={(event) => setCityInput(event.target.value)} placeholder="Ottawa" autoComplete="off" />
-          <button type="submit" className="primary" disabled={state.loading}>{state.loading ? "Loading…" : "Load deals"}</button>
-          {deals.length > 0 && (
-            <input id="social-filter" aria-label="Filter deals" value={filter} onChange={(event) => setFilter(event.target.value)} placeholder="Filter: wings, Tuesday, sushi…" />
-          )}
+        <form className="sw-social-controls" onSubmit={(event) => { event.preventDefault(); void load(cityInput); }}>
+          <div className="sw-social-field">
+            <label htmlFor="social-city">City</label>
+            <input id="social-city" type="text" list="social-city-options" value={cityInput} onChange={(event) => setCityInput(event.target.value)} placeholder="Start typing a city" autoComplete="off" />
+            <datalist id="social-city-options">
+              {cities.map((option) => <option key={option.value} value={option.value}>{`${option.total} deal${option.total === 1 ? "" : "s"}`}</option>)}
+            </datalist>
+            <small>{cities.length ? `Pick from ${cities.length} cities with live deals, or type one.` : "Type a city Radar covers."}</small>
+          </div>
+          <button type="submit" className="primary" disabled={state.loading || !cityInput.trim()}>{state.loading ? "Loading…" : "Load deals"}</button>
         </form>
+        {deals.length > 0 && !state.error && (
+          <div className="sw-social-controls">
+            {nearby.length > 1 && (
+              <div className="sw-social-field">
+                <label htmlFor="social-only-city">Only show deals in</label>
+                <select id="social-only-city" value={onlyCity} onChange={(event) => setOnlyCity(event.target.value)}>
+                  <option value="">All {nearby.length} nearby cities ({deals.length})</option>
+                  {nearby.map(([name, total]) => <option key={name} value={name}>{`${name} (${total})`}</option>)}
+                </select>
+              </div>
+            )}
+            <div className="sw-social-field">
+              <label htmlFor="social-filter">Search these deals</label>
+              <input id="social-filter" type="search" value={filter} onChange={(event) => setFilter(event.target.value)} placeholder="wings, Tuesday, sushi…" />
+            </div>
+            <p className="sw-social-count" aria-live="polite">Showing {shown.length} of {deals.length} · {chosen.length} of {MAX_SLIDES} picked</p>
+          </div>
+        )}
         {state.error ? (
           <StatePanel kind="error" title="No deals loaded">{state.error}</StatePanel>
         ) : state.loading && !deals.length ? (
           <StatePanel kind="loading" title={`Loading deals for ${cityInput}`} />
         ) : !deals.length ? (
           <StatePanel kind="empty" title="No live deals here yet">Try a city Radar covers, such as Ottawa or Toronto.</StatePanel>
+        ) : !shown.length ? (
+          <StatePanel kind="empty" title="Nothing matches">Clear the search or choose another city above.</StatePanel>
         ) : (
           <ul className="sw-social-deals" aria-label={`Live deals in ${loadedCity}`}>
             {shown.map((deal) => {
@@ -397,7 +458,7 @@ export default function SocialTab() {
       </section>
 
       {slides.length > 0 && slide && (
-        <section className="portal-card">
+        <section className="portal-card sw-social">
           <PanelHeader title="2. Edit, add photos, export" actions={<button type="button" className="primary" onClick={exportAll}><Images size={16} aria-hidden="true" /> Export all slides</button>}>
             Your own photos from the venue work best. A restaurant&apos;s photo needs the restaurant&apos;s OK before it goes in an advert.
           </PanelHeader>
@@ -411,42 +472,55 @@ export default function SocialTab() {
           </div>
           <div className="sw-social-work">
             <div className="sw-social-fields">
-              {slide.kind === "deal" ? (
-                <>
-                  <label htmlFor="social-tag">Day or time</label>
-                  <input id="social-tag" value={slide.tag} onChange={(event) => edit({ tag: event.target.value })} />
-                  <label htmlFor="social-venue">Restaurant</label>
-                  <input id="social-venue" value={slide.venue} onChange={(event) => edit({ venue: event.target.value })} />
-                  <label htmlFor="social-deal">Deal</label>
-                  <input id="social-deal" value={slide.deal} onChange={(event) => edit({ deal: event.target.value })} />
-                  <label htmlFor="social-fine">Small print</label>
-                  <input id="social-fine" value={slide.fine} onChange={(event) => edit({ fine: event.target.value })} />
-                  <div className="sw-social-row">
-                    <button type="button" className="tool-button" onClick={() => move(safeCurrent - 1, -1)} disabled={safeCurrent <= 1}><ArrowUp size={14} aria-hidden="true" /> Earlier</button>
-                    <button type="button" className="tool-button" onClick={() => move(safeCurrent - 1, 1)} disabled={safeCurrent >= chosen.length}><ArrowDown size={14} aria-hidden="true" /> Later</button>
-                    <button type="button" className="tool-button" onClick={() => currentDeal && toggle(currentDeal)}><X size={14} aria-hidden="true" /> Remove slide</button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <label htmlFor="social-headline">Headline (a new line starts a new line; the last line is orange)</label>
-                  <textarea id="social-headline" rows={3} value={slide.headline} onChange={(event) => edit({ headline: event.target.value })} />
-                  <label htmlFor="social-sub">Line underneath</label>
-                  <input id="social-sub" value={slide.sub} onChange={(event) => edit({ sub: event.target.value })} />
-                </>
-              )}
-              <label htmlFor="social-credit">Photo credit (optional, e.g. @thebridgepub)</label>
-              <input id="social-credit" value={slide.credit} onChange={(event) => edit({ credit: event.target.value })} />
-              <div className="sw-social-row">
-                <label className="tool-button sw-social-upload">
-                  <ImagePlus size={14} aria-hidden="true" /> {photos.has(slide.key) ? "Replace photo" : "Add your photo"}
-                  <input type="file" accept="image/*" onChange={(event) => { upload(event.target.files?.[0]); event.target.value = ""; }} />
-                </label>
-                {offeredPhoto && <button type="button" className="tool-button" onClick={() => void setPhoto(offeredPhoto)}>Use the restaurant&apos;s Radar photo</button>}
-                {photos.has(slide.key) && <button type="button" className="tool-button" onClick={() => void setPhoto(null)}>Remove photo</button>}
-              </div>
-              {offeredPhoto && <p className="sw-growth-note">Only post the restaurant&apos;s photo once they have said yes, and credit them.</p>}
-              {photoError && <p className="sw-growth-note" role="alert">{photoError}</p>}
+              <fieldset>
+                <legend>Slide {safeCurrent + 1} text</legend>
+                {slide.kind === "deal" ? (
+                  <>
+                    <Field id="social-tag" label="Day or time" hint="Shown in the orange pill, e.g. Wednesday or Mon to Fri, 3 to 6pm.">
+                      <input id="social-tag" type="text" value={slide.tag} onChange={(event) => edit({ tag: event.target.value })} />
+                    </Field>
+                    <Field id="social-venue" label="Restaurant">
+                      <input id="social-venue" type="text" value={slide.venue} onChange={(event) => edit({ venue: event.target.value })} />
+                    </Field>
+                    <Field id="social-deal" label="Deal" hint="The offer in a few words. For a chain, leave the city out.">
+                      <input id="social-deal" type="text" value={slide.deal} onChange={(event) => edit({ deal: event.target.value })} />
+                    </Field>
+                    <Field id="social-fine" label="Small print" hint="Conditions people need to know, such as dine-in only.">
+                      <input id="social-fine" type="text" value={slide.fine} onChange={(event) => edit({ fine: event.target.value })} />
+                    </Field>
+                    <div className="sw-social-row">
+                      <button type="button" className="tool-button" onClick={() => move(safeCurrent - 1, -1)} disabled={safeCurrent <= 1}><ArrowUp size={14} aria-hidden="true" /> Move earlier</button>
+                      <button type="button" className="tool-button" onClick={() => move(safeCurrent - 1, 1)} disabled={safeCurrent >= chosen.length}><ArrowDown size={14} aria-hidden="true" /> Move later</button>
+                      <button type="button" className="tool-button" onClick={() => currentDeal && toggle(currentDeal)}><X size={14} aria-hidden="true" /> Remove this deal</button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Field id="social-headline" label="Headline" hint="Each line you type is a line on the slide. The last line is orange.">
+                      <textarea id="social-headline" rows={4} value={slide.headline} onChange={(event) => edit({ headline: event.target.value })} />
+                    </Field>
+                    <Field id="social-sub" label="Line underneath">
+                      <input id="social-sub" type="text" value={slide.sub} onChange={(event) => edit({ sub: event.target.value })} />
+                    </Field>
+                  </>
+                )}
+              </fieldset>
+              <fieldset>
+                <legend>Photo</legend>
+                <div className="sw-social-row">
+                  <label className="tool-button sw-social-upload">
+                    <ImagePlus size={14} aria-hidden="true" /> {photos.has(slide.key) ? "Replace photo" : "Upload your photo"}
+                    <input type="file" accept="image/*" onChange={(event) => { upload(event.target.files?.[0]); event.target.value = ""; }} />
+                  </label>
+                  {offeredPhoto && <button type="button" className="tool-button" onClick={() => void setPhoto(offeredPhoto)}>Use the restaurant&apos;s Radar photo</button>}
+                  {photos.has(slide.key) && <button type="button" className="tool-button" onClick={() => void setPhoto(null)}>Remove photo</button>}
+                </div>
+                {offeredPhoto && <p className="sw-social-hint">Only post the restaurant&apos;s photo once they have said yes, and credit them below.</p>}
+                {photoError && <p className="sw-social-hint sw-social-error" role="alert">{photoError}</p>}
+                <Field id="social-credit" label="Photo credit (optional)" hint="Replaces the footer, e.g. @thebridgepub.">
+                  <input id="social-credit" type="text" value={slide.credit} onChange={(event) => edit({ credit: event.target.value })} />
+                </Field>
+              </fieldset>
             </div>
             <canvas ref={preview} width={W} height={H} className="sw-social-canvas" aria-label={`Preview of slide ${safeCurrent + 1}`} />
           </div>

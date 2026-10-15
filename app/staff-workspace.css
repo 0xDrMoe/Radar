@@ -619,9 +619,22 @@ body.sw-resizing { cursor: col-resize; user-select: none; }
 .portal .sw-time { cursor: help; }
 
 /* Social slides (tabs/SocialTab.tsx) */
-.sw-social-city { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 14px; }
-.sw-social-city label { font-weight: 650; }
-.sw-social-city input { flex: 1 1 180px; min-width: 0; }
+.sw-social-controls { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 16px; margin: 0 0 14px; }
+.sw-social-controls .sw-social-field { flex: 1 1 220px; min-width: 0; }
+.sw-social-controls > button { min-height: 44px; }
+.sw-social-field { display: grid; gap: 6px; min-width: 0; }
+.sw-social-field label { font-weight: 700; font-size: 0.9rem; color: var(--ink); }
+.sw-social-field small, .sw-social-hint { color: var(--muted); font-size: 0.82rem; line-height: 1.4; margin: 0; }
+.sw-social-error { color: var(--field-bad); }
+.sw-social input[type="text"], .sw-social input[type="search"], .sw-social select, .sw-social textarea {
+  width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; font: inherit; color: var(--ink);
+  background: var(--field, transparent); border: 1.5px solid var(--line); border-radius: 10px;
+}
+.sw-social textarea { resize: vertical; line-height: 1.4; }
+.sw-social input:focus-visible, .sw-social select:focus-visible, .sw-social textarea:focus-visible { outline: 2px solid var(--coral-strong); outline-offset: 1px; border-color: var(--coral-strong); }
+.sw-social-count { flex: 1 1 100%; margin: 0; color: var(--muted); font-size: 0.85rem; }
+.sw-social fieldset { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px 16px; margin: 0; display: grid; gap: 12px; min-width: 0; }
+.sw-social legend { padding: 0 6px; font-weight: 800; }
 .sw-social-deals { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px; max-height: 420px; overflow-y: auto; }
 .sw-social-deals label { display: flex; gap: 10px; align-items: flex-start; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; cursor: pointer; min-width: 0; }
 .sw-social-deals label.on { border-color: var(--coral-strong); }
@@ -632,9 +645,8 @@ body.sw-resizing { cursor: col-resize; user-select: none; }
 .sw-social-strip button.active { background: var(--coral-strong); border-color: var(--coral-strong); color: var(--on-coral); }
 .sw-social-work { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: 20px; align-items: start; }
 @media (max-width: 860px) { .sw-social-work { grid-template-columns: minmax(0, 1fr); } }
-.sw-social-fields { display: grid; gap: 6px; min-width: 0; }
-.sw-social-fields > label { font-weight: 650; font-size: 0.85rem; color: var(--muted); margin-top: 6px; }
-.sw-social-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.sw-social-fields { display: grid; gap: 16px; min-width: 0; }
+.sw-social-row { display: flex; flex-wrap: wrap; gap: 8px; }
 .sw-social-upload { cursor: pointer; }
 .sw-social-upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .sw-social-canvas { width: 100%; max-width: 100%; height: auto; aspect-ratio: 4 / 5; border-radius: 12px; background: #0d0d0d; }
