@@ -77,6 +77,7 @@ Which sections each preset opens (`canOpenTab` in `app/(operator)/admin/sections
 | Accuracy reports, Product feedback | ✓ | ✓ | ✓ (reopens) | – | – | – | ✓ (cannot reopen) | – | – |
 | Mailing list | ✓ | ✓ | – | – | – | – | – | ✓ | – |
 | Campaigns | ✓ | ✓ | 👁 | 👁 | – | – | – | ✓ | 👁 |
+| Social slides (carousel images from live deals; reads only the public deals API) | ✓ | ✓ | – | – | – | – | – | ✓ | – |
 | Growth | ✓ | ✓ | 👁 | 👁 | – | – | – | 👁 | 👁 |
 | Affiliates | ✓ | ✓ | – | ✓ | – | – | – | – | – |
 | Sponsorships | ✓ | ✓ | – | ✓ | – | – | – | ✓ | – |

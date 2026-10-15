@@ -617,3 +617,26 @@ body.sw-resizing { cursor: col-resize; user-select: none; }
 
 /* A time to the minute; its title carries it to the second. */
 .portal .sw-time { cursor: help; }
+
+/* Social slides (tabs/SocialTab.tsx) */
+.sw-social-city { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 14px; }
+.sw-social-city label { font-weight: 650; }
+.sw-social-city input { flex: 1 1 180px; min-width: 0; }
+.sw-social-deals { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px; max-height: 420px; overflow-y: auto; }
+.sw-social-deals label { display: flex; gap: 10px; align-items: flex-start; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; cursor: pointer; min-width: 0; }
+.sw-social-deals label.on { border-color: var(--coral-strong); }
+.sw-social-deals span { min-width: 0; overflow-wrap: anywhere; }
+.sw-social-deals small { display: block; color: var(--muted); margin-top: 2px; }
+.sw-social-strip { display: flex; gap: 6px; overflow-x: auto; margin: 0 0 14px; padding-bottom: 4px; }
+.sw-social-strip button { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--ink); padding: 6px 12px; font: inherit; font-weight: 650; cursor: pointer; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sw-social-strip button.active { background: var(--coral-strong); border-color: var(--coral-strong); color: var(--on-coral); }
+.sw-social-work { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: 20px; align-items: start; }
+@media (max-width: 860px) { .sw-social-work { grid-template-columns: minmax(0, 1fr); } }
+.sw-social-fields { display: grid; gap: 6px; min-width: 0; }
+.sw-social-fields > label { font-weight: 650; font-size: 0.85rem; color: var(--muted); margin-top: 6px; }
+.sw-social-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.sw-social-upload { cursor: pointer; }
+.sw-social-upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.sw-social-canvas { width: 100%; max-width: 100%; height: auto; aspect-ratio: 4 / 5; border-radius: 12px; background: #0d0d0d; }
+.sw-social-export { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.sw-social-export img { width: 100%; border-radius: 8px; display: block; }

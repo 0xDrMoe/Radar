@@ -806,6 +806,25 @@ export const HANDBOOK: HandbookSection[] = [
         ],
       },
       {
+        id: "social-slides",
+        title: "Make a carousel post from live deals",
+        kind: "howto",
+        permission: "manage_campaigns",
+        area: "commerce",
+        summary: "Social slides turns a city's live deals into 1080x1350 images for an Instagram carousel or a TikTok photo post.",
+        steps: [
+          "Open Social slides, type a city and choose Load deals. The list is the same set of live deals a visitor sees for that city.",
+          "Tick up to eight deals in the order you want them shown. A hook slide goes first and a closing slide pointing to radar.cheap goes last.",
+          "Edit any slide's wording, then add a photo: your own from the venue, or the restaurant's Radar photo once they have agreed.",
+          "Choose Export all slides and save each image, then post them in order.",
+        ],
+        gotchas: [
+          "A restaurant's photo on Radar is shown beside its own deal. Using it in an advert is a different use, so ask the restaurant first and fill in the photo credit.",
+          "Do not put a city in a chain's deal wording. The city belongs on the hook slide when the post is about one city.",
+          "Paid or sponsored posts need the platform's paid-partnership label. Keep it visible without making it the headline.",
+        ],
+      },
+      {
         id: "campaign-links",
         title: "Build a tracked link and read what it brought in",
         kind: "howto",

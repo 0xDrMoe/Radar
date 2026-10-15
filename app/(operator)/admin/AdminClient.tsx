@@ -19,6 +19,7 @@ import {
   Mail,
   MapPin,
   Megaphone,
+  GalleryHorizontal,
   MessageSquare,
   ShieldCheck,
   Sparkles,
@@ -51,6 +52,7 @@ import MailTab from "./tabs/MailTab";
 import ReportsTab from "./tabs/ReportsTab";
 import FeedbackTab from "./tabs/FeedbackTab";
 import CampaignsTab from "./tabs/CampaignsTab";
+import SocialTab from "./tabs/SocialTab";
 import GrowthTab from "./tabs/GrowthTab";
 import AuditTab from "./tabs/AuditTab";
 import HandbookTab from "./tabs/HandbookTab";
@@ -259,6 +261,7 @@ export default function AdminClient({ initialTab }: { initialTab: string }) {
             countTitle: `${waitlist.length} waiting to be accepted`,
       },
       { tab: "campaigns", label: "Campaigns", icon: <Megaphone /> },
+      { tab: "social", label: "Social slides", icon: <GalleryHorizontal /> },
       { tab: "growth", label: "Growth", icon: <TrendingUp /> },
       // Its own entry rather than a corner of Users: approving an affiliate, deciding what they
       // are owed and sending them money are three different jobs on two different permissions,
@@ -483,6 +486,7 @@ export default function AdminClient({ initialTab }: { initialTab: string }) {
           {shown === "reports" && <ReportsTab />}
           {shown === "feedback" && <FeedbackTab />}
           {shown === "campaigns" && <CampaignsTab />}
+          {shown === "social" && <SocialTab />}
           {shown === "growth" && <GrowthTab />}
           {shown === "audit" && <AuditTab />}
           {shown === "coverage" && <CoverageTab />}

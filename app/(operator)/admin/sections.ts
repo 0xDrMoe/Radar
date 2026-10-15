@@ -3,7 +3,7 @@
 export const adminTabs = [
   "overview", "drafts", "deals", "ended", "restaurants", "coverage",
   "suggestions", "reports", "feedback",
-  "mail", "campaigns", "growth",
+  "mail", "campaigns", "social", "growth",
   "affiliates", "sponsorships",
   "users", "directory", "audit",
   "admin", "developer",
@@ -35,6 +35,7 @@ const tabTitle: Record<AdminTab, string> = {
   feedback: "Product feedback",
   mail: "Mailing list",
   campaigns: "Campaigns",
+  social: "Social slides",
   growth: "Growth",
   affiliates: "Affiliates",
   sponsorships: "Sponsorships",
@@ -63,6 +64,7 @@ const tabBlurb: Record<AdminTab, string> = {
   feedback: "Bugs, confusing screens, wrong deals and feature requests sent from the site and app.",
   mail: "Deal-alert subscribers, the pilot waitlist and email leads who have not signed up yet.",
   campaigns: "Tracked links: who owns each one, what it is for, and the traffic and sign-ups it brought in.",
+  social: "Turn live deals into carousel images for TikTok and Instagram: pick the deals, add photos, export.",
   growth: "How people use Radar: engagement, deal performance, visits and what they search for.",
   affiliates: "Approve affiliates, decide commissions and pay what is owed through Stripe.",
   sponsorships: "Paid placements: which deal, in which market, for how long, and how it performed.",
@@ -96,7 +98,7 @@ export function tabBlurbFor(tab: string) {
 export const adminNavGroups = [
   { id: "catalog", label: "Catalog", tabs: ["overview", "drafts", "deals", "ended", "restaurants", "coverage"] },
   { id: "moderation", label: "Moderation", tabs: ["suggestions", "reports", "feedback"] },
-  { id: "commerce", label: "Audience & growth", tabs: ["mail", "campaigns", "growth"] },
+  { id: "commerce", label: "Audience & growth", tabs: ["mail", "campaigns", "social", "growth"] },
   { id: "finance", label: "Finance", tabs: ["affiliates", "sponsorships"] },
   { id: "access", label: "Team & records", tabs: ["users", "directory", "audit"] },
   { id: "admin", label: "Administration", tabs: ["admin", "developer"] },
@@ -173,6 +175,9 @@ export function canOpenTab(tab: AdminTab, viewer: TabViewer): boolean {
       return has("manage_email");
     case "campaigns":
       return has("manage_campaigns") || has("view_analytics") || has("manage_finance");
+    case "social":
+      // Reads only the public deals API, so the gate is about the job (promoting Radar), not the data.
+      return has("manage_campaigns") || has("manage_email");
     case "growth":
       return has("view_analytics");
     case "affiliates":
