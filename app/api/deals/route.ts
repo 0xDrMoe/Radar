@@ -23,7 +23,7 @@ import {
 import { marketCenters, marketFor, type MarketCenter } from "../../market-coverage";
 import { clientKey, normalizedPostal, rateLimit, validPostal } from "../../api-utils";
 import { estimatePriceTier, expiryTimeZone, narrowPriceTier, parseSqlTimestamp } from "../../verification";
-import { DEFAULT_RADIUS_KM, allowedRadii } from "../../radius";
+import { COVERAGE_REACH_KM, autoWidenRadius, clampRadius, maxRadiusKm } from "../../radius";
 import { canonicalCity, regionCode, type ResolvedLocation } from "../../geocode";
 import { deviceCountry, roughTimezone } from "../../country-at";
 import { displayCity, resolveCityText, resolvePostal, type GeocodeGuard } from "../../postal";
@@ -318,6 +318,12 @@ const keywordSets: Record<string, string[]> = {
   Seafood: ["seafood", "oysters", "fish", "shellfish"],
   Global: ["global", "international", "casual dining", "restaurant"],
 };
+/** The next radius out from `radius` that this plan reaches, or null at its ceiling. */
+function widerRadius(radius: number, maxRadius: number) {
+  const next = nextRadius(radius);
+  return next != null && next <= maxRadius ? next : null;
+}
+
 function searchKeywords(deal: DealRow) {
   return Array.from(new Set([
     deal.canonical_restaurant, deal.restaurant, deal.title, deal.category, deal.cuisine,
@@ -1075,7 +1081,7 @@ async function buildSnapshot(): Promise<DealsSnapshot> {
   return { bases, brands, coverageRows: coverageRows.results, translationsByDeal, aliases, centers, expiresAt: Date.now() + SNAPSHOT_TTL_MS, revision };
 }
 
-// A 1-degree grid: at the latitudes Radar covers a cell is 70-111 km across, so a 100 km radius is
+// A 1-degree grid: at the latitudes Radar covers a cell is 70-111 km across, so a 50 km radius is
 // never more than a few cells in any direction, and a dense metro is still only a few hundred
 // branches of one brand per cell.
 const cellKey = (latitude: number, longitude: number) => `${Math.floor(latitude)}:${Math.floor(longitude)}`;
@@ -1760,12 +1766,14 @@ export async function GET(request: Request) {
   // (Dashboard → Restaurant preferences). Read per-request rather than folded into the
   // shared snapshot below, since that snapshot is cached across every visitor.
   const signedInUser = await getAppUser();
-  // The ceiling follows the plan. 75 and 100 km are what the plans page sells as Pro, and the
-  // pickers offer them only to Pro (allowedRadii); this used to clamp to 100 for every caller, so
+  // The ceiling follows the plan. 50 km is what the plans page sells as Pro, and the pickers offer
+  // it only to Pro (allowedRadii); this used to clamp to the Pro ceiling for every caller, so
   // anyone - signed out included - got the Pro reach by editing the query string. Clamped rather
-  // than refused, so a Pro session that lapses mid-visit still gets results at 50.
-  const maxRadius = Math.max(...allowedRadii(Boolean(signedInUser && isPro(signedInUser))));
-  const radius = Math.max(2, Math.min(maxRadius, Number(url.searchParams.get("radius")) || DEFAULT_RADIUS_KM));
+  // than refused, so a Pro session that lapses mid-visit still gets results at 25, and an old link
+  // asking for 100 km still searches.
+  const searcherPro = Boolean(signedInUser && isPro(signedInUser));
+  const maxRadius = maxRadiusKm(searcherPro);
+  const radius = clampRadius(url.searchParams.get("radius"), searcherPro);
   const excludedRestaurantIds = signedInUser
     ? new Set((await env.DB.prepare("SELECT restaurant_id FROM excluded_restaurants WHERE user_id=?").bind(signedInUser.userId).all<{ restaurant_id: string }>()).results.map((row) => row.restaurant_id))
     : new Set<string>();
@@ -2490,7 +2498,7 @@ export async function GET(request: Request) {
   // names are the reader's own words, then the place its postal code or city resolved to without the
   // FSA's list of neighbourhoods; a bare device point has none, and is placed by where it is. Only a
   // typed city used to find its row, and the website sends a point for every search.
-  const reachKm = Math.max(radius, DEFAULT_RADIUS_KM);
+  const reachKm = Math.max(radius, COVERAGE_REACH_KM);
   const placeNames = resolvedLocation
     ? [requestedCity, resolvedLocation.accuracy === "device" ? null : displayCity(resolvedLocation.city)].map((name) => canonicalCity(name))
     : [];
@@ -2554,7 +2562,13 @@ export async function GET(request: Request) {
     uniqueOfferCount:totalCanonicalOffers,
     cityCount,
     appliedFilters:{ q,ids:[...ids],postal,city:requestedCity,province:requestedProvince,country:requestedCountry,radius,cuisines,categories,day,startTime,endTime,availableNow,verifiedOnly,sponsored,sort,vertical,scope:nationalOnly ? "national" : null,chains:chainsSeparate ? "separate" : null,group:groupByBrand ? "brand" : null },
-    expandRadius:!nationalOnly && totalMatches < 4 ? nextRadius(radius) : null,
+    // The next step out, if this plan can take it: a free search at 25 km used to be offered 50,
+    // which the clamp above then quietly searched at 25 again.
+    expandRadius:!nationalOnly && totalMatches < 4 ? widerRadius(radius, maxRadius) : null,
+    // Where a client should retry a search the reader left on the default radius: one step out,
+    // never past 25 km (app/radius.ts). Computed here so the website and the app widen the same
+    // way; a client never applies it to a radius the reader picked themselves.
+    autoWidenRadius:!nationalOnly && resolvedLocation ? autoWidenRadius(radius, totalMatches, searcherPro) : null,
     latestVerificationDate:latestVerificationDate || null,
     generatedAt:new Date().toISOString(),
   },{ headers: signedInUser

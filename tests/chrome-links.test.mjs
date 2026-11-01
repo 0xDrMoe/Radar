@@ -330,7 +330,7 @@ test("what a page hands the header for its own links is a place on that page", (
   assert.match(header, /brandHref\?: `#\$\{string\}`/);
   assert.match(header, /exploreHref\?: `#\$\{string\}`/);
   assert.match(header, /<ChromeLink className="brand" href=\{brandHref \?\? "\/"\}>/);
-  assert.match(header, /<ChromeLink href=\{exploreHref \?\? "\/"\}>/);
+  assert.match(header, /<ChromeLink href=\{exploreHref \?\? "\/"\}[ >]/);
 });
 
 test("signing in from the chrome returns the reader to their dashboard, in their language", () => {

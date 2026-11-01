@@ -656,11 +656,18 @@ html[data-theme="dark"] .community-art span { background: color-mix(in srgb, var
    dark gradient, so the two read as one strip rather than two competing widgets. Wider cards than
    recently-viewed because each one carries a sentence: the note is the reason to tap it, and a
    pill sized for a restaurant name would truncate every note to nothing. */
-/* The list scrolls, not the row: a scrolling row would clip the partner tooltip above the heading. */
-.creator-picks { display: flex; align-items: flex-start; gap: 12px; margin: 4px 0 14px; }
-.creator-picks-heading { display: grid; gap: 3px; flex: none; padding-top: 9px; }
-.creator-picks-heading > span { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; color: #ffe2d5; }
-.creator-picks-heading > span svg { width: 13px; height: 13px; }
+/* The list scrolls, not the row: a scrolling row would clip the partner tooltip above the heading.
+   Closed, the rail is one button and a label on a single line; opened, the picks sit under it so
+   the heading never squeezes the cards on a phone. */
+.creator-picks { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; margin: 4px 0 14px; }
+.creator-picks-heading { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; }
+.creator-picks-toggle { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #ffffff3d; background: #ffffff14; color: #ffe2d5; border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; cursor: pointer; }
+.creator-picks-toggle:hover { background: #ffffff24; }
+.creator-picks-toggle:focus-visible { outline: 2px solid #ffe2d5; outline-offset: 2px; }
+.creator-picks-toggle svg { width: 13px; height: 13px; flex: none; }
+.creator-picks-chevron { transition: transform 0.15s ease; }
+.creator-picks.is-open .creator-picks-chevron { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) { .creator-picks-chevron { transition: none; } }
 .creator-picks-heading small { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #ffe2d5; opacity: 0.75; }
 .creator-picks-heading .info-tip { width: 14px; height: 14px; background: #ffffff2e; color: #fff; }
 .creator-picks-list { display: flex; gap: 8px; min-width: 0; overflow-x: auto; }

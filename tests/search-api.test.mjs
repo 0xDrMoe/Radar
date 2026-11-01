@@ -304,20 +304,39 @@ test("a brand whose every offer has ended is listed last, still saying so", asyn
   assert.equal(ended.available_today, false);
 });
 
-// ── The 75 and 100 km reach is Pro's ─────────────────────────────────────────────────────────
+// ── The 50 km reach is Pro's ─────────────────────────────────────────────────────────────────
 
-test("a radius past 50 km reaches that far only for Pro", async () => {
-  // About 70 km due north of the Bank St grill: outside 50, inside 100.
-  const far = `lat=46.02&lng=-75.6771&radius=100&tz=${ZONE}`;
+test("a radius past 25 km reaches that far only for Pro, and nobody reaches past 50", async () => {
+  // About 40 km due north of the Bank St grill: outside 25, inside 50. And about 70 km north,
+  // which an old 100 km link used to reach and nothing does now.
+  const far = `lat=45.75&lng=-75.6771&radius=50&tz=${ZONE}`;
+  const farther = `lat=46.02&lng=-75.6771&radius=100&tz=${ZONE}`;
   // By restaurant, not card id: on a Tuesday the wing night leads the grill's card.
-  const reached = async () => (await deals(far)).body.results.some((deal) => deal.restaurant === "Hometown Sports Grill");
-  assert.ok(!(await reached()), "a signed-out search reached 100 km");
+  const reached = async (query) => (await deals(query)).body.results.some((deal) => deal.restaurant === "Hometown Sports Grill");
+  assert.ok(!(await reached(far)), "a signed-out search reached 50 km");
   harness.user = { userId: "u1", email: "u1@example.test", role: "user" };
   try {
-    assert.ok(!(await reached()), "a free account reached 100 km");
+    assert.ok(!(await reached(far)), "a free account reached 50 km");
     harness.user = { userId: "u2", email: "u2@example.test", role: "user", pro: true };
-    assert.ok(await reached(), "Pro did not get the radius it pays for");
+    assert.ok(await reached(far), "Pro did not get the radius it pays for");
+    const old = await deals(farther);
+    assert.equal(old.body.appliedFilters.radius, 50, "a 100 km link searches at the 50 km ceiling");
+    assert.ok(!old.body.results.some((deal) => deal.restaurant === "Hometown Sports Grill"), "a 100 km link still reached 70 km");
   } finally {
     harness.user = null;
   }
+});
+
+test("a thin search says where to widen to, one step at a time and never past 25 km", async () => {
+  // 40 km from every fixture deal: nothing at 1 km, so the next step out is 2.
+  const empty = await deals(`lat=45.75&lng=-75.6771&radius=1&tz=${ZONE}`);
+  assert.equal(empty.body.totalMatches, 0);
+  assert.equal(empty.body.autoWidenRadius, 2);
+  assert.equal(empty.body.expandRadius, 2);
+  // At 25 km a free search is at its ceiling and the auto-widen ceiling both: nowhere to go.
+  const ceiling = await deals(`lat=45.75&lng=-75.6771&radius=25&tz=${ZONE}`);
+  assert.equal(ceiling.body.autoWidenRadius, null);
+  assert.equal(ceiling.body.expandRadius, null, "a free search at 25 km was offered a radius it cannot have");
+  // No radius at all is the 5 km default.
+  assert.equal((await deals(`lat=45.75&lng=-75.6771&tz=${ZONE}`)).body.appliedFilters.radius, 5);
 });

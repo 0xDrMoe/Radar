@@ -147,9 +147,9 @@ export default async function Terms({ params }: { params: Promise<{ locale: stri
         <h2 id="plans">5. Free plan and Radar Pro</h2>
         <p>
           Radar&rsquo;s free plan includes browsing and search, saved deals, one tracked area with a
-          search radius of up to 50 km, a weekly alert email on one day at a fixed delivery time, and
+          search radius of up to 25 km, a weekly alert email on one day at a fixed delivery time, and
           your most recent 20 notification records. Radar Pro is a paid subscription that removes
-          those limits — unlimited tracked areas, a radius of up to 100 km, alerts on the days and at
+          those limits — unlimited tracked areas, a radius of up to 50 km, alerts on the days and at
           the time you choose, a longer notification history (your last 500 deliveries, against 20
           on the free plan) with CSV export, and two additional accent themes. The current
           comparison is on our <ChromeLink href="/pro">plans page</ChromeLink>.

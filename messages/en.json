@@ -18,7 +18,15 @@
     "language": "Language",
     "pro": "Pro",
     "creatorWorkspace": "Creator workspace",
-    "restaurantPortal": "Restaurant portal"
+    "restaurantPortal": "Restaurant portal",
+    "nearMe": "Near me",
+    "nearMeHint": "Deals around where you are",
+    "availableNow": "Available now",
+    "availableNowHint": "Specials running at this moment",
+    "cities": "City guides",
+    "citiesHint": "Happy hours and deals by city",
+    "allDeals": "All deals",
+    "allDealsHint": "Search and filter every deal"
   },
   "dealDetail": {
     "backToResults": "← Back to results",
@@ -72,7 +80,7 @@
     "noBranchList": "Radar doesn't list each {brand} restaurant. The chain's own locator has addresses and hours.",
     "galleryHeading": "Photos",
     "nationalNotInRegion": "{brand} has no restaurants in {region}.",
-    "pickedByTip": "{name} is a paid Radar partner and earns a commission when someone subscribes to Radar Pro through their link. Picks do not change how Radar ranks deals."
+    "pickedByTip": "A creator Radar works with. Picks don't change how deals are ranked."
   },
   "detailActions": {
     "save": "Save deal",
@@ -322,8 +330,8 @@
       },
       "radius": {
         "label": "Search radius",
-        "free": "Up to 50 km",
-        "pro": "Up to 100 km"
+        "free": "Up to 25 km",
+        "pro": "Up to 50 km"
       },
       "alerts": {
         "label": "Deal alert emails",
@@ -345,7 +353,7 @@
     "highlights": {
       "areas": {
         "title": "Track every place you actually go",
-        "body": "One area is fine for one neighborhood. Pro tracks home, work, and wherever else you eat — all at once, all at up to 100 km."
+        "body": "One area is fine for one neighborhood. Pro tracks home, work, and wherever else you eat — all at once, with reach up to 50 km for places further out."
       },
       "alerts": {
         "title": "Your roundup, on your schedule",
@@ -502,8 +510,8 @@
       "confirmRemoval": "CONFIRM REMOVAL",
       "savedCountFree": "{count} of {limit} saved",
       "kmPro": "{value} km · Pro",
-      "radiusLockTitle": "Searching beyond 50 km is included with Radar Pro",
-      "radiusHint": "Free plans search up to 50 km.",
+      "radiusLockTitle": "Searching beyond 25 km is included with Radar Pro",
+      "radiusHint": "Free plans search up to 25 km.",
       "freeActiveNote": "On the free plan, {limit, plural, one {# area works} other {# areas work}} at a time. Make another area the default to switch to it, or pause this one first.",
       "radiusCapped": "Reaches {radius} km on the free plan",
       "radiusFor": "Search radius for {label}",
@@ -871,7 +879,6 @@
   "home": {
     "hero": {
       "catalogCount": "{restaurants, plural, one {# restaurant} other {# restaurants}} · {cities, plural, one {# city} other {# cities}}",
-      "catalogStats": "{deals, plural, one {{dealsLabel} deal} other {{dealsLabel} deals}} · {restaurants, plural, one {{restaurantsLabel} restaurant} other {{restaurantsLabel} restaurants}} · {cities, plural, one {{citiesLabel} city} other {{citiesLabel} cities}}",
       "comingSoon": "Coming soon.",
       "comingSoonBody": "{vertical} deals aren’t on the radar yet — check back soon.",
       "headingSuffix": "on your Radar.",
@@ -885,6 +892,12 @@
       "useMyLocation": "Use my location",
       "radius": "Radius",
       "searchRadiusLabel": "Search radius",
+      "radiusOption": {
+        "walk": "{radius} · walking",
+        "bike": "{radius} · bike or short drive",
+        "drive": "{radius} · driving"
+      },
+      "radiusOptionPro": "{radius} · Pro",
       "surpriseMe": "Surprise me",
       "surpriseMeFinding": "Finding one…",
       "surpriseMeTitle": "Jump to a random deal that's open right now",
@@ -918,6 +931,14 @@
       "checked": "Checked {date}",
       "guidesLabel": "City guides"
     },
+    "stats": {
+      "label": "Radar in numbers",
+      "deals": "{count, plural, one {live deal} other {live deals}}",
+      "restaurants": "{count, plural, one {restaurant} other {restaurants}}",
+      "cities": "{count, plural, one {city} other {cities}}",
+      "checked": "{count, plural, one {deal checked at the source since {date}} other {deals checked at the source since {date}}}",
+      "latest": "Counted from the live catalog. Newest check {date}."
+    },
     "verticalSwitch": {
       "label": "Deal category",
       "restaurants": "Restaurants",
@@ -944,6 +965,7 @@
       "areaPostalSearch": "{city} · postal search",
       "areaNearCity": "{city} · within {radius}",
       "areaNearYou": "Your location · within {radius}",
+      "radiusWidened": "Only a few deals within {from}, so this list reaches {to}. Pick a radius to keep it closer.",
       "changeArea": "Change",
       "coverageNotCovered": "This area is not covered yet.",
       "coverageGrowing": "Coverage is still growing in this area.",
@@ -957,7 +979,7 @@
       "label": "Deals picked by {name}",
       "heading": "Picks by {name}",
       "partner": "Radar partner",
-      "partnerTip": "{name} is a paid Radar partner and earns a commission when someone subscribes to Radar Pro through their link. Their picks are shown on their own and do not change how Radar ranks deals."
+      "partnerTip": "A creator Radar works with. Their picks are shown separately and don't change how deals are ranked."
     },
     "recentlyViewed": {
       "label": "Recently viewed deals",
@@ -1188,7 +1210,10 @@
     "createAccount": "Create account",
     "forRestaurants": "For restaurants",
     "suggestDeal": "Suggest a deal",
-    "pro": "Radar Pro"
+    "pro": "Radar Pro",
+    "nearMe": "Deals near me",
+    "availableNow": "Deals available now",
+    "cities": "City guides"
   },
   "toast": {
     "dismiss": "Dismiss notification"

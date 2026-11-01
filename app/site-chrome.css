@@ -337,6 +337,67 @@ html[data-theme="dark"] .legal article strong { color: var(--ink); }
   .nav-burger { order: 3; margin-left: auto; }
 }
 
+/* ---- Explore menu and the bar's Near me ----------------------------------------------------
+   Explore opens the ways into the deals (near me, available now, city guides, everything), each
+   with a line saying what it does. On the one-row bar it is a disclosure no wider than the plain
+   "Explore" link it replaced, so every width measured below still holds. In the drawer the button
+   goes and the list is always shown, as top-level rows like the drawer's other links. */
+.explore-menu { min-width: 270px; left: 0; transform: none; }
+.explore-menu:not(.open) { display: none; }
+.nav .explore-menu > a,
+.nav .explore-menu > button {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  white-space: normal;
+  line-height: 1.25;
+}
+.explore-menu svg { width: 18px; height: 18px; flex: none; margin-top: 1px; color: var(--coral-strong); }
+.explore-menu small { display: block; margin-top: 2px; font-size: 12px; font-weight: 500; color: var(--muted); }
+.nav-dropdown-menu a[aria-current="page"] { background: var(--cream); }
+.nav-primary > a[aria-current="page"] { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 6px; }
+
+/* Shown only where the drawer hides the links: one tap to the deals around the reader. */
+.nav-quick-near { display: none; }
+@media (max-width: 1100px) {
+  .nav .nav-quick-near {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    order: 3;
+    margin-left: auto;
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .nav .nav-quick-near:hover { border-color: var(--muted); }
+  .nav-quick-near svg { width: 16px; height: 16px; color: var(--coral-strong); }
+  .nav-quick-near + .nav-burger { margin-left: 0; }
+
+  .explore-dropdown > .nav-dropdown-trigger { display: none; }
+  .nav-links .explore-menu,
+  .nav-links .explore-menu:not(.open) { display: grid; gap: 0; margin: 0; padding: 0; min-width: 0; background: transparent; }
+  .nav .nav-links .explore-menu > a,
+  .nav .nav-links .explore-menu > button {
+    align-items: center;
+    padding: 14px 4px;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+    font-size: inherit;
+  }
+  .nav-links .explore-menu small { display: none; }
+}
+/* The narrowest phones keep the icon; the label stays the button's name for assistive tech. */
+@media (max-width: 360px) {
+  .nav .nav-quick-near { padding: 8px 10px; }
+  .nav-quick-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+
 /* ---- The one-row bar, above the drawer -------------------------------------------------------
    `.nav-links` may shrink (min-width: 0) while nothing inside it can, so a row that is too long
    does not wrap or scroll: the account cluster slides under the search trigger. It did, in
@@ -609,4 +670,27 @@ html:has(.cookie-notice) { scroll-padding-bottom: 240px; }
     justify-content: center;
     margin: 0;
   }
+}
+
+/* The hero's figures (app/HomeStats.tsx): four counts from the live catalogue, set like a scoreboard
+   under the search, with the freshness figure in the accent colour since it is what sets Radar apart. */
+.hero-stats { max-width: 760px; margin: 38px auto 0; }
+.hero-stats dl { margin: 0; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border: 1px solid var(--line); border-radius: 20px; background: var(--field, #fff); box-shadow: 0 14px 35px #344b3b14; overflow: hidden; }
+.hero-stat { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 6px; padding: 20px 16px 18px; border-inline-start: 1px solid var(--line); min-width: 0; }
+.hero-stat:first-child { border-inline-start: 0; }
+.hero-stat dd { margin: 0; font: 700 clamp(30px, 4vw, 40px)/1 var(--font-display), system-ui, sans-serif; letter-spacing: -1px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.hero-stat dt { font-size: 13px; line-height: 1.35; color: var(--muted); font-weight: 700; }
+.hero-stat-checked { background: color-mix(in srgb, var(--coral) 9%, transparent); }
+.hero-stat-checked dd { color: var(--coral-strong); }
+.hero-stats-note { display: inline-flex; align-items: center; gap: 8px; margin: 14px 0 0; font-size: 13px; color: var(--muted); }
+.hero-stats-pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--field-ok); box-shadow: 0 0 0 0 color-mix(in srgb, var(--field-ok) 45%, transparent); animation: hero-stats-pulse 2.4s ease-out infinite; }
+@keyframes hero-stats-pulse { 70% { box-shadow: 0 0 0 7px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+.hero.motion-paused .hero-stats-pulse { animation: none; }
+@media (prefers-reduced-motion: reduce) { .hero-stats-pulse { animation: none; } }
+@media (max-width: 700px) {
+  .hero-stats { margin-top: 30px; }
+  .hero-stats dl { grid-auto-flow: row; grid-template-columns: 1fr 1fr; }
+  .hero-stat { padding: 16px 14px; border-inline-start: 0; }
+  .hero-stat:nth-child(even) { border-inline-start: 1px solid var(--line); }
+  .hero-stat:nth-child(n + 3) { border-top: 1px solid var(--line); }
 }

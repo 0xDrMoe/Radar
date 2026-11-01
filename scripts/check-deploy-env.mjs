@@ -8,8 +8,8 @@
 // decides which Clerk instance the public site talks to, and the value comes from .env.local, which
 // is gitignored and holds a developer's own pk_test_ key.
 //
-// .github/workflows/deploy.yml supplies the production key from a repository secret, which is why
-// deploys are supposed to go through CI. Nothing said so, and nothing stopped a local one: running
+// Workers Builds supplies the production key from a build variable (docs/DEPLOY.md), which is why
+// deploys are supposed to go through it. Nothing said so, and nothing stopped a local one: running
 // `npm run deploy` by hand produced a perfectly healthy-looking deploy - every page 200, the API
 // answering, the prerender correct - in which sign-in pointed at a Clerk development instance
 // (*.clerk.accounts.dev) and no real account existed. The site looked fine to every check except
@@ -33,10 +33,10 @@ Refusing to build a production deploy.
 
   ${problem}
 
-Deploys go through CI, which supplies the production key from a repository secret:
+Deploys go through Cloudflare Workers Builds, which supplies the production key from a build
+variable (docs/DEPLOY.md):
 
-  git push origin main          # the workflow deploys on push
-  gh workflow run deploy.yml    # or run it by hand
+  merge to main                 # Workers Builds deploys it
 
 To build locally on purpose - to check that a build succeeds, not to ship it - use:
 

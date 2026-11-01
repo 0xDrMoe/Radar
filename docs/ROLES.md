@@ -460,7 +460,7 @@ Not an access-control role. `isPro()` is `plan === "pro"` and `plan_status` is `
 | | Free | Pro |
 | --- | --- | --- |
 | Tracked areas | 1 | Unlimited |
-| Alert radius | 2–50 km | 2–100 km |
+| Alert radius | 1–25 km | 1–50 km |
 | Alert days / time | One day, 08:00 | Any days, any time |
 | Notification history | Last 20 | Last 500, plus CSV export |
 | Accent themes | 6 | 8 |

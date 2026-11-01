@@ -27,20 +27,20 @@ const areas = (db) => db.prepare("SELECT id,radius,active,is_default FROM saved_
 // ── Tracked areas ─────────────────────────────────────────────────────────────────────────────
 
 test("an area kept from Pro can still be paused and renamed on Free, without its radius changing", async () => {
-  // The dashboard used to send label, radius and active together, and a 100 km radius failed the
+  // The dashboard used to send label, radius and active together, and a Pro-only radius failed the
   // Free check, so an account that left Pro could not pause the area at all.
   const db = freshDatabase();
   account(db);
-  area(db, { id: 1, label: "Cottage", radius: 100, isDefault: 1 });
+  area(db, { id: 1, label: "Cottage", radius: 50, isDefault: 1 });
   assert.equal((await act({ action: "update_location", id: 1, active: false })).status, 200);
   assert.equal((await act({ action: "update_location", id: 1, label: "Lake" })).status, 200);
-  assert.deepEqual(areas(db), [{ id: 1, radius: 100, active: 0, is_default: 1 }]);
+  assert.deepEqual(areas(db), [{ id: 1, radius: 50, active: 0, is_default: 1 }]);
   assert.equal(db.prepare("SELECT label FROM saved_locations WHERE id=1").get().label, "Lake");
-  // A new radius is still checked against the plan.
-  const wider = await act({ action: "update_location", id: 1, radius: 75 });
-  assert.equal(wider.status, 422);
-  assert.equal((await act({ action: "update_location", id: 1, radius: 50 })).status, 200);
-  assert.equal(areas(db)[0].radius, 50);
+  // A new radius is still checked against the plan: 75 no longer exists, and 50 is Pro's.
+  assert.equal((await act({ action: "update_location", id: 1, radius: 75 })).status, 422);
+  assert.equal((await act({ action: "update_location", id: 1, radius: 25 })).status, 200);
+  assert.equal(areas(db)[0].radius, 25);
+  assert.equal((await act({ action: "update_location", id: 1, radius: 50 })).status, 422);
 });
 
 test("Free keeps one area active: a second is refused, and making one the default pauses the rest", async () => {

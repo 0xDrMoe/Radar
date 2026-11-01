@@ -1,13 +1,13 @@
 "use client";
 import NextLink from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ComponentType } from "react";
-import { ChevronDown, Globe, Heart, LayoutDashboard, Megaphone, Menu, Sparkles, ShieldCheck, Store, UserPlus, UserRound, X } from "lucide-react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type ComponentType } from "react";
+import { ChevronDown, Clock, Globe, Heart, LayoutDashboard, LocateFixed, Map as MapIcon, Megaphone, Menu, Search, Sparkles, ShieldCheck, Store, UserPlus, UserRound, X } from "lucide-react";
 import RadarMark from "./RadarMark";
 import { fetchSession } from "./session-cache";
 import ThemeMenu from "./ThemeMenu";
 import CommandPalette, { type Command } from "./CommandPalette";
-import ChromeLink, { useChromeNavigate } from "./ChromeLink";
+import ChromeLink, { isCurrentPage, useChromeNavigate } from "./ChromeLink";
 import { purchaseHidden } from "./app-context";
 import { MAIN_CONTENT_ID } from "./main-content";
 import { Link, usePathname } from "../i18n/navigation";
@@ -33,6 +33,19 @@ const languages: { code: "en" | "fr" | "es"; label: string }[] = [
 
 type HeaderSession = { role: string; name: string | null } | null;
 
+/** Closes a disclosure when the reader presses anywhere outside it. */
+function useCloseOnOutside(open: boolean, ref: React.RefObject<HTMLElement | null>, close: () => void) {
+  useEffect(() => {
+    if (!open) return;
+    function onOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) close();
+    }
+    document.addEventListener("mousedown", onOutside);
+    return () => document.removeEventListener("mousedown", onOutside);
+  }, [open, ref, close]);
+}
+
+
 // The one shared nav for every public-facing page (home, deal detail, for-restaurants, terms,
 // privacy). Dashboards, the admin workspace, and the restaurant portal keep their own sidebar
 // chrome from portal.css — this is deliberately not used there.
@@ -51,12 +64,20 @@ type HeaderSession = { role: string; name: string | null } | null;
 export default function SiteHeader({
   skipToId,
   onSuggest,
+  onNearMe,
+  onAvailableNow,
   centerSlot,
   brandHref,
   exploreHref,
 }: {
   skipToId?: string;
   onSuggest?: () => void;
+  // The home page searches around the reader, or narrows its list to what is on now, without
+  // leaving the page. Elsewhere both are links to the home page that ask for the same, which
+  // HomeClient reads on load: `near=1` asks for the reader's location once and is then dropped from
+  // the address; `availableNow` is the list's own filter, so that link is a list anyone can share.
+  onNearMe?: () => void;
+  onAvailableNow?: () => void;
   centerSlot?: React.ReactNode;
   // In-page anchors on the home page (#top, #results); everywhere else both lead to the home page
   // in the reader's language. Typed as anchors: a page only ever hands the header a place on itself,
@@ -76,8 +97,11 @@ export default function SiteHeader({
   // account controls, which is a flicker every signed-in reader sees on every page.
   const [sessionLoaded, setSessionLoaded] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [exploreOpen, setExploreOpen] = useState(false);
   const [contributeOpen, setContributeOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
+  const exploreRef = useRef<HTMLDivElement>(null);
+  const exploreTriggerRef = useRef<HTMLButtonElement>(null);
   const contributeRef = useRef<HTMLDivElement>(null);
   const contributeTriggerRef = useRef<HTMLButtonElement>(null);
   const langRef = useRef<HTMLDivElement>(null);
@@ -94,14 +118,12 @@ export default function SiteHeader({
       .finally(() => setSessionLoaded(true));
   }, []);
 
-  useEffect(() => {
-    if (!langOpen) return;
-    function onOutside(e: MouseEvent) {
-      if (langRef.current && !langRef.current.contains(e.target as Node)) setLangOpen(false);
-    }
-    document.addEventListener("mousedown", onOutside);
-    return () => document.removeEventListener("mousedown", onOutside);
-  }, [langOpen]);
+  const closeExplore = useCallback(() => setExploreOpen(false), []);
+  const closeContribute = useCallback(() => setContributeOpen(false), []);
+  const closeLang = useCallback(() => setLangOpen(false), []);
+  useCloseOnOutside(exploreOpen, exploreRef, closeExplore);
+  useCloseOnOutside(contributeOpen, contributeRef, closeContribute);
+  useCloseOnOutside(langOpen, langRef, closeLang);
 
   // The language list is a menu of radio items (the menu-button pattern): opening it moves focus
   // onto the language in use, the arrow keys move between languages, Escape closes it and returns
@@ -132,15 +154,6 @@ export default function SiteHeader({
     } else if (event.key === "Tab") setLangOpen(false);
   }
 
-  useEffect(() => {
-    if (!contributeOpen) return;
-    function onOutside(e: MouseEvent) {
-      if (contributeRef.current && !contributeRef.current.contains(e.target as Node)) setContributeOpen(false);
-    }
-    document.addEventListener("mousedown", onOutside);
-    return () => document.removeEventListener("mousedown", onOutside);
-  }, [contributeOpen]);
-
   // Where signing in or creating an account returns the reader: their dashboard, in the language
   // they started in. The sign-in page would add the locale to a bare /dashboard itself
   // (app/auth-redirect.ts), but a link says where it goes: ChromeLink localizes the path, and the
@@ -154,6 +167,9 @@ export default function SiteHeader({
   const commands = useMemo<Command[]>(() => {
     const list: Command[] = [
       { id: "home", label: tCommand("home"), icon: <RadarMark />, run: () => (exploreHref ? window.location.assign(exploreHref) : navigate("/")) },
+      { id: "near-me", label: tCommand("nearMe"), icon: <LocateFixed />, run: () => (onNearMe ? onNearMe() : navigate("/?near=1")) },
+      { id: "available-now", label: tCommand("availableNow"), icon: <Clock />, run: () => (onAvailableNow ? onAvailableNow() : navigate("/?availableNow=true#results")) },
+      { id: "cities", label: tCommand("cities"), icon: <MapIcon />, run: () => navigate("/cities") },
     ];
     if (session) {
       list.push(
@@ -175,7 +191,7 @@ export default function SiteHeader({
     // Only ever read on the client: the palette renders no commands until it is opened.
     if (!purchaseHidden()) list.push({ id: "pro", label: tCommand("pro"), icon: <Sparkles />, run: () => navigate("/pro") });
     return list;
-  }, [session, navigate, afterSignIn, exploreHref, onSuggest, tCommand]);
+  }, [session, navigate, afterSignIn, exploreHref, onSuggest, onNearMe, onAvailableNow, tCommand]);
 
   return (
     <header className="site-header">
@@ -188,6 +204,18 @@ export default function SiteHeader({
           Radar
           <i>.</i>
         </ChromeLink>
+        {/* Below the drawer's width the menu hides every link, so the one thing most readers open
+            the site for stays on the bar. Its label is visible text, hidden only on the narrowest
+            phones (site-chrome.css), so it is also the control's name. */}
+        {onNearMe ? (
+          <button type="button" className="nav-quick-near" onClick={onNearMe}>
+            <LocateFixed /> <span className="nav-quick-label">{t("nearMe")}</span>
+          </button>
+        ) : (
+          <ChromeLink className="nav-quick-near" href="/?near=1">
+            <LocateFixed /> <span className="nav-quick-label">{t("nearMe")}</span>
+          </ChromeLink>
+        )}
         <button
           className="nav-burger"
           aria-label={mobileOpen ? t("closeMenu") : t("openMenu")}
@@ -205,8 +233,63 @@ export default function SiteHeader({
           onClick={() => setMobileOpen(false)}
         >
           <div className="nav-primary">
-            <ChromeLink href={exploreHref ?? "/"}>{t("explore")}</ChromeLink>
-            <ChromeLink href="/pro" className="nav-pro-link purchase-cta">{t("pro")}</ChromeLink>
+            {/* A disclosure of the ways into the deals, each with a line saying what it does. In the
+                drawer its button is hidden and the list is always shown (site-chrome.css), so on a
+                phone each is one tap from the menu rather than two. */}
+            {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- Escape closes the disclosure from any control inside it */}
+            <div
+              className="nav-dropdown explore-dropdown"
+              ref={exploreRef}
+              onKeyDown={(e) => {
+                if (e.key !== "Escape" || !exploreOpen) return;
+                setExploreOpen(false);
+                exploreTriggerRef.current?.focus();
+              }}
+            >
+              <button
+                ref={exploreTriggerRef}
+                type="button"
+                className="nav-dropdown-trigger"
+                aria-expanded={exploreOpen}
+                aria-controls="explore-links"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setExploreOpen((open) => !open);
+                }}
+              >
+                {t("explore")} <ChevronDown />
+              </button>
+              {/* Always in the page, so the drawer can show it; on the one-row bar it stays out of
+                  sight until the button opens it. A class rather than `hidden`, which Tailwind's
+                  base styles make impossible for the drawer to override. */}
+              <div className={`nav-dropdown-menu explore-menu${exploreOpen ? " open" : ""}`} id="explore-links">
+                {onNearMe ? (
+                  <button type="button" onClick={() => { setExploreOpen(false); onNearMe(); }}>
+                    <LocateFixed /><span>{t("nearMe")}<small>{t("nearMeHint")}</small></span>
+                  </button>
+                ) : (
+                  <ChromeLink href="/?near=1">
+                    <LocateFixed /><span>{t("nearMe")}<small>{t("nearMeHint")}</small></span>
+                  </ChromeLink>
+                )}
+                {onAvailableNow ? (
+                  <button type="button" onClick={() => { setExploreOpen(false); onAvailableNow(); }}>
+                    <Clock /><span>{t("availableNow")}<small>{t("availableNowHint")}</small></span>
+                  </button>
+                ) : (
+                  <ChromeLink href="/?availableNow=true#results">
+                    <Clock /><span>{t("availableNow")}<small>{t("availableNowHint")}</small></span>
+                  </ChromeLink>
+                )}
+                <ChromeLink href="/cities" aria-current={isCurrentPage("/cities", pathname) ? "page" : undefined}>
+                  <MapIcon /><span>{t("cities")}<small>{t("citiesHint")}</small></span>
+                </ChromeLink>
+                <ChromeLink href={exploreHref ?? "/"} onClick={() => setExploreOpen(false)}>
+                  <Search /><span>{t("allDeals")}<small>{t("allDealsHint")}</small></span>
+                </ChromeLink>
+              </div>
+            </div>
+            <ChromeLink href="/pro" className="nav-pro-link purchase-cta" aria-current={isCurrentPage("/pro", pathname) ? "page" : undefined}>{t("pro")}</ChromeLink>
             {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
             {/* A disclosure, not a menu: a button that shows two ordinary links. aria-haspopup told
                 screen readers a menu was coming, with arrow keys, and neither was. */}
@@ -248,7 +331,7 @@ export default function SiteHeader({
                       {t("suggestDeal")}
                     </ChromeLink>
                   )}
-                  <ChromeLink href="/for-restaurants" onClick={() => setContributeOpen(false)}>
+                  <ChromeLink href="/for-restaurants" onClick={() => setContributeOpen(false)} aria-current={isCurrentPage("/for-restaurants", pathname) ? "page" : undefined}>
                     {t("forRestaurants")}
                   </ChromeLink>
                 </div>

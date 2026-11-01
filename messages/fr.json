@@ -18,7 +18,15 @@
     "language": "Langue",
     "pro": "Pro",
     "creatorWorkspace": "Espace créateur",
-    "restaurantPortal": "Portail restaurant"
+    "restaurantPortal": "Portail restaurant",
+    "nearMe": "Près de moi",
+    "nearMeHint": "Les offres autour de vous",
+    "availableNow": "Disponible maintenant",
+    "availableNowHint": "Les offres en cours en ce moment",
+    "cities": "Guides des villes",
+    "citiesHint": "Happy hours et offres par ville",
+    "allDeals": "Toutes les offres",
+    "allDealsHint": "Chercher et filtrer toutes les offres"
   },
   "dealDetail": {
     "backToResults": "← Retour aux résultats",
@@ -72,7 +80,7 @@
     "noBranchList": "Radar ne répertorie pas chaque restaurant {brand}. Le localisateur de la chaîne donne les adresses et les heures.",
     "galleryHeading": "Photos",
     "nationalNotInRegion": "{brand} n’a aucun restaurant dans cette région : {region}.",
-    "pickedByTip": "{name} est un partenaire rémunéré de Radar et touche une commission quand quelqu'un s'abonne à Radar Pro par son lien. Ses choix ne changent pas le classement des offres sur Radar."
+    "pickedByTip": "Un créateur avec qui Radar collabore. Ses choix ne changent pas le classement des offres."
   },
   "detailActions": {
     "save": "Enregistrer l’offre",
@@ -322,8 +330,8 @@
       },
       "radius": {
         "label": "Rayon de recherche",
-        "free": "Jusqu'à 50 km",
-        "pro": "Jusqu'à 100 km"
+        "free": "Jusqu'à 25 km",
+        "pro": "Jusqu'à 50 km"
       },
       "alerts": {
         "label": "Courriels d'alerte",
@@ -345,7 +353,7 @@
     "highlights": {
       "areas": {
         "title": "Suivez chaque endroit où vous allez vraiment",
-        "body": "Une zone suffit pour un seul quartier. Pro suit votre domicile, votre travail et partout ailleurs où vous mangez — tout en même temps, jusqu'à 100 km."
+        "body": "Une zone suffit pour un seul quartier. Pro suit votre domicile, votre travail et partout ailleurs où vous mangez — tout en même temps, avec une portée jusqu'à 50 km pour les endroits plus éloignés."
       },
       "alerts": {
         "title": "Votre résumé, à votre horaire",
@@ -502,8 +510,8 @@
       "confirmRemoval": "CONFIRMER LE RETRAIT",
       "savedCountFree": "{count} sur {limit} enregistrée",
       "kmPro": "{value} km · Pro",
-      "radiusLockTitle": "La recherche au-delà de 50 km est incluse avec Radar Pro",
-      "radiusHint": "Les forfaits gratuits cherchent jusqu'à 50 km.",
+      "radiusLockTitle": "La recherche au-delà de 25 km est incluse avec Radar Pro",
+      "radiusHint": "Les forfaits gratuits cherchent jusqu'à 25 km.",
       "freeActiveNote": "Avec le forfait gratuit, {limit, plural, one {# secteur fonctionne} other {# secteurs fonctionnent}} à la fois. Définissez un autre secteur par défaut pour passer à celui-ci, ou mettez d’abord celui-ci en pause.",
       "radiusCapped": "Portée de {radius} km avec le forfait gratuit",
       "radiusFor": "Rayon de recherche pour {label}",
@@ -871,7 +879,6 @@
   "home": {
     "hero": {
       "catalogCount": "{restaurants, plural, one {# restaurant} other {# restaurants}} · {cities, plural, one {# ville} other {# villes}}",
-      "catalogStats": "{deals, plural, one {{dealsLabel} offre} other {{dealsLabel} offres}} · {restaurants, plural, one {{restaurantsLabel} restaurant} other {{restaurantsLabel} restaurants}} · {cities, plural, one {{citiesLabel} ville} other {{citiesLabel} villes}}",
       "comingSoon": "Bientôt disponible.",
       "comingSoonBody": "Les offres {vertical} ne sont pas encore sur le radar — revenez bientôt.",
       "headingSuffix": "sur votre Radar.",
@@ -885,6 +892,12 @@
       "useMyLocation": "Utiliser ma position",
       "radius": "Rayon",
       "searchRadiusLabel": "Rayon de recherche",
+      "radiusOption": {
+        "walk": "{radius} · à pied",
+        "bike": "{radius} · à vélo ou en voiture",
+        "drive": "{radius} · en voiture"
+      },
+      "radiusOptionPro": "{radius} · Pro",
       "surpriseMe": "Surprenez-moi",
       "surpriseMeFinding": "Recherche en cours…",
       "surpriseMeTitle": "Découvrir une offre au hasard, ouverte en ce moment",
@@ -918,6 +931,14 @@
       "checked": "Vérifiée le {date}",
       "guidesLabel": "Guides par ville"
     },
+    "stats": {
+      "label": "Radar en chiffres",
+      "deals": "{count, plural, one {offre en ligne} other {offres en ligne}}",
+      "restaurants": "{count, plural, one {restaurant} other {restaurants}}",
+      "cities": "{count, plural, one {ville} other {villes}}",
+      "checked": "{count, plural, one {offre vérifiée à la source depuis le {date}} other {offres vérifiées à la source depuis le {date}}}",
+      "latest": "Calculé à partir du catalogue en ligne. Dernière vérification le {date}."
+    },
     "verticalSwitch": {
       "label": "Catégorie d'offre",
       "restaurants": "Restaurants",
@@ -944,6 +965,7 @@
       "areaPostalSearch": "{city} · recherche par code postal",
       "areaNearCity": "{city} · dans un rayon de {radius}",
       "areaNearYou": "Votre position · dans un rayon de {radius}",
+      "radiusWidened": "Peu d'offres dans un rayon de {from}, alors cette liste va jusqu'à {to}. Choisissez un rayon pour rester plus près.",
       "changeArea": "Changer",
       "coverageNotCovered": "Cette région n'est pas encore couverte.",
       "coverageGrowing": "La couverture continue de s'étendre dans cette région.",
@@ -957,7 +979,7 @@
       "label": "Offres choisies par {name}",
       "heading": "Les choix de {name}",
       "partner": "Partenaire Radar",
-      "partnerTip": "{name} est un partenaire rémunéré de Radar et touche une commission quand quelqu'un s'abonne à Radar Pro par son lien. Ses choix sont présentés à part et ne changent pas le classement des offres sur Radar."
+      "partnerTip": "Un créateur avec qui Radar collabore. Ses choix sont présentés à part et ne changent pas le classement des offres."
     },
     "recentlyViewed": {
       "label": "Offres consultées récemment",
@@ -1188,7 +1210,10 @@
     "createAccount": "Créer un compte",
     "forRestaurants": "Pour les restaurants",
     "suggestDeal": "Proposer une offre",
-    "pro": "Radar Pro"
+    "pro": "Radar Pro",
+    "nearMe": "Offres près de moi",
+    "availableNow": "Offres disponibles maintenant",
+    "cities": "Guides des villes"
   },
   "toast": {
     "dismiss": "Fermer la notification"

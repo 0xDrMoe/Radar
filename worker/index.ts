@@ -25,6 +25,12 @@ import { answerFromShared, sharedAnswerKey } from "../app/deals-answer";
 import { PRICED_PAGE_MARKER, currencyBucket } from "../app/pricing";
 import { dashboardSections } from "../app/[locale]/dashboard/sections";
 
+/** 12:00 UTC, the hour the GitHub Actions deploy used to run on its own schedule. */
+const DAILY_REBUILD_HOUR_UTC = 12;
+export function isDailyRebuildHour(at: Date): boolean {
+  return at.getUTCHours() === DAILY_REBUILD_HOUR_UTC;
+}
+
 interface Env {
   ASSETS: Fetcher;
   DB: D1Database;
@@ -33,6 +39,8 @@ interface Env {
   BILLING_JOB_SECRET?: string;
   TRANSLATE_JOB_SECRET?: string;
   GEOCODE_JOB_SECRET?: string;
+  /** Secret. The Workers Builds deploy hook URL; the daily rebuild below POSTs to it. */
+  DEPLOY_HOOK_URL?: string;
   PUBLIC_APP_URL?: string;
   TURNSTILE_SECRET_KEY?: string;
   TURNSTILE_SITE_KEY?: string;
@@ -1547,6 +1555,19 @@ const worker = {
     // the job's own gates decide whether anything actually sends. Skipped with an `if`, not an
     // early `return` — a missing email secret used to take the translation job below down with it.
     if (env.EMAIL_JOB_SECRET) await runCronJob(env, ctx, origin, env.EMAIL_JOB_SECRET, "digests", "digest_job_failed");
+
+    // The daily rebuild. Deal pages are prerendered at deploy, so a price fixed in admin reaches
+    // its static page only on the next deploy, and a Worker cannot redeploy itself. Deploys run on
+    // Cloudflare Workers Builds (docs/DEPLOY.md), which a deploy hook can start: once a day, at
+    // DAILY_REBUILD_HOUR_UTC, this asks for one. Without DEPLOY_HOOK_URL set it is skipped.
+    if (env.DEPLOY_HOOK_URL && isDailyRebuildHour(new Date(event?.scheduledTime ?? Date.now()))) {
+      try {
+        const response = await fetch(env.DEPLOY_HOOK_URL, { method: "POST" });
+        if (!response.ok) await recordCronFailure(env, "daily_rebuild_failed", "deploy-hook", { status: response.status });
+      } catch (cause) {
+        await recordCronFailure(env, "daily_rebuild_failed", "deploy-hook", failureDetails(cause));
+      }
+    }
 
     // Deal translation (fr/es). Same self-fetch/auth/dedup pattern as the digest job above —
     // without TRANSLATE_JOB_SECRET set there's no DeepL rollout yet, so skip quietly.

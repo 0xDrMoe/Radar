@@ -9,6 +9,9 @@ import { freshDatabase, harness } from "./route-harness.mjs";
 
 const { recentChecks, homeListings, catalogStats, roundedDown, RECENT_CHECKS } = await import("../app/home-listings.ts");
 
+// The "checked since" window is counted back from this moment, so the figures do not move with the clock.
+const NOW = Date.parse("2026-10-06T00:00:00Z");
+
 const db = freshDatabase();
 for (const table of ["deals", "restaurants", "restaurant_locations", "deal_locations", "deal_schedules"]) db.exec(`DELETE FROM ${table}`);
 
@@ -60,12 +63,15 @@ test("the catalogue's size counts every public deal, the places they run at, and
   // 23 public deals: the 21 pub offers, the chain's, and the unchecked one (public, just not
   // verified). Not the archived, expired or scheduled ones. Each offer is at its own address, all
   // in Ottawa.
-  assert.deepEqual(await catalogStats(harness.env.DB), { deals: 23, restaurants: 23, cities: 1 });
+  // Checked on or after Sep 6: Pubs 6 to 20, the second offer at Pub 20, and the chain. Not the
+  // unchecked one, which is public but was never checked.
+  const since = "2026-09-06 00:00:00";
+  assert.deepEqual(await catalogStats(harness.env.DB, NOW), { deals: 23, restaurants: 23, cities: 1, checked: 17, checkedSince: since });
   const other = offer({ name: "Gatineau Bistro", city: "Gatineau", at: "2026-08-01 12:00:00" });
   const outside = offer({ name: "Nationwide", scope: "national", city: "Toronto", at: "2026-08-01 12:00:00" });
   try {
     // A national offer is a deal but names no place, so it adds neither a restaurant nor a city.
-    assert.deepEqual(await catalogStats(harness.env.DB), { deals: 25, restaurants: 24, cities: 2 });
+    assert.deepEqual(await catalogStats(harness.env.DB, NOW), { deals: 25, restaurants: 24, cities: 2, checked: 17, checkedSince: since });
   } finally {
     for (const id of [other, outside]) db.prepare("DELETE FROM deals WHERE id=?").run(id);
   }
@@ -93,7 +99,10 @@ test("the home page renders the list as links and degrades to nothing without a 
   assert.match(page, /await import\("cloudflare:workers"\)/, "imported lazily, so the page still renders in plain Node");
   assert.match(page, /if \(!db\) return null;/);
   assert.match(page, /console\.error\("home page listings failed"/, "a failed read is logged, not swallowed");
-  assert.match(page, /catalogSummary=\{summary\}/, "the hero is handed the catalogue's size");
+  assert.match(page, /heroStats=\{listings \? <HomeStats listings=\{listings\} locale=\{locale\} \/> : null\}/, "the hero is handed the catalogue's figures");
+  const stats = readFileSync(new URL("../app/HomeStats.tsx", import.meta.url), "utf8");
+  assert.match(stats, /roundedDown\(count\)/, "every figure is rounded down");
+  assert.doesNotMatch(stats, /uptime/i, "no figure Radar does not measure");
   const list = readFileSync(new URL("../app/HomeRecentChecks.tsx", import.meta.url), "utf8");
   assert.match(list, /<ChromeLink href=\{`\/deals\/\$\{encodeURIComponent\(deal\.slug \|\| deal\.id\)\}`\}/);
   assert.match(list, /href=\{`\/en\$\{cityPath\(city\)\}`\}/, "guides are English only, linked directly");

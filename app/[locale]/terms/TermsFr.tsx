@@ -125,10 +125,10 @@ export default function TermsFr() {
       <h2 id="plans">5. Forfait gratuit et Radar Pro</h2>
       <p>
         Le forfait gratuit de Radar comprend la consultation et la recherche, les offres
-        enregistrées, une zone suivie avec un rayon de recherche d’au plus 50 km, un courriel
+        enregistrées, une zone suivie avec un rayon de recherche d’au plus 25 km, un courriel
         d’alerte hebdomadaire un jour donné à une heure d’envoi fixe, et vos 20 plus récentes
         entrées de l’historique des notifications. Radar Pro est un abonnement payant qui supprime ces limites —
-        zones suivies illimitées, rayon d’au plus 100 km, alertes les jours et à l’heure de votre
+        zones suivies illimitées, rayon d’au plus 50 km, alertes les jours et à l’heure de votre
         choix, historique de notifications plus long (vos 500 derniers envois, contre 20 avec le
         forfait gratuit) avec exportation CSV, et deux thèmes de couleur d’accent supplémentaires. La
         comparaison à jour se trouve sur notre{" "}

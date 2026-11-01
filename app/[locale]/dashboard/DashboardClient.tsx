@@ -11,7 +11,7 @@ import { isAccentKey } from "../../theme-accents";
 import ChromeLink from "../../ChromeLink";
 import { purchaseHidden } from "../../app-context";
 import { Link, useRouter } from "../../../i18n/navigation";
-import { DEFAULT_RADIUS_KM, maxRadiusKm } from "../../radius";
+import { DEFAULT_AREA_RADIUS_KM, maxRadiusKm } from "../../radius";
 import { hasProAccess } from "../../entitlement";
 import { useApiErrorText, type ApiErrorBody } from "../../api-error-text";
 import { MAIN_CONTENT_ID } from "../../main-content";
@@ -76,7 +76,7 @@ export default function DashboardClient({ initialSection, canAdminister, canMana
       const wantsFeed = initialSection === "overview" || initialSection === "preferences";
       const scope = nearbyScope(userResult);
       const pro = hasProAccess(userResult.profile.plan, userResult.profile.plan_status, userResult.profile.past_due_since, new Date(), userResult.profile.paused_until, userResult.profile.role);
-      const radius = Math.min(scope?.radius || DEFAULT_RADIUS_KM, maxRadiusKm(pro));
+      const radius = Math.min(scope?.radius || DEFAULT_AREA_RADIUS_KM, maxRadiusKm(pro));
       // chains=separate, as the homepage asks: the local list leaves the national chains out.
       // Without it an area's feed opened on McDonald's and Tim Hortons, which reads as paid
       // placement, and the chains are something a reader turns on, never something led with.

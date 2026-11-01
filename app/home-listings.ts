@@ -33,7 +33,7 @@ export interface HomeListings {
 }
 
 /**
- * The size of the public catalogue, for the hero's "1,000+ deals · 500+ restaurants · 60+ cities".
+ * The size and freshness of the public catalogue, for the hero's figures (app/HomeStats.tsx).
  *
  * Counted over every public deal rather than the cards the list below draws: the list is one card
  * per place (a bar with five nightly specials is one card), and its count was being read as the
@@ -46,10 +46,27 @@ export interface CatalogStats {
   deals: number;
   restaurants: number;
   cities: number;
+  /** Public deals whose last check against their source was on or after `checkedSince`. */
+  checked: number;
+  /** The start of that window, as SQL stores timestamps ("2026-09-18 01:40:00", UTC). */
+  checkedSince: string;
 }
 
-export async function catalogStats(db: D1Database): Promise<CatalogStats> {
+/** How far back the hero's "checked since" figure counts. */
+export const CHECKED_WINDOW_DAYS = 30;
+
+/** A time as D1 stores and compares timestamps: "YYYY-MM-DD HH:MM:SS", UTC. */
+function sqlTimestamp(ms: number): string {
+  return new Date(ms).toISOString().slice(0, 19).replace("T", " ");
+}
+
+// The freshness figure is stated against a fixed date ("checked since Sep 18") rather than as "in the
+// last 30 days": the home page is baked once per deploy, and a rolling window would quietly
+// overstate itself as the page aged, while a count since a date stays true (rounded down, as the
+// other figures are, for the deals retired between reads).
+export async function catalogStats(db: D1Database, now = Date.now()): Promise<CatalogStats> {
   const current = `${publicDealPredicate} AND (d.expires_at IS NULL OR datetime(d.expires_at) > datetime('now'))`;
+  const checkedSince = sqlTimestamp(now - CHECKED_WINDOW_DAYS * 86_400_000);
   const row = await db.prepare(
     `WITH placed AS (
        SELECT d.location_id AS location_id FROM deals d
@@ -59,12 +76,21 @@ export async function catalogStats(db: D1Database): Promise<CatalogStats> {
         WHERE ${current} AND COALESCE(d.location_scope, '') <> 'national'
      )
      SELECT (SELECT COUNT(*) FROM deals d WHERE ${current}) AS deals,
+            (SELECT COUNT(*) FROM deals d WHERE ${current}
+                AND d.verification_status = 'verified' AND d.verified_at IS NOT NULL
+                AND datetime(d.verified_at) >= datetime(?)) AS checked,
             COUNT(DISTINCT l.id) AS restaurants,
             COUNT(DISTINCT LOWER(TRIM(l.city)) || '|' || COALESCE(l.region, '') || '|' || l.country) AS cities
        FROM placed p JOIN restaurant_locations l ON l.id = p.location_id
       WHERE l.status = 'operating' AND TRIM(COALESCE(l.city, '')) <> '' AND l.country IS NOT NULL`,
-  ).first<CatalogStats>();
-  return { deals: Number(row?.deals || 0), restaurants: Number(row?.restaurants || 0), cities: Number(row?.cities || 0) };
+  ).bind(checkedSince).first<Omit<CatalogStats, "checkedSince">>();
+  return {
+    deals: Number(row?.deals || 0),
+    restaurants: Number(row?.restaurants || 0),
+    cities: Number(row?.cities || 0),
+    checked: Number(row?.checked || 0),
+    checkedSince,
+  };
 }
 
 /**
@@ -138,7 +164,7 @@ let memo: { at: number; db: D1Database; value: Promise<HomeListings> } | null = 
 
 export function homeListings(db: D1Database, now = Date.now()): Promise<HomeListings> {
   if (memo && memo.db === db && now - memo.at < TTL_MS) return memo.value;
-  const value = Promise.all([recentChecks(db), guideCities(db), catalogStats(db)])
+  const value = Promise.all([recentChecks(db), guideCities(db), catalogStats(db, now)])
     .then(([checks, guides, stats]) => ({ recentChecks: checks, guides, stats }));
   memo = { at: now, db, value };
   // A failed read is not kept: the next render tries again rather than serving the failure for ten minutes.

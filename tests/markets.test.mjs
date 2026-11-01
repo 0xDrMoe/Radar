@@ -88,7 +88,7 @@ test("a searched place decides the country by itself", () => {
   // empty page that looks like Radar has nothing in Knoxville.
   assert.match(home, /runDiscovery\(\{ postal: locationInput \|\| null, city: null, lat: null, lng: null, q: dealQuery \|\| null, \.\.\.\(locationInput \? \{ country: null \} : \{\}\) \}\)/);
   assert.match(home, /city: knownName \? null : locationInput, q: dealQuery \|\| null, country: null \}/);
-  assert.match(home, /searchParams\(\{ postal:null, city:null, country:null \}\)/, "use my location");
+  assert.match(home, /searchParams\(\{ postal:null, city:null, country:null(?:, vertical:null)? \}\)/, "use my location");
   assert.match(home, /scoped\.delete\("country"\)/, "a signed-in reader's home postal code");
 });
 

@@ -6,7 +6,7 @@ import { buildDigestEmail, canDeliverTo, SAMPLE_DIGEST_DEALS, sendEmail, signEma
 import { ACCENTS, isAccentKey } from "../../theme-accents";
 import { displayCity, resolvePostal, type GeocodeGuard } from "../../postal";
 import { deliveryReason } from "../../delivery-history";
-import { allowedRadii, DEFAULT_RADIUS_KM } from "../../radius";
+import { allowedRadii, DEFAULT_AREA_RADIUS_KM } from "../../radius";
 import { alertSchedule, FREE_AREA_LIMIT, historyRows } from "../../plan-limits";
 import { dealPageVisibility, publicDealPredicate } from "../../deal-lifecycle";
 import { billingFor } from "../../apple-entitlement";
@@ -289,7 +289,7 @@ export async function POST(request: Request) {
   } else if (body.action === "location") {
     const postal = normalizedPostal(body.postal), label = cleanText(body.label,40);
     const radii = allowedRadii(isPro(user));
-    const radius = radii.includes(Number(body.radius)) ? Number(body.radius) : DEFAULT_RADIUS_KM;
+    const radius = radii.includes(Number(body.radius)) ? Number(body.radius) : DEFAULT_AREA_RADIUS_KM;
     if (!label) return apiError(422,"LABEL_REQUIRED","Add a label for this area.",{label:"Required"});
     if (!validPostal(postal)) return apiError(422,"INVALID_POSTAL","Enter a complete Canadian postal code or US ZIP code.",{postal:"Invalid postal or ZIP code"});
     const duplicate = await env.DB.prepare("SELECT id FROM saved_locations WHERE user_id=? AND upper(replace(postal,' ',''))=?").bind(user.userId,postal).first();
@@ -312,7 +312,7 @@ export async function POST(request: Request) {
     const area = Number.isInteger(id) ? await env.DB.prepare("SELECT id,label,radius,active FROM saved_locations WHERE id=? AND user_id=?").bind(id,user.userId).first<{ id:number; label:string; radius:number; active:number }>() : null;
     if (!area) return apiError(404,"AREA_NOT_FOUND","That tracked area was not found.");
     // Each field is optional and only what is sent changes. The dashboard used to send all three to
-    // pause an area, so an area saved at 75 or 100 km while on Pro could not be paused, resumed or
+    // pause an area, so an area saved at 50 km (once 75 or 100) while on Pro could not be paused, resumed or
     // renamed once the plan lapsed: its own radius failed the Free check. A radius is only checked
     // against the plan when it is being changed.
     const label = body.label === undefined ? area.label : cleanText(body.label,40);

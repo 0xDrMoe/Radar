@@ -15,7 +15,7 @@ import { useTypewriter, useTypewriterAfterIntro } from "./Typewriter";
 import { MAIN_CONTENT_ID } from "./main-content";
 import { useApiErrorText, type ApiErrorBody } from "./api-error-text";
 import { dateFormatLocale, dealTagLabel, verificationState, verificationStatusLabel, expiringSoonLabel, endDateLabel, MAX_PRICE_TIER, narrowPriceTier, priceTierSymbol, priceTierLabel, hasExpired, parseSqlTimestamp } from "./verification";
-import { allowedRadii, DEFAULT_RADIUS_KM } from "./radius";
+import { allowedRadii, DEFAULT_RADIUS_KM, PRO_ONLY_RADII, snapRadius, travelMode } from "./radius";
 import { categoryLabel, cuisineLabel } from "./i18n/staticEnums";
 import { dealLabels } from "./i18n/dealLabels";
 import { hasProAccess } from "./entitlement";
@@ -28,6 +28,7 @@ import {
   ArrowUp,
   Bell,
   CalendarClock,
+  ChevronDown,
   Clock3,
   Heart,
   History,
@@ -49,23 +50,21 @@ type CreatorPick = { id: string; slug: string; emoji: string; restaurant: string
 type CreatorPicks = { creator: { handle: string; name: string }; picks: CreatorPick[] };
 
 /**
- * Whose picks to show, if anyone's.
+ * Whose picks to show, if anyone's: only the creator named in the address the reader just opened.
  *
- * The link wins over the cookie. Somebody who has just arrived from one creator should see that
- * creator, even if a different one brought them here last month - the same rule app/CreatorLink.tsx
- * applies when it overwrites the cookie a moment later.
- *
- * The cookie is the fallback rather than the source, so a reader who followed a creator's link on
- * Monday still gets their rail on Thursday. Read here rather than on the server because the whole
- * page is cached: a rail that varied by cookie server-side would make this page uncacheable for a
- * feature that is at most twelve rows deep.
+ * The ?c= link is the reader asking for them, by following a creator's link or the "Picked by"
+ * credit on a deal page. The referral cookie is not: it outlives the click by weeks, and a rail
+ * that kept reappearing above every later search read as part of the results rather than
+ * something the reader chose. The cookie still does its own job in app/CreatorLink.tsx.
  */
 function creatorForPicks(): string {
-  const fromLink = (new URLSearchParams(location.search).get("c") || "").trim().toLowerCase();
-  if (fromLink) return fromLink;
-  const cookie = document.cookie.split("; ").find((entry) => entry.startsWith("radar_creator="));
-  return cookie ? decodeURIComponent(cookie.slice("radar_creator=".length)).trim().toLowerCase() : "";
+  return (new URLSearchParams(location.search).get("c") || "").trim().toLowerCase();
 }
+
+// Parameters that only say how the reader arrived. Kept out of every search the page makes, so a
+// creator's handle never rides along on a filter change and the deals endpoint is not asked
+// (or cached) once per creator for the same list.
+const ARRIVAL_PARAMS = ["c", "camp", "picks"];
 
 const RECENT_KEY = "radar:recent";
 type RecentDeal = { id: string; slug?: string; restaurant: string; title: string; emoji: string };
@@ -240,6 +239,8 @@ type DealsResponse = {
   resolvedLocation?: ResolvedLocation | null;
   resolvedCity?: string | null;
   coverage?: "covered" | "established" | "limited" | "no_coverage";
+  /** One step out from a thin search on the default radius (app/radius.ts autoWidenRadius). */
+  autoWidenRadius?: number | null;
   error?: { code?: string; message?: string };
 };
 const cats =["All deals", "Happy hour", "Food deal", "Tonight"];
@@ -354,13 +355,16 @@ const confirmedLocationCount = (deal: Deal) => deal.participating_location_count
 function formatDistance(km: number, unit: "km" | "mi") {
   return unit === "mi" ? `${(km / KM_PER_MILE).toFixed(1)} mi` : `${km.toFixed(1)} km`;
 }
+// One decimal below 10 mi: rounded whole, the 1 and 2 km options both read "1 mi".
 function formatRadius(km: number, unit: "km" | "mi") {
-  return unit === "mi" ? `${Math.round(km / KM_PER_MILE)} mi` : `${km} km`;
+  if (unit === "km") return `${km} km`;
+  const miles = km / KM_PER_MILE;
+  return `${miles < 10 ? Number(miles.toFixed(1)) : Math.round(miles)} mi`;
 }
-export default function HomeClient({ turnstileSiteKey, cityGuides = {}, catalogSummary, recentChecks = null }: {
+export default function HomeClient({ turnstileSiteKey, cityGuides = {}, heroStats = null, recentChecks = null }: {
   turnstileSiteKey?: string;
-  /** "1,000+ deals · 500+ restaurants · 60+ cities", counted on the server over the whole catalogue (app/home-listings.ts). */
-  catalogSummary?: string;
+  /** The catalogue's figures, counted on the server over the whole catalogue (app/HomeStats.tsx). */
+  heroStats?: React.ReactNode;
   /** "Ottawa|ON" to "ottawa-on", for each city with a guide (app/home-listings.ts). */
   cityGuides?: Record<string, string>;
   /** The server-rendered list of recently checked deals and the city guides (app/HomeRecentChecks.tsx). */
@@ -428,12 +432,19 @@ export default function HomeClient({ turnstileSiteKey, cityGuides = {}, catalogS
   const [resolvedLocation, setResolvedLocation] = useState<ResolvedLocation | null>(null);
   // The radius the list on screen was searched with, which the slider is not until the next search.
   const [appliedRadius, setAppliedRadius] = useState(DEFAULT_RADIUS_KM);
+  // Whether the reader picked the radius (the picker, the widen button, or a link that names one).
+  // Until they do, the radius is the default and a thin search widens itself; once they have, a
+  // search stays at the distance they asked for. A ref, because searchParams reads it mid-handler.
+  const radiusChosen = useRef(false);
+  // The radius the reader left a thin search on, when the list on screen was widened past it.
+  const [widenedFrom, setWidenedFrom] = useState<number | null>(null);
   const [cuisine, setCuisine] = useState("All cuisines"),
     [dealQuery, setDealQuery] = useState(""),
     [sort, setSort] = useState("recommended"),
     [loadError, setLoadError] = useState(false),
     [recentlyViewed, setRecentlyViewed] = useState<RecentDeal[]>([]),
     [creatorPicks, setCreatorPicks] = useState<CreatorPicks | null>(null),
+    [picksOpen, setPicksOpen] = useState(false),
     [showBackToTop, setShowBackToTop] = useState(false);
   const apiErrorText = useApiErrorText();
   // One widget per lead form, each rendered on that form's first focus or press, sharing one
@@ -472,7 +483,8 @@ export default function HomeClient({ turnstileSiteKey, cityGuides = {}, catalogS
     const linkedCuisine = params.get("cuisine") || "All cuisines";
     const linkedCategory = params.get("category") || "All deals";
     const linkedSort = params.get("sort") || "recommended";
-    const linkedRadius = Number(params.get("radius")) || DEFAULT_RADIUS_KM;
+    const linkedRadius = snapRadius(params.get("radius"));
+    radiusChosen.current = params.has("radius");
     const linkedVertical = parseVertical(params.get("vertical"));
     // Reading the URL's query string to seed initial filter state on mount — a
     // legitimate sync-with-an-external-system effect, not a derivable render value.
@@ -489,6 +501,15 @@ export default function HomeClient({ turnstileSiteKey, cityGuides = {}, catalogS
     setServiceStyles(parseServiceStyles(params.get("serviceStyle")));
     if (linkedCity) { setPostal(linkedCity); setArea(linkedCity); }
     else if (linkedPostal) { setPostal(linkedPostal); setArea(linkedPostal.toUpperCase()); }
+    // The header's "Near me" from another page (SiteHeader's NEAR_ME_HREF): one request for the
+    // reader's location, made below once the list is loading. Dropped from the address first, so a
+    // reload or a shared link does not ask again.
+    const askedNearMe = params.get("near") === "1";
+    if (askedNearMe) {
+      params.delete("near");
+      const rest = params.toString();
+      history.replaceState(null, "", rest ? `${location.pathname}?${rest}` : location.pathname);
+    }
     if (params.get("suggest") === "1") {
       setSuggest(true);
       params.delete("suggest");
@@ -509,8 +530,11 @@ export default function HomeClient({ turnstileSiteKey, cityGuides = {}, catalogS
     }
     // A non-restaurant vertical has no results UI to fetch for yet — see the "Coming soon"
     // branch further down — so skip the request entirely instead of loading data no one sees.
-    if (linkedVertical === defaultVertical) loadDeals(params.toString() ? `?${params.toString()}` : "");
+    const searchable = new URLSearchParams(params);
+    for (const key of ARRIVAL_PARAMS) searchable.delete(key);
+    if (linkedVertical === defaultVertical) loadDeals(searchable.toString() ? `?${searchable.toString()}` : "");
     else setLoading(false);
+    if (askedNearMe) locateMe();
     setRecentlyViewed(loadRecentlyViewed());
     setShowChains(storedShowChains());
     try {
@@ -523,6 +547,8 @@ export default function HomeClient({ turnstileSiteKey, cityGuides = {}, catalogS
     // and no error state worth rendering for it.
     const pickHandle = creatorForPicks();
     if (pickHandle) {
+      // Closed unless the reader clicked a "Picked by" credit, which is asking to see the list.
+      setPicksOpen(params.get("picks") === "1");
       fetch(`/api/creator-picks?c=${encodeURIComponent(pickHandle)}`)
         .then((response) => (response.ok ? response.json() : null))
         .then((body) => { if (body && (body as CreatorPicks).picks?.length) setCreatorPicks(body as CreatorPicks); })
@@ -554,7 +580,7 @@ export default function HomeClient({ turnstileSiteKey, cityGuides = {}, catalogS
           // behind it were still the unscoped national list, Austin deals included. Run the
           // search the field is claiming. Guarded on the URL carrying no location or query of
           // its own, so a shared link, a ?city= link, or a search already in progress wins.
-          const untouched = !linkedCity && !linkedPostal && !linkedQuery && !params.get("lat") && !params.get("lng");
+          const untouched = !askedNearMe && !linkedCity && !linkedPostal && !linkedQuery && !params.get("lat") && !params.get("lng");
           if (d.user.home_postal && untouched) {
             setPostal(d.user.home_postal);
             setArea(d.user.home_postal.toUpperCase());
@@ -619,7 +645,8 @@ export default function HomeClient({ turnstileSiteKey, cityGuides = {}, catalogS
       setCat(params.get("category") || "All deals");
       setCuisine(params.get("cuisine") || "All cuisines");
       setSort(params.get("sort") || "recommended");
-      setRadius(Number(params.get("radius")) || DEFAULT_RADIUS_KM);
+      setRadius(snapRadius(params.get("radius")));
+      radiusChosen.current = params.has("radius");
       setAvailableNow(params.get("availableNow") === "true");
       setVerifiedOnly(params.get("verifiedOnly") === "true");
       setPriceTiers(parsePriceTiers(params.get("priceTier")));
@@ -668,7 +695,7 @@ export default function HomeClient({ turnstileSiteKey, cityGuides = {}, catalogS
     addEventListener("scroll",onScroll,{ passive:true });
     return () => removeEventListener("scroll",onScroll);
   }, []);
-  async function loadDeals(q = "", append = false) {
+  async function loadDeals(q = "", append = false, widenedFromRadius: number | null = null) {
     searchAbort.current?.abort();
     const controller = new AbortController();
     searchAbort.current = controller;
@@ -696,10 +723,23 @@ export default function HomeClient({ turnstileSiteKey, cityGuides = {}, catalogS
       // coverage, too many lookups); the notice says the same thing in the reader's language, chosen
       // by the error's code.
       if (!response.ok) throw new DealsLoadError(apiErrorText.message(d, t("notices.dealsLoadFailedGeneric")));
+      // A thin search on the default radius goes one step out and asks again, up to 25 km, before
+      // anything is shown, so a first visit outside a downtown opens on deals rather than on an
+      // empty list. Only the request widens: the URL and the picker keep the reader's default, so
+      // the next search, somewhere denser, starts close again.
+      if (!append && !radiusChosen.current && d.autoWidenRadius) {
+        const wider = new URLSearchParams(q.replace(/^\?/, ""));
+        wider.set("radius", String(d.autoWidenRadius));
+        return await loadDeals(`?${wider}`, false, widenedFromRadius ?? (Number(fetchParams.get("radius")) || DEFAULT_RADIUS_KM));
+      }
       const rows = d.results || [];
       setDeals((current) => append ? [...current, ...rows] : rows);
       if (!append) setAppliedQuery(fetchParams.get("q") || "");
-      if (!append) setAppliedRadius(Number(fetchParams.get("radius")) || DEFAULT_RADIUS_KM);
+      if (!append) {
+        const applied = Number(fetchParams.get("radius")) || DEFAULT_RADIUS_KM;
+        setAppliedRadius(applied);
+        setWidenedFrom(widenedFromRadius != null && widenedFromRadius !== applied ? widenedFromRadius : null);
+      }
       // The hero's "N restaurants · M cities": the same cards the list below counts as matches,
       // before any filter or place narrows them (see cityCount in app/api/deals/route.ts). No
       // fallback to rows.length - a page size is not a catalog size, and the badge has its own
@@ -746,7 +786,9 @@ export default function HomeClient({ turnstileSiteKey, cityGuides = {}, catalogS
     const values: Record<string, string | number | null> = {
       q: dealQuery || null,
       postal: isValidPostal ? postal : null,
-      radius,
+      // Left out until the reader picks one, so the server's default applies and the search can
+      // widen itself (see loadDeals). A link that names a radius is a radius somebody chose.
+      radius: radiusChosen.current ? radius : null,
       category: cat === "All deals" ? null : cat,
       cuisine: cuisine === "All cuisines" ? null : cuisine,
       availableNow: availableNow ? "true" : null,
@@ -760,11 +802,15 @@ export default function HomeClient({ turnstileSiteKey, cityGuides = {}, catalogS
     for (const [key,value] of Object.entries(values)) { if (value == null || value === "") current.delete(key); else current.set(key,String(value)); }
     current.delete("cursor");
     current.delete("deal");
+    for (const key of ARRIVAL_PARAMS) current.delete(key);
     return current;
   }
   // Mirrors isPro() in app/auth.ts — the same two fields the server checks, so the picker can
   // never offer a radius the API would reject.
   const isProSession = hasProAccess(session?.plan, session?.plan_status, session?.past_due_since, new Date(), session?.paused_until, session?.role);
+  // The widen button's next step, from the radius the list was actually searched at, within this
+  // plan: a free list at 25 km has nowhere further to go, and offering 50 searched 25 again.
+  const expandTo = allowedRadii(isProSession).find((value) => value > appliedRadius) ?? null;
   function togglePriceTier(tier: number) {
     const next = priceTiers.includes(tier) ? priceTiers.filter((value) => value !== tier) : [...priceTiers, tier].sort((a, b) => a - b);
     setPriceTiers(next);
@@ -860,7 +906,7 @@ export default function HomeClient({ turnstileSiteKey, cityGuides = {}, catalogS
     setArea(cityLabel(c));
     setCat("All deals");
     setCuisine("All cuisines");
-    // Resolve to lat/lng up front, same as useMyLocation — a bare city= string only ever did a
+    // Resolve to lat/lng up front, same as locateMe — a bare city= string only ever did a
     // strict city-name match server-side with no radius, which is exactly what kept a search from
     // reaching a neighboring town's deals.
     const center = cityCenters[c];
@@ -869,14 +915,26 @@ export default function HomeClient({ turnstileSiteKey, cityGuides = {}, catalogS
     if (center) { params.set("lat",String(center[0])); params.set("lng",String(center[1])); }
     else params.set("city",c);
     if (dealQuery) params.set("q",dealQuery);
-    params.set("radius",String(radius));
+    if (radiusChosen.current) params.set("radius",String(radius));
     params.set("sort",sort);
     if (vertical !== defaultVertical) params.set("vertical",vertical);
     history.pushState(null,"",`?${params}`);
     loadDeals(`?${params}`);
     document.querySelector("#results")?.scrollIntoView({ behavior: "smooth" });
   }
-  function useMyLocation() {
+  // The header's Near me and Available now act on the deal list, so from another tab of the
+  // vertical switch they bring the reader back to it.
+  function showDeals() {
+    if (vertical !== defaultVertical) setVertical(defaultVertical);
+  }
+  function showAvailableNow() {
+    showDeals();
+    setAvailableNow(true);
+    runDiscovery({ availableNow: "true", vertical: null });
+    requestAnimationFrame(() => document.querySelector("#results")?.scrollIntoView({ behavior: "smooth" }));
+  }
+  function locateMe() {
+    showDeals();
     if (!navigator.geolocation) {
       setNotice(t("notices.locationUnsupported"));
       return;
@@ -895,8 +953,8 @@ export default function HomeClient({ turnstileSiteKey, cityGuides = {}, catalogS
             : t("results.areaNearYou", { radius: formatRadius(radius,radiusUnit) }),
         );
         setNotice("");
-        const params = searchParams({ postal:null, city:null, country:null });
-        params.set("lat",String(point[0])); params.set("lng",String(point[1])); params.set("radius",String(radius));
+        const params = searchParams({ postal:null, city:null, country:null, vertical:null });
+        params.set("lat",String(point[0])); params.set("lng",String(point[1]));
         history.pushState(null,"",`?${params}`);
         loadDeals(`?${params}`);
         document
@@ -1188,6 +1246,8 @@ export default function HomeClient({ turnstileSiteKey, cityGuides = {}, catalogS
         brandHref="#top"
         exploreHref="#results"
         onSuggest={() => setSuggest(true)}
+        onNearMe={locateMe}
+        onAvailableNow={showAvailableNow}
         centerSlot={
           // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus
           <div className="vertical-switch" role="tablist" aria-label={t("verticalSwitch.label")} onClick={(e) => e.stopPropagation()} onKeyDown={onVerticalKey}>
@@ -1234,10 +1294,11 @@ export default function HomeClient({ turnstileSiteKey, cityGuides = {}, catalogS
           {motionPaused ? <Play /> : <Pause />}
         </button>
         <div className="eyebrow">
-          {/* The whole catalogue's size where the server could count it. The list's own count is of
-              cards, one per place, and read as a count of deals it understated the catalogue by
-              half; it stays only as the fallback for a page rendered without the database. */}
-          <Sparkles /> {catalogSummary || (catalogRestaurants ? t("hero.catalogCount", { restaurants: catalogRestaurants, cities: catalogCities }) : t("hero.catalogPending"))}
+          {/* The whole catalogue's size is in the figures below the search where the server could
+              count it. The list's own count is of cards, one per place, and read as a count of
+              deals it understated the catalogue by half; it stays only as the fallback for a page
+              rendered without the database. */}
+          <Sparkles /> {!heroStats && catalogRestaurants ? t("hero.catalogCount", { restaurants: catalogRestaurants, cities: catalogCities }) : t("hero.catalogPending")}
         </div>
         {/* The heading is read as its whole phrase, once. The typed word changes letter by letter,
             so as the accessible name it was a partial word most of the time ("Disc on your
@@ -1274,23 +1335,29 @@ export default function HomeClient({ turnstileSiteKey, cityGuides = {}, catalogS
           </button>
         </form>
         <div className="location-tools">
-          <button type="button" onClick={useMyLocation}>
+          <button type="button" onClick={locateMe}>
             <LocateFixed /> {t("hero.useMyLocation")}
           </button>
           <label>
             {t("hero.radius")}{" "}
             <select
               value={radius}
-              onChange={(e) => setRadius(Number(e.target.value))}
+              onChange={(e) => { radiusChosen.current = true; setRadius(Number(e.target.value)); }}
               aria-label={t("hero.searchRadiusLabel")}
             >
-              {/* The plans page sells Pro a radius "up to 100 km" and /api/user accepts 75 and 100
-                  on a Pro tracked area, but this picker stopped at 50 for everyone — so the one
-                  place a Pro subscriber actually searches could not reach the radius they pay
-                  for. The set is shared with the server now rather than repeated here. */}
+              {/* The set is shared with the server (app/radius.ts) rather than repeated here, so the
+                  picker never offers a radius the API would clamp. Each option says how the
+                  distance is usually covered - a walk, a bike ride, a drive - which is how people
+                  think about "near" more than in kilometres. Pro's extra reach stays in the list,
+                  disabled, so a free reader can see where the ceiling is. */}
               {allowedRadii(isProSession).map((n) => (
                 <option value={n} key={n}>
-                  {formatRadius(n,radiusUnit)}
+                  {t(`hero.radiusOption.${travelMode(n)}`, { radius: formatRadius(n,radiusUnit) })}
+                </option>
+              ))}
+              {!isProSession && PRO_ONLY_RADII.map((n) => (
+                <option value={n} key={n} disabled>
+                  {t("hero.radiusOptionPro", { radius: formatRadius(n,radiusUnit) })}
                 </option>
               ))}
             </select>
@@ -1336,6 +1403,7 @@ export default function HomeClient({ turnstileSiteKey, cityGuides = {}, catalogS
           {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a plain link, for the reason above */}
           <a className="city-guides-link" href="/en/cities">{t("hero.cityGuides")} →</a>
         </div>
+        {heroStats}
       </section>
       <section className="results" id="results">
         <div className="results-top">
@@ -1370,6 +1438,14 @@ export default function HomeClient({ turnstileSiteKey, cityGuides = {}, catalogS
               </div>
               {activeMarket && <span className="market-prices">{tMarket(activeMarket === "US" ? "pricesUS" : "pricesCA")}</span>}
             </div>
+            {/* With the results rather than in the notice bar: it is about this list, not an error,
+                and it names both distances so the reader knows the list reaches further than the
+                picker says. Picking a radius turns the widening off. */}
+            {widenedFrom != null && !loading && (
+              <p className="coverage-note" role="status">
+                {t("results.radiusWidened", { from: formatRadius(widenedFrom,radiusUnit), to: formatRadius(appliedRadius,radiusUnit) })}
+              </p>
+            )}
             {(coverage === "limited" || coverage === "no_coverage") && !loading && (
               <p className="coverage-note">
                 {coverage === "no_coverage" ? t("results.coverageNotCovered") : t("results.coverageGrowing")} {t("results.coverageSuggestion")}
@@ -1386,31 +1462,35 @@ export default function HomeClient({ turnstileSiteKey, cityGuides = {}, catalogS
               : t(totalMatches === 1 ? "results.match" : "results.matches", { count: totalMatches })}
           </span>
         </div>
-        {/* Editorial, so it sits above the reader's own history: somebody who followed a
-            creator's link came for what that creator recommends, and burying it under a filter
-            panel would make the link no different from any other way of arriving. Each pick
-            carries its own line where the creator wrote one, which is the whole point - a list
-            of deals without the reason is just a shorter search. */}
+        {/* Collapsed to one button until the reader opens it: picks are a creator's suggestions,
+            not search results, so they never fill the space above the list on their own. Each pick
+            carries its own line where the creator wrote one - a list of deals without the reason
+            is just a shorter search. */}
         {creatorPicks && (
-          <div className="creator-picks" role="region" aria-label={t("creatorPicks.label", { name: creatorPicks.creator.name })}>
-            {/* The creator earns commission from this link, so the row says so (FTC 16 CFR 255,
-                Competition Bureau influencer guidance), quietly: a small label with the detail
-                one tap away, beside the heading rather than on every pick. */}
+          <div className={`creator-picks${picksOpen ? " is-open" : ""}`} role="region" aria-label={t("creatorPicks.label", { name: creatorPicks.creator.name })}>
+            {/* A brief, honest disclosure (FTC 16 CFR 255, Competition Bureau influencer guidance):
+                a small label with one short line behind it, beside the heading rather than on
+                every pick. */}
             <span className="creator-picks-heading">
-              <span><Sparkles /> {t("creatorPicks.heading", { name: creatorPicks.creator.name })}</span>
-              <small>{t("creatorPicks.partner")} <InfoTip text={t("creatorPicks.partnerTip", { name: creatorPicks.creator.name })} /></small>
+              <button type="button" className="creator-picks-toggle" aria-expanded={picksOpen} aria-controls="creator-picks-list" onClick={() => setPicksOpen((open) => !open)}>
+                <Sparkles /> {t("creatorPicks.heading", { name: creatorPicks.creator.name })}
+                <ChevronDown className="creator-picks-chevron" aria-hidden="true" />
+              </button>
+              <small>{t("creatorPicks.partner")} <InfoTip text={t("creatorPicks.partnerTip")} /></small>
             </span>
-            <div className="creator-picks-list">
-              {creatorPicks.picks.map((item) => (
-                <ChromeLink key={item.id} href={dealPath(item)}>
-                  <span className="creator-pick-emoji" aria-hidden="true">{item.emoji}</span>
-                  <span className="creator-pick-body">
-                    <b>{item.restaurant}</b>
-                    <small>{item.note || item.title}</small>
-                  </span>
-                </ChromeLink>
-              ))}
-            </div>
+            {picksOpen && (
+              <div className="creator-picks-list" id="creator-picks-list">
+                {creatorPicks.picks.map((item) => (
+                  <ChromeLink key={item.id} href={dealPath(item)}>
+                    <span className="creator-pick-emoji" aria-hidden="true">{item.emoji}</span>
+                    <span className="creator-pick-body">
+                      <b>{item.restaurant}</b>
+                      <small>{item.note || item.title}</small>
+                    </span>
+                  </ChromeLink>
+                ))}
+              </div>
+            )}
           </div>
         )}
         {recentlyViewed.length > 0 && (
@@ -1731,14 +1811,17 @@ export default function HomeClient({ turnstileSiteKey, cityGuides = {}, catalogS
         {!loading && nextCursor && (
           <button className="load-more" onClick={() => {
             const params = new URLSearchParams(location.search);
+            // The next page of the list on screen, which a widened search fetched further out
+            // than the URL says.
+            if (widenedFrom != null) params.set("radius",String(appliedRadius));
             params.set("cursor",nextCursor);
             loadDeals(`?${params}`,true);
           }}>{t("loadMore")}</button>
         )}
-        {!loading && totalMatches > 0 && totalMatches < 4 && radius < 50 && (
+        {!loading && totalMatches > 0 && totalMatches < 4 && expandTo != null && (
           <button className="expand-radius" onClick={() => {
-            const expanded = radius < 5 ? 5 : radius < 10 ? 10 : radius < 25 ? 25 : 50;
-            setRadius(expanded); runDiscovery({ radius:expanded });
+            radiusChosen.current = true;
+            setRadius(expandTo); runDiscovery({ radius:expandTo });
           }}>{t("expandRadius")}</button>
         )}
         {!loading && !visible.length && (

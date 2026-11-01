@@ -202,7 +202,7 @@ export function kmBetween(a: Coordinates, b: Coordinates) {
 }
 
 export function nextRadius(radius: number) {
-  return [2, 5, 10, 25, 50].find((candidate) => candidate > radius) || null;
+  return [1, 2, 5, 10, 25, 50].find((candidate) => candidate > radius) || null;
 }
 
 export function parseList(values: string[]) {

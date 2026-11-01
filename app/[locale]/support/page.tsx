@@ -129,8 +129,11 @@ export default async function Support({ params }: { params: Promise<{ locale: st
           where most of Radar&rsquo;s US deals are.
         </p>
         <p>
-          Results are limited to a radius around the place you searched, which you can widen. When
-          only a few deals fall inside it, Radar offers to search farther, and the website also
+          Results are limited to a radius around the place you searched: 5 km to start, which you
+          can change from 1 km (walking distance) to 25 km, or 50 km with Radar Pro. If you have not
+          picked a radius and only a few deals fall inside it, Radar looks one step farther, up to
+          25 km, and says so with the results. Once you pick a radius, Radar keeps to it and offers to
+          search farther instead. The website also
           says when an area&rsquo;s coverage is still growing. If nothing falls inside the radius,
           the list is empty rather than filled with offers from somewhere else. That is deliberate:
           a deals app that fills the screen with offers two provinces away is worse than one that

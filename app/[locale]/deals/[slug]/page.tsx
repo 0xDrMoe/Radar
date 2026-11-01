@@ -908,7 +908,7 @@ export default async function DealPage({params,searchParams}:{params:Promise<{sl
             page load for every reader, never a ChromeLink: CreatorLink, which records the visit
             from ?c=, runs once when the locale layout mounts, and a client-side navigation keeps
             that layout, so a signed-in reader's click would never be counted. */}
-        {pick && <p className="deal-pick-byline"><a href={`/${locale}?c=${encodeURIComponent(pick.handle)}`}><b>{t("pickedBy",{name:pick.display_name || pick.handle})}</b></a><InfoTip text={t("pickedByTip",{name:pick.display_name || pick.handle})}/>{pick.note && <span>&ldquo;{pick.note}&rdquo;</span>}</p>}
+        {pick && <p className="deal-pick-byline"><a href={`/${locale}?c=${encodeURIComponent(pick.handle)}&picks=1`}><b>{t("pickedBy",{name:pick.display_name || pick.handle})}</b></a><InfoTip text={t("pickedByTip")}/>{pick.note && <span>&ldquo;{pick.note}&rdquo;</span>}</p>}
       </div>
     </header>
     <div className="deal-facts">

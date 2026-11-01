@@ -19,12 +19,14 @@ async function load(source) {
 }
 const { kmBetween } = await load(searchSource);
 globalThis.__kmBetween = kmBetween;
+// The radius rules the route imports from app/radius.ts, which is import-free and loads as is.
+globalThis.__radius = await load(await readFile(new URL("../app/radius.ts", import.meta.url), "utf8"));
 const slice = routeSource
   .slice(start, end)
   .replace(/^const DEAL_SQL/m, "export const DEAL_SQL")
   .replace(/^function /gm, "export function ");
 const { DEAL_SQL, groupDeals, postalPrefix, nearRecipient } = await load(
-  `const kmBetween = globalThis.__kmBetween;\n${slice}`,
+  `const kmBetween = globalThis.__kmBetween;\nconst { DEFAULT_AREA_RADIUS_KM, MIN_RADIUS_KM, maxRadiusKm } = globalThis.__radius;\n${slice}`,
 );
 
 const OTTAWA = { latitude: 45.4215, longitude: -75.6972 };

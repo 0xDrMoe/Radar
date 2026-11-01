@@ -18,7 +18,15 @@
     "language": "Idioma",
     "pro": "Pro",
     "creatorWorkspace": "Espacio de creador",
-    "restaurantPortal": "Portal del restaurante"
+    "restaurantPortal": "Portal del restaurante",
+    "nearMe": "Cerca de mí",
+    "nearMeHint": "Ofertas a tu alrededor",
+    "availableNow": "Disponible ahora",
+    "availableNowHint": "Promociones vigentes en este momento",
+    "cities": "Guías de ciudades",
+    "citiesHint": "Happy hours y ofertas por ciudad",
+    "allDeals": "Todas las ofertas",
+    "allDealsHint": "Busca y filtra todas las ofertas"
   },
   "dealDetail": {
     "backToResults": "← Volver a los resultados",
@@ -72,7 +80,7 @@
     "noBranchList": "Radar no enumera cada restaurante {brand}. El localizador de la cadena muestra direcciones y horarios.",
     "galleryHeading": "Fotos",
     "nationalNotInRegion": "{brand} no tiene restaurantes en {region}.",
-    "pickedByTip": "{name} es socio pagado de Radar y gana una comisión cuando alguien se suscribe a Radar Pro con su enlace. Su selección no cambia cómo Radar ordena las ofertas."
+    "pickedByTip": "Un creador con el que Radar colabora. Su selección no cambia el orden de las ofertas."
   },
   "detailActions": {
     "save": "Guardar oferta",
@@ -322,8 +330,8 @@
       },
       "radius": {
         "label": "Radio de búsqueda",
-        "free": "Hasta 50 km",
-        "pro": "Hasta 100 km"
+        "free": "Hasta 25 km",
+        "pro": "Hasta 50 km"
       },
       "alerts": {
         "label": "Correos de alertas",
@@ -345,7 +353,7 @@
     "highlights": {
       "areas": {
         "title": "Sigue cada lugar al que realmente vas",
-        "body": "Una zona basta para un solo barrio. Pro sigue tu casa, tu trabajo y donde más comas, todo a la vez y hasta 100 km."
+        "body": "Una zona basta para un solo barrio. Pro sigue tu casa, tu trabajo y donde más comas, todo a la vez y con alcance de hasta 50 km para lugares más lejanos."
       },
       "alerts": {
         "title": "Tu resumen, a tu horario",
@@ -502,8 +510,8 @@
       "confirmRemoval": "CONFIRMAR ELIMINACIÓN",
       "savedCountFree": "{count} de {limit} guardada",
       "kmPro": "{value} km · Pro",
-      "radiusLockTitle": "Buscar más allá de 50 km se incluye con Radar Pro",
-      "radiusHint": "Los planes gratuitos buscan hasta 50 km.",
+      "radiusLockTitle": "Buscar más allá de 25 km se incluye con Radar Pro",
+      "radiusHint": "Los planes gratuitos buscan hasta 25 km.",
       "freeActiveNote": "En el plan gratuito, {limit, plural, one {# zona funciona} other {# zonas funcionan}} a la vez. Haz predeterminada otra zona para cambiar a ella, o pausa esta primero.",
       "radiusCapped": "Alcanza {radius} km en el plan gratuito",
       "radiusFor": "Radio de búsqueda para {label}",
@@ -871,7 +879,6 @@
   "home": {
     "hero": {
       "catalogCount": "{restaurants, plural, one {# restaurante} other {# restaurantes}} · {cities, plural, one {# ciudad} other {# ciudades}}",
-      "catalogStats": "{deals, plural, one {{dealsLabel} oferta} other {{dealsLabel} ofertas}} · {restaurants, plural, one {{restaurantsLabel} restaurante} other {{restaurantsLabel} restaurantes}} · {cities, plural, one {{citiesLabel} ciudad} other {{citiesLabel} ciudades}}",
       "comingSoon": "Próximamente.",
       "comingSoonBody": "Las ofertas de {vertical} aún no están en el radar — vuelve pronto.",
       "headingSuffix": "en tu Radar.",
@@ -885,6 +892,12 @@
       "useMyLocation": "Usar mi ubicación",
       "radius": "Radio",
       "searchRadiusLabel": "Radio de búsqueda",
+      "radiusOption": {
+        "walk": "{radius} · a pie",
+        "bike": "{radius} · en bici o en coche",
+        "drive": "{radius} · en coche"
+      },
+      "radiusOptionPro": "{radius} · Pro",
       "surpriseMe": "Sorpréndeme",
       "surpriseMeFinding": "Buscando una…",
       "surpriseMeTitle": "Ir a una oferta al azar que esté abierta ahora mismo",
@@ -918,6 +931,14 @@
       "checked": "Verificada el {date}",
       "guidesLabel": "Guías por ciudad"
     },
+    "stats": {
+      "label": "Radar en cifras",
+      "deals": "{count, plural, one {oferta activa} other {ofertas activas}}",
+      "restaurants": "{count, plural, one {restaurante} other {restaurantes}}",
+      "cities": "{count, plural, one {ciudad} other {ciudades}}",
+      "checked": "{count, plural, one {oferta verificada en la fuente desde el {date}} other {ofertas verificadas en la fuente desde el {date}}}",
+      "latest": "Calculado a partir del catálogo activo. Última verificación: {date}."
+    },
     "verticalSwitch": {
       "label": "Categoría de oferta",
       "restaurants": "Restaurantes",
@@ -944,6 +965,7 @@
       "areaPostalSearch": "{city} · búsqueda por código postal",
       "areaNearCity": "{city} · a menos de {radius}",
       "areaNearYou": "Tu ubicación · a menos de {radius}",
+      "radiusWidened": "Hay pocas ofertas a menos de {from}, así que esta lista llega hasta {to}. Elige un radio para mantenerla más cerca.",
       "changeArea": "Cambiar",
       "coverageNotCovered": "Esta zona aún no tiene cobertura.",
       "coverageGrowing": "La cobertura sigue creciendo en esta zona.",
@@ -957,7 +979,7 @@
       "label": "Ofertas elegidas por {name}",
       "heading": "Selección de {name}",
       "partner": "Socio de Radar",
-      "partnerTip": "{name} es socio pagado de Radar y gana una comisión cuando alguien se suscribe a Radar Pro con su enlace. Su selección se muestra aparte y no cambia cómo Radar ordena las ofertas."
+      "partnerTip": "Un creador con el que Radar colabora. Su selección se muestra aparte y no cambia el orden de las ofertas."
     },
     "recentlyViewed": {
       "label": "Ofertas vistas recientemente",
@@ -1188,7 +1210,10 @@
     "createAccount": "Crear cuenta",
     "forRestaurants": "Para restaurantes",
     "suggestDeal": "Sugerir una oferta",
-    "pro": "Radar Pro"
+    "pro": "Radar Pro",
+    "nearMe": "Ofertas cerca de mí",
+    "availableNow": "Ofertas disponibles ahora",
+    "cities": "Guías de ciudades"
   },
   "toast": {
     "dismiss": "Cerrar la notificación"

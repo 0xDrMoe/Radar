@@ -50,7 +50,9 @@ test("support describes where Radar works without a list or a count that goes st
   assert.match(coverage, /offers to search farther/);
   assert.match(coverage, /rather than filled with offers from somewhere else/);
   const route = code(await read("../app/api/deals/route.ts"));
-  assert.match(route, /expandRadius:!nationalOnly && totalMatches < 4 \? nextRadius\(radius\) : null/);
+  assert.match(route, /expandRadius:!nationalOnly && totalMatches < 4 \? widerRadius\(radius, maxRadius\) : null/);
+  assert.match(route, /autoWidenRadius:!nationalOnly && resolvedLocation \? autoWidenRadius\(radius, totalMatches, searcherPro\) : null/);
+  assert.match(coverage, /Radar looks one step farther, up to\s+25 km/);
 
   // The web sells a yearly plan beside the monthly one; Apple sells monthly only.
   assert.match(support, /monthly or yearly on the website and monthly in the iOS app/);

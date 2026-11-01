@@ -3,7 +3,7 @@ import { apiError, hasJobSecret } from "../../../api-utils";
 import { buildDigestEmail, canDeliverTo, emailConfiguration, localParts, sendEmail, signUnsubscribe } from "../../../email";
 import { digestNotification, revokeTokens, sendExpoPush, type PushMessage } from "../../../push";
 import { kmBetween } from "../../../search";
-import { DEFAULT_RADIUS_KM, maxRadiusKm } from "../../../radius";
+import { DEFAULT_AREA_RADIUS_KM, MIN_RADIUS_KM, maxRadiusKm } from "../../../radius";
 import { hasProAccess } from "../../../entitlement";
 import { alertSchedule } from "../../../plan-limits";
 
@@ -100,7 +100,7 @@ function nearRecipient(deal: DigestDeal, recipient: DigestRecipient, prefix: str
   const origin = recipient.latitude != null && recipient.longitude != null
     ? { latitude: recipient.latitude, longitude: recipient.longitude } : null;
   if (!origin && !prefix && !recipient.city) return true;
-  const radius = Math.max(2, Math.min(100, recipient.radius || DEFAULT_RADIUS_KM));
+  const radius = Math.max(MIN_RADIUS_KM, Math.min(maxRadiusKm(true), recipient.radius || DEFAULT_AREA_RADIUS_KM));
   if (origin && deal.points.some((point) => kmBetween(origin, point) <= radius)) return true;
   if (prefix && deal.postal_prefix === prefix) return true;
   // City match only backs up a recipient we could not place at all; once they have coordinates,
@@ -172,7 +172,7 @@ export async function POST(request:Request) {
       //
       // The plan is read here, at send time, rather than trusted from what was saved: the dashboard
       // clamps a Free account's schedule when it is saved, but somebody who saved a daily 18:00
-      // roundup and a 100 km area while on Pro, then left, kept both for as long as they never
+      // roundup and a 50 km area while on Pro, then left, kept both for as long as they never
       // re-saved. A lapsed plan is a Free plan (app/plan-limits.ts).
       const pro = hasProAccess(recipient.plan, recipient.plan_status, recipient.past_due_since, started, recipient.paused_until, recipient.role);
       const schedule = alertSchedule(pro, JSON.parse(recipient.days || "[]").map(Number), recipient.delivery_time);
@@ -180,7 +180,7 @@ export async function POST(request:Request) {
       if (!days.includes(local.day) || local.time.slice(0,2) !== scheduled) continue;
       attempted++;
       const prefix = postalPrefix(recipient.postal);
-      const reach = recipient.radius == null ? recipient : { ...recipient, radius: Math.min(recipient.radius || DEFAULT_RADIUS_KM, maxRadiusKm(pro)) };
+      const reach = recipient.radius == null ? recipient : { ...recipient, radius: Math.min(recipient.radius || DEFAULT_AREA_RADIUS_KM, maxRadiusKm(pro)) };
       const deals = (await loadCatalog()).filter((deal) => nearRecipient(deal, reach, prefix)).slice(0, 8);
       if (!deals.length) continue;
 
